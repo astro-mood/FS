@@ -4,13 +4,19 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
     "loader-utils": "^3.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
+    "react-router": "^6.28.1",
+    "react-router-dom": "^6.28.1",
     "react-scripts": "^5.0.1",
-    "shell-quote": "^1.8.2"
+    "shell-quote": "^1.8.2",
+    "styled-components": "^6.1.14",
+    "web-vitals": "^4.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
