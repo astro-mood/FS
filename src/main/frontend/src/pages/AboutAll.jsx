@@ -1,6 +1,21 @@
+import React from "react";
+import AboutImage from "../images/about.png";
+import styled from "styled-components";
+
 const AboutAll = () => {
-    const hello = "모든 사람에게 보이는 이용방법 페이지입니다.";
-    return hello;
+    return (
+        <AboutContainer>
+            <img src={AboutImage} alt="About ASTRO MOOD" />
+        </AboutContainer>
+    );
 };
 
 export default AboutAll;
+
+const AboutContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    width: 100%; 
+`;
+
+

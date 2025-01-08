@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import Header from "./Header";
 import ContentsArea from "./ContentsArea";
+import { Outlet } from "react-router-dom";
+
 
 const Layout = () => {
     return (
@@ -9,7 +11,9 @@ const Layout = () => {
             <MainContainer>
                 <Header />
                 <ContentsWrapper>
-                    <ContentsArea />
+                    <ContentsArea>
+                    <Outlet />
+                    </ContentsArea>
                 </ContentsWrapper>
             </MainContainer>
         </>
