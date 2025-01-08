@@ -25,19 +25,36 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//oauth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'commons-validator:commons-validator:1.7'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.0'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	implementation 'io.github.cdimascio:dotenv-java:3.1.0' // env 사용
+	// Springdoc OpenAPI
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+	//Jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	// Amazon S3
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1' // Spring Boot와 AWS의 통합을 도와주는 라이브러리
+	implementation 'software.amazon.awssdk:s3:2.20.0' // Java 어플리케이션에서 Amazon S3(Simple Storage Service) 버킷에 접근할 수 있게 해주는 라이브러리
+
 }
 
 tasks.named('test') {
@@ -92,4 +109,18 @@ task copyReactBuildFiles(type: Copy) {
 	dependsOn "buildReact"
 	from "$frontendDir/build"
 	into "$projectDir/src/main/resources/static"
+}
+
+springBoot {
+	mainClass = 'com.astro.mood.MoodApplication'
+}
+
+bootRun {
+	dependsOn 'copyReactBuildFiles'
+	doFirst {
+		copy {
+			from "$frontendDir/build"
+			into "$projectDir/src/main/resources/static"
+		}
+	}
 }
