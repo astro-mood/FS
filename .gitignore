@@ -36,8 +36,11 @@ out/
 ### VS Code ###
 .vscode/
 
+### .env ###
+.env*
 
-
+### resource static ###
+/src/main/resources/static/**
 #리액트 관련
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
