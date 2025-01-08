@@ -17,7 +17,7 @@ const Intro = () => {
     };
 
     const handleGoogleLogin = () => {
-        navigate("/google-login");
+        navigate("http://localhost:8080/login/oauth2/code/google");
     };
 
     return (
@@ -35,7 +35,6 @@ const Intro = () => {
 
 export default Intro;
 
-// 스타일 정의
 const IntroContainer = styled.div`
     display: flex;
     flex-direction: column;

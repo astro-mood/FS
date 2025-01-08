@@ -12,7 +12,6 @@ const KakaoLogin = ({ onClick }) => {
 
 export default KakaoLogin;
 
-// 스타일 정의
 const KakaoButton = styled.button`
     height: 45px;
     display: flex;

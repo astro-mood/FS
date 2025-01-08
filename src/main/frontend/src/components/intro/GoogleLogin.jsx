@@ -2,15 +2,29 @@ import React from "react";
 import styled from "styled-components";
 import GoogleIconImage from "../../images/google_logo.png";
 
-const GoogleLogin = ({ onClick }) => {
+const GoogleLoginButton = () => {
+    const CLIENT_ID = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID;
+    const REDIRECT_URI = "http://localhost:8080/login/oauth2/code/google";
+    const SCOPE = "email profile";
+
+    // Google OAuth URL 생성
+    const handleRedirectLogin = () => {
+        const googleOAuthURL = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&access_type=offline`;
+        window.location.href = googleOAuthURL;
+    };
+
+
     return (
-        <GoogleButton onClick={onClick}>
-            <GoogleIcon src={GoogleIconImage} alt="구글 아이콘" /> Sign up with Google
-        </GoogleButton>
+            <GoogleButton onClick={handleRedirectLogin}>
+                <GoogleIcon src={GoogleIconImage} alt="구글 아이콘" />
+                Sign up with Google
+            </GoogleButton>
     );
 };
 
-export default GoogleLogin;
+export default GoogleLoginButton;
+
+
 
 const GoogleButton = styled.button`
     height: 45px;
@@ -32,7 +46,7 @@ const GoogleButton = styled.button`
 `;
 
 const GoogleIcon = styled.img`
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     margin-right: 10px;
 `;
