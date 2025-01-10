@@ -1,52 +1,42 @@
 import React from "react";
 import styled from "styled-components";
-import GoogleIconImage from "../../images/google_logo.png";
+import { GoogleLogin } from '@react-oauth/google';
 
 const GoogleLoginButton = () => {
-    const CLIENT_ID = process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID;
-    const REDIRECT_URI = "http://localhost:8080/login/oauth2/code/google";
-    const SCOPE = "email profile";
+    const handleLogin = async (credentialResponse) => {
+        const token = credentialResponse.credential;
+        console.log("token:", token);
 
-    // Google OAuth URL 생성
-    const handleRedirectLogin = () => {
-        const googleOAuthURL = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&access_type=offline`;
-        window.location.href = googleOAuthURL;
+        if (!token) {
+            console.error("Token is null");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.token);
+                console.log('Login successful:', data);
+            } else {
+                console.error('Login failed:', await response.json());
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
     };
 
-
     return (
-            <GoogleButton onClick={handleRedirectLogin}>
-                <GoogleIcon src={GoogleIconImage} alt="구글 아이콘" />
-                Sign up with Google
-            </GoogleButton>
+        <GoogleLogin
+            onSuccess={(credentialResponse) => handleLogin(credentialResponse)}
+            onError={() => console.log('Login failed')}
+        />
     );
 };
 
 export default GoogleLoginButton;
-
-
-
-const GoogleButton = styled.button`
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    background-color: #F2F2F2;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s;
-
-    &:hover {
-        transform: scale(1.05);
-    }
-`;
-
-const GoogleIcon = styled.img`
-    width: 35px;
-    height: 35px;
-    margin-right: 10px;
-`;

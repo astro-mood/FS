@@ -39,6 +39,14 @@ spring:
             scope:
               - email
               - profile
+            redirect-uri: ${GOOGLE_REDIRECT_URL}
+
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
 
   jpa:
     hibernate:
