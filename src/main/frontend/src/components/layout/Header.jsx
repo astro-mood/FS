@@ -74,7 +74,6 @@ const HeaderTitle  = styled.h1`
     flex-shrink: 0;
     color: #DDCDD4;
     text-align: center;
-    font-family: Inter;
     font-size: 36px;
     font-style: normal;
     font-weight: 800;
@@ -114,7 +113,6 @@ const Nickname = styled.p`
     flex-shrink: 0;
     color: #7D8DDE;
     text-align: center;
-    font-family: Inter;
     font-size: 16px;
     font-style: normal;
     font-weight: 800;
@@ -127,7 +125,6 @@ const NavItem = styled.div`
     flex-shrink: 0;
     color: ${(props) => (props.active ? "#FFFFFF" : "#7D8DDE")};
     text-align: center;
-    font-family: Inter, sans-serif;
     font-size: 20px;
     font-style: normal;
     font-weight: 600;
@@ -145,7 +142,6 @@ const Logout = styled.div`
     bottom: 20px;
     right: 20px;
     color: #7D8DDE;
-    font-family: Inter;
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;

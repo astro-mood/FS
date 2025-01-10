@@ -53,12 +53,11 @@ const Logo = styled.img`
 const Text = styled.h1`
     color: #FFF;
     text-align: center;
-    font-family: Inter;
     font-size: 30px;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
-    white-space: pre-wrap;
+    white-space: pre-wrap; // 줄바꿈
     margin-top: -50px;
 `;
 
@@ -85,6 +84,7 @@ const GuideButton = styled.button`
     margin-top: 50px;
     text-align: center;
     font-weight: bold;
+    font-family: "NeoDunggeunmo";
 
     &:hover {
         transform: scale(1.05);
