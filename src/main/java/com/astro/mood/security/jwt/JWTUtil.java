@@ -74,5 +74,16 @@ public class JWTUtil {
                 .compact(); //토큰을 compact 해서 리턴
     }
 
+    //refresh 토큰 생성 메서드
+    public String createRefreshToken(String loginId) {
+        return Jwts.builder()
+                .claim("loginIdx", loginId)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                // 여기  + refreshTokenExpTime 이거 추가해야 함. 테스트 용으로 잠시 생략
+                .setExpiration(new Date(System.currentTimeMillis()))
+                .signWith(secretKey)
+                .compact();
+    }
+
 
 }

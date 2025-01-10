@@ -17,10 +17,12 @@ import Layout from "./components/layout/Layout";
 import HeaderLayout from "./components/layout/HeaderLayout";
 import Background from "./components/layout/Background";
 import GlobalStyle from "./components/layout/GlobalStyle";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 
 const App = () => {
     return (
-
+        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID}>
         <BrowserRouter>
             <GlobalStyle />
             <Background />
@@ -50,6 +52,8 @@ const App = () => {
                 </Route>
             </Routes>
         </BrowserRouter>
+        </GoogleOAuthProvider>
+
     );
 };
 
