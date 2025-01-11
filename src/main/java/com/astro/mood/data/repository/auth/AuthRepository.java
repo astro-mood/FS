@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface AuthRepository extends JpaRepository<User,Integer> {
 
-    User findUserByOauthIdAndOauthProvider(String oauthId, String oauthProvider);
+    Optional<User> findUserByOauthIdAndOauthProvider(String oauthId, String oauthProvider);
+    Optional<User>  findUserByEmail(String email);
 }

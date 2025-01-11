@@ -1,8 +1,9 @@
 package com.astro.mood.config;
 
+import com.astro.mood.security.jwt.GoogleLoginFilter;
 import com.astro.mood.security.jwt.JWTFilter;
 import com.astro.mood.security.jwt.JWTUtil;
-import com.astro.mood.security.login.LoginFilter;
+import com.astro.mood.service.auth.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,6 +32,7 @@ import java.util.List;
 public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService; // UserDetailsService 추가
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
@@ -45,42 +50,22 @@ public class SecurityConfig {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/**","/resources/static/**").permitAll() // 루트 경로 허용
-                        .requestMatchers("/jwt-login", "/jwt-login/", "/jwt-login/login", "/jwt-login/join").permitAll() // 로그인 관련 경로 허용
-//                        .requestMatchers("/jwt-login/admin").hasRole("ADMIN") // ADMIN 권한 필요
+                        .requestMatchers("/api/auth/google").permitAll() // 구글 로그인 경로 허용
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger 관련 경로 허용
                         .anyRequest().permitAll()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth-login/login")
-                        .defaultSuccessUrl("/oauth-login")
-                        .failureUrl("/oauth-login/login")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/oauth-login/logout")
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)// 세션 상태 비활성화
                 )
-                .addFilterAt(new LoginFilter(authenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class) // 로그인 필터 추가
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class); // JWT 필터 추가
-
+                .addFilterBefore(new GoogleLoginFilter(
+                        "/api/auth/google", authenticationManager(), jwtUtil, customUserDetailsService
+                        )
+                        ,UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     //프론트 엔드에서 백엔드로 요청보낼 때, cors 오류를 방지 하기 위함.
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:3000"); // React의 주소 허용
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
@@ -89,7 +74,10 @@ public class SecurityConfig {
         ));
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader("Bearer_Token");
-        configuration.addAllowedHeader("*");
+        configuration.addExposedHeader("Authorization");
+        configuration.addAllowedHeader("Authorization");
+        configuration.addAllowedHeader("Content-Type");
+//        configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE"));
         configuration.setMaxAge(3600L);
 
