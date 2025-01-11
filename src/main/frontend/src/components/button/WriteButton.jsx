@@ -1,9 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
-const WriteButton = ({ text, onClick, size = "medium", color = "#7D8DDE" }) => {
+const WriteButton = ({
+                         text,
+                         onClick,
+                         size = "medium",
+                         color = "#7D8DDE",
+                         position = { bottom: "50px", right: "100px" }, // 기본 값 설정
+                     }) => {
     return (
-        <StyleButton onClick={onClick} size={size} color={color}>
+        <StyleButton onClick={onClick} size={size} color={color} position={position}>
             {text}
         </StyleButton>
     );
@@ -13,8 +19,9 @@ export default WriteButton;
 
 const StyleButton = styled.button`
     position: fixed;
-    bottom: ${({ size }) => (size === "large" ? "50px" : "130px")};
-    right: ${({ size }) => (size === "large" ? "50px" : "140px")};
+    bottom: ${({ position }) => position.bottom || "50px"}; // props에서 위치를 이동해서 사용할 수 있게
+    right: ${({ position }) => position.right || "50px"}; 
+    background-color: ${({ color }) => color};
     background-color: ${({ color }) => color};
     color: white;
     border: none;
