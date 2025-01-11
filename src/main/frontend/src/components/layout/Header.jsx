@@ -19,6 +19,11 @@ const Header = () => {
         navigate("/main"); // 마이페이지 경로로 이동
     };
 
+    const handleLogoutClick = () => {
+        localStorage.removeItem("token");
+        navigate("/"); // 인트로페이지 경로로 이동
+    };
+
     return (
         <HeaderContainer>
             <Logo src={LogoImage} alt="Logo" />
@@ -47,7 +52,7 @@ const Header = () => {
                     이용방법
                 </NavItem>
             </div>
-            <Logout>로그아웃</Logout>
+            <Logout onClick={() => handleLogoutClick("로그아웃", "/")}>로그아웃</Logout>
 
         </HeaderContainer>
     );
