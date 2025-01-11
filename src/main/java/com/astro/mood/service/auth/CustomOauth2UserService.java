@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,21 +45,21 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2UserInfo.getEmail();
         String loginId = provider + "_" + providerId;
         String name = oAuth2UserInfo.getName();
-        User findUser = authRepository.findUserByOauthIdAndOauthProvider(providerId, provider);
+        Optional<User> findUser = authRepository.findUserByOauthIdAndOauthProvider(providerId, provider);
         User user;
 
-        if (findUser == null) {
+        if (findUser.isEmpty()) {
             user = User.builder()
                     .email(email)
                     .nickname(name)
-                    .authorities(new HashSet<>(List.of(UserRole.USER)))
+                    .authorities(new HashSet<>(List.of(UserRole.ROLE_USER)))
                     .isDeleted(false)
                     .oauthId(providerId)
                     .oauthProvider(provider.toUpperCase())
                     .build();
             authRepository.save(user);
         } else{
-            user = findUser;
+            user = findUser.get();
         }
 
         return new CustomOauth2UserDetails(user, oAuth2User.getAttributes());

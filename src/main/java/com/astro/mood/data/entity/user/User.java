@@ -55,7 +55,7 @@ public class User {
 
     @Builder.Default
     @Transient
-    private Set<UserRole> authorities = Set.of(UserRole.USER);
+    private Set<UserRole> authorities = Set.of(UserRole.ROLE_USER);
 
     //회원탈퇴
     public void deleteUser() {

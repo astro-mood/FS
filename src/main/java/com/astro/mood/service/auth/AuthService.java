@@ -48,7 +48,7 @@ public class AuthService {
                 .nickname(nickname)
                 .phone(phone)
                 .profileImage(profileImageUrl)
-                .authorities(new HashSet<>(List.of(UserRole.USER)))
+                .authorities(new HashSet<>(List.of(UserRole.ROLE_USER)))
                 .isDeleted(false)
                 .oauthId(signUpRequest.getOauthId())
                 .oauthProvider(signUpRequest.getOauthProvider())

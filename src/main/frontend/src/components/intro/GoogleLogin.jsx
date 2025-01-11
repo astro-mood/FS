@@ -1,34 +1,33 @@
 import React from "react";
 import styled from "styled-components";
 import { GoogleLogin } from '@react-oauth/google';
+import axios from "axios";
+import {useNavigate} from "react-router";
 
 const GoogleLoginButton = () => {
+    const navigate = useNavigate();
     const handleLogin = async (credentialResponse) => {
         const token = credentialResponse.credential;
-        console.log("token:", token);
+        //console.log("token:", token);
 
         if (!token) {
             console.error("Token is null");
             return;
         }
 
-        try {
-            const response = await fetch('http://localhost:8080/api/auth/google', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: token }),
+        axios
+            .post("http://localhost:8080/api/auth/google",
+                { idToken: token },
+                { headers: { 'Content-Type': 'application/json' } }
+            )
+            .then((response) => {
+                let bearer_token = response.headers['bearer_token'];
+                localStorage.setItem("token", bearer_token); // 토큰 저장
+                navigate("/main"); // 마이페이지 경로로 이동
+            })
+            .catch((error) => {
+                console.error('Login failed:', error);
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('token', data.token);
-                console.log('Login successful:', data);
-            } else {
-                console.error('Login failed:', await response.json());
-            }
-        } catch (error) {
-            console.error('An error occurred:', error);
-        }
     };
 
     return (
