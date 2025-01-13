@@ -5,7 +5,9 @@ const Title = ({ title, createdAt }) => {
     return (
         <TitleContainer>
             <h1>{title}</h1>
-            <p>{createdAt} 에 남긴 📩</p>
+
+            {/*createdAt을 전달하지 않으면 이 값이 출력되지 않음*/}
+            {createdAt && <p>{createdAt} 에 남긴 📩</p>}
         </TitleContainer>
     );
 };
@@ -13,15 +15,16 @@ const Title = ({ title, createdAt }) => {
 export default Title;
 
 const TitleContainer = styled.div`
-    margin-bottom: 20px;
 
     h1 {
         font-size: 1.8rem;
         color: black;
+        margin-bottom: 5px;
     }
 
     p {
         font-size: 0.9rem;
         color: gray;
+        margin-top: 0;
     }
 `;

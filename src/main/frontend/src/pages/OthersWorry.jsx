@@ -31,6 +31,7 @@ const ViewWorry = ({ userId }) => {
             <ContentsContainer>
             <Title title="코딩은 어려워" createdAt="2025-01-12" />
             <Content content="코딩은 정말 정말 어려워" />
+            <Spacer />
             <CommentList
                 comments={comments}
                 userId={userId}
@@ -51,6 +52,7 @@ const ViewWorry = ({ userId }) => {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 onSubmit={handleAddComment}
+                placeholder="위로의 말을 건네세요."
             />
             </ContentsContainer>
         </Container>
@@ -80,4 +82,8 @@ const ContentsContainer = styled.div`
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     scrollbar-width: none; // 스크롤바 안보이기
+`;
+
+const Spacer = styled.div`
+  height: 30px; 
 `;
