@@ -28,9 +28,11 @@ const InputLabel = styled.label`
     margin-bottom: 10px;
     display: block;
     font-family: "NeoDunggeunmo";
+    color: black;
 `;
 
 const TitleInput = styled.input`
+    background-color: #F9F9F9;
     padding: 8px;
     font-size:  1.2rem;
     border: 1px solid #ccc;
