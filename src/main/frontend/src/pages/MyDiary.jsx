@@ -1,6 +1,28 @@
+import React from "react";
+import styled from "styled-components";
+import Calendar from "../components/calendar/Calendar";
+
 const MyDiary = () => {
-    const hello = "내 일기보기 (상세페이지)";
-    return hello;
+
+    return (
+        <Container>
+            <Board>내 일기</Board>
+            <Calendar />
+        </Container>
+    );
 };
 
-export  default MyDiary;
+export default MyDiary;
+
+const Container = styled.div`
+    flex-direction: column;
+    padding: 20px;
+    margin-top: -20px;
+`;
+
+const Board = styled.h1`
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: left;
+`;

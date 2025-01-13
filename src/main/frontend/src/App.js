@@ -5,7 +5,7 @@ import AboutLogin from "./pages/AboutLogin";
 import AnswerWorryDetail from "./pages/AnswerWorryDetail";
 import AnswerWorryBoard from "./pages/AnswerWorryBoard";
 import BoardWorry from "./pages/BoardWorry";
-import DiaryCalendar from "./pages/DiaryCalendar";
+import ViewDiary from "./pages/ViewDiary";
 import Main from "./pages/Main";
 import ModifyUser from "./pages/ModifyUser";
 import MyDiary from "./pages/MyDiary";
@@ -35,14 +35,14 @@ const App = () => {
 
                 <Route element={<HeaderLayout />}>
                     <Route path="/aboutlogin" element={<AboutLogin />} />
-                    <Route path="/modifyuser" element={<ModifyUser />} />
                 </Route>
 
                 <Route element={<Layout />}>
+                    <Route path="/modifyuser" element={<ModifyUser />} />
                     <Route path="/answerworryboard" element={<AnswerWorryBoard />} />
                     <Route path="/answerworrydetail" element={<AnswerWorryDetail />} />
                     <Route path="/boardworry" element={<BoardWorry />} />
-                    <Route path="/diarycalendar" element={<DiaryCalendar />} />
+                    <Route path="/viewdiary" element={<ViewDiary />} />
                     <Route path="/main" element={<Main />} />
                     <Route path="/mydiary" element={<MyDiary />} />
                     <Route path="/myworry" element={<MyWorry />} />

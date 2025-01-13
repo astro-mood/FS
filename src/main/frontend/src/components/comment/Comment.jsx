@@ -8,7 +8,7 @@ const Comment = ({ comment, userId, onLike, onEdit, onDelete, onReport }) => {
     return (
         <CommentContainer>
             <CommentText>
-                (작성일시)에 건넨 말 : <br /> {comment.text}
+                (작성일시)에 건넨 💌 <br /> {comment.text}
             </CommentText>
             <CommentActions>
                 <Heart onClick={() => onLike(comment.id)}>❤️ {comment.likes}</Heart>
