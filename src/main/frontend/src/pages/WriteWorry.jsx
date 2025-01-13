@@ -7,6 +7,7 @@ import Modal from "../components/modal/Modal";
 import ConfirmModal from "../components/modal/ConfirmModal";
 import ContentTitle from "../components/write/ContentTitle";
 import Content from "../components/write/Content";
+import WhiteContentsArea from "../components/layout/WhiteContentsArea";
 
 const WriteWorry = () => {
     const navigate = useNavigate();
@@ -51,6 +52,7 @@ const WriteWorry = () => {
     return (
         <Container>
             <Title>고민글 쓰기</Title>
+            <WhiteContentsArea>
             <ContentsContainer>
                 <ContentTitle
                     placeholder="제목을 입력해주세요."
@@ -75,6 +77,7 @@ const WriteWorry = () => {
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
             />
+            </WhiteContentsArea>
         </Container>
     );
 };
@@ -94,6 +97,7 @@ const ContentsContainer = styled.div`
     flex-direction: column;
     margin-top: 10px;
     gap: 16px;
+    height: calc(100vh - 160px);
 `;
 
 const Title = styled.h1`
