@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
-const CommentInput = ({ value, onChange, onSubmit }) => {
+const CommentInput = ({ value, onChange, onSubmit, placeholder }) => {
     return (
         <CommentInputContainer>
             <Input
-                placeholder="위로의 말을 건네세요."
+                placeholder={placeholder}
                 value={value}
                 onChange={onChange}
             />

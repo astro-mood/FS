@@ -2,10 +2,18 @@ import React from "react";
 import styled from "styled-components";
 import Comment from "./Comment";
 
-const CommentList = ({ comments, onLike, onEdit, onDelete, onReport, userId }) => {
+const CommentList = ({
+                         comments,
+                         onLike,
+                         onEdit,
+                         onDelete,
+                         onReport,
+                         userId,
+                         title = "위로의 말"  // 기본 제목 설정
+                     }) => {
     return (
         <CommentSection>
-            <Title>위로의 말</Title>
+            <Title>{title}</Title>
             {comments.map((comment) => (
                 <Comment
                     key={comment.id}
