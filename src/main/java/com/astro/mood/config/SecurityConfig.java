@@ -47,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/jwt-login", "/jwt-login/", "/jwt-login/login", "/jwt-login/join").permitAll() // 로그인 관련 경로 허용
 //                        .requestMatchers("/jwt-login/admin").hasRole("ADMIN") // ADMIN 권한 필요
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger 관련 경로 허용
+                        .requestMatchers("/test/**").hasAuthority("ROLE_USER")
+                        .requestMatchers("/main","/api/worry/**", "/api/diary/**","/api/emotions/**","/api/likes/**").hasAuthority("ROLE_USER")
                         .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
