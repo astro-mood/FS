@@ -6,10 +6,12 @@ import com.astro.mood.service.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
 
 @Slf4j
 @RestControllerAdvice
@@ -36,6 +38,14 @@ public class GlobalExceptionHandler {
     public ApiResponse<?> handleCustomException(CustomException e) {
         log.error("handleCustomException() in GlobalExceptionHandler throw CustomException : {}", e.getMessage());
         return ApiResponse.fail(e);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ApiResponse<?>  handleValidationExceptions( MethodArgumentNotValidException e) {
+        log.error("handleException() in GlobalExceptionHandler throw Exception : {}", e.getMessage());
+        e.printStackTrace();
+
+        return ApiResponse.fail(new CustomException(ErrorCode.MISSING_REQUIRED_PARAMETER));
     }
 
     // 기본 예외 처리

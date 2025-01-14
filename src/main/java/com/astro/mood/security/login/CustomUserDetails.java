@@ -1,10 +1,7 @@
 package com.astro.mood.security.login;
 
 import com.astro.mood.web.dto.auth.UserRole;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Builder
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomUserDetails  implements UserDetails {

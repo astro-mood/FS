@@ -3,58 +3,55 @@ package com.astro.mood.service.auth;
 
 import com.astro.mood.data.entity.user.User;
 import com.astro.mood.data.repository.auth.AuthRepository;
+import com.astro.mood.security.login.CustomUserDetails;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
-import com.astro.mood.service.s3Image.AwsS3Service;
-import com.astro.mood.web.dto.auth.SignRequest;
-import com.astro.mood.web.dto.auth.UserRole;
+import com.astro.mood.web.dto.auth.UserInfoRequest;
+import com.astro.mood.web.dto.auth.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
     private final AuthRepository authRepository;
-    private final AwsS3Service awsS3Service;
 
-
-    @Transactional(transactionManager = "tmJpa")
-    public boolean signUp(SignRequest signUpRequest) {
-        String email = signUpRequest.getEmail();
-        String nickname = signUpRequest.getNickName();
-        String phone = signUpRequest.getPhone();
-        MultipartFile profileImage = signUpRequest.getProfileImage();
-
-
-        String profileImageUrl=null;
-        if (profileImage != null && !profileImage.isEmpty()) {
-            try {
-                profileImageUrl = awsS3Service.uploadImageToS3(profileImage);
-            } catch (IOException e) {
-                throw new CustomException(ErrorCode.S3_UPLOAD_IO_ERROR);
-            }
+    // 유저 검증 메서드
+    public void validateUser(CustomUserDetails userDetails, Integer loginIdx) {
+        if (userDetails == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
-
-        User userPrincipal = User.builder()
-                .email(email)
-                .nickname(nickname)
-                .phone(phone)
-                .profileImage(profileImageUrl)
-                .authorities(new HashSet<>(List.of(UserRole.ROLE_USER)))
-                .isDeleted(false)
-                .oauthId(signUpRequest.getOauthId())
-                .oauthProvider(signUpRequest.getOauthProvider())
-                .build();
-
-        authRepository.save(userPrincipal);
-        return true;
+        if (!userDetails.getUserIdx().equals(loginIdx)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
     }
+
+
+    // 사용자 찾기 메서드
+    private User findUserByIdOrThrow(Integer userIdx) {
+        return authRepository.findById(userIdx)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+    }
+
+    //유저정보 수정
+    @Transactional(transactionManager = "tmJpa")
+    public UserInfoResponse putUserInfo(UserInfoRequest userInfoRequest, String newImageUrl) {
+        User user = findUserByIdOrThrow(userInfoRequest.getUserIdx());
+        user.updateProfileImage(newImageUrl);
+        user.updateNickname(userInfoRequest.getNickname());
+        user.updatePhone(userInfoRequest.getPhone());
+
+        return UserInfoResponse.from(user);
+    }
+
+    //유저정보 가져오기
+    public UserInfoResponse getUserInfo(Integer loginIdx) {
+        User user = findUserByIdOrThrow(loginIdx);
+        return UserInfoResponse.from(user);
+    }
+
 }
