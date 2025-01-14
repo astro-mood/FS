@@ -21,7 +21,7 @@ public class UserToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer tokenIdx;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_idx")
     private User user;
 

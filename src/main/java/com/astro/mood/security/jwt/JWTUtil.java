@@ -1,6 +1,5 @@
 package com.astro.mood.security.jwt;
 
-import com.astro.mood.data.entity.user.User;
 import com.astro.mood.security.login.CustomUserDetails;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
@@ -45,12 +44,18 @@ public class JWTUtil {
 
     //이메일 반환 메서드
     private String getUserEmail(String token) {
-        return Jwts.parserBuilder()
+//        return Jwts.parserBuilder()
+//                .setSigningKey(secretKey)
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody()
+//                .getSubject();
+
+        Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
-                .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+        return claims.get("email", String.class);
     }
 
     // loginIdx 반환 메서드
@@ -82,19 +87,27 @@ public class JWTUtil {
 
     // 토큰이 소멸 (유효기간 만료) 하였는지 검증 메서드
     public Boolean isExpired(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getExpiration().before(new Date());
+         try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료된 경우
+            return true;
+        } catch (Exception e) {
+            return false; // 잘못된 토큰인 경우 false 반환
+        }
     }
 
     // 토큰 생성 메서드
     public String createJwt(Authentication loginInfo) {
         CustomUserDetails user = (CustomUserDetails) loginInfo.getPrincipal();
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
 
         // role 추출
-        Collection<? extends GrantedAuthority> authorities = loginInfo.getAuthorities();
+//        Collection<? extends GrantedAuthority> authorities = loginInfo.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
@@ -105,16 +118,6 @@ public class JWTUtil {
                 .claim("nickname", user.getNickname())
                 .claim("email", user.getEmail())
                 .claim("profileImage", user.getProfileImage())
-                .claim("role", role)
-                .setIssuedAt(new Date(System.currentTimeMillis())) // 토큰 현재 발행 시간 설정
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpTime)) //토큰 소멸 시간 설정
-                .signWith(secretKey) //주입한 secret key를 통해서 암호화 진행
-                .compact(); //토큰을 compact 해서 리턴
-    }
-
-    public String createJwtEmail(String loginId, String role) {
-        return Jwts.builder()
-                .claim("loginIdx", loginId)
                 .claim("role", role)
                 .setIssuedAt(new Date(System.currentTimeMillis())) // 토큰 현재 발행 시간 설정
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpTime)) //토큰 소멸 시간 설정
@@ -159,7 +162,7 @@ public class JWTUtil {
     }
 
     //refresh 토큰 생성 메서드
-    public String createRefreshToken(String loginId) {
+    public String createRefreshToken(Integer loginId) {
         return Jwts.builder()
                 .claim("loginIdx", loginId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -175,6 +178,27 @@ public class JWTUtil {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
+
+    //토큰 생성 - email로 생성
+    public String createJwtEmail(String loginId, String role) {
+        return Jwts.builder()
+                .claim("loginIdx", loginId)
+                .claim("role", role)
+                .setIssuedAt(new Date(System.currentTimeMillis())) // 토큰 현재 발행 시간 설정
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpTime)) //토큰 소멸 시간 설정
+                .signWith(secretKey) //주입한 secret key를 통해서 암호화 진행
+                .compact(); //토큰을 compact 해서 리턴
+    }
+
+    //refresh 토큰 생성 메서드 - email로 생성
+    public String createRefreshTokenEmail(String loginId) {
+        return Jwts.builder()
+                .claim("loginIdx", loginId)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+accessTokenExpTime*30))
+                .signWith(secretKey)
+                .compact();
+    }
 
 
 }

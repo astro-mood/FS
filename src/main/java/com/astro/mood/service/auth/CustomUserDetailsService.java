@@ -37,6 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     }
 
+    //CustomUserDetails 생성
     public UserDetails loadUser(Map<String, Object> userInfo, String provider) throws UsernameNotFoundException {
         String email = userInfo.get("email").toString();
         String providerId = userInfo.get("sub").toString();
@@ -70,11 +71,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     }
 
-    public UserToken findUserToken(CustomUserDetails userDetails) {
-        User user = User.builder().userIdx(userDetails.getUserIdx()).build();
+    //유저토큰 가져오기
+    public UserToken findUserToken(Integer userIdx) {
+        User user = User.builder().userIdx(userIdx).build();
         return userTokenRepository.findByUser(user);
     }
 
+    //리프레시토큰 생성/업데이트
     @Transactional(transactionManager = "tmJpa")
     public void saveRefreshToken(UserToken newRefreshToken) {
         UserToken findUserToken = userTokenRepository.findByUser(newRefreshToken.getUser());
