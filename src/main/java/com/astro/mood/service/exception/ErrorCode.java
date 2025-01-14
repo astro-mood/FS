@@ -33,8 +33,9 @@ public enum ErrorCode {
     // 404 Not Found
     NOT_FOUND_END_POINT(40400, HttpStatus.NOT_FOUND, "존재하지 않는 API입니다."),
     RESOURCE_NOT_FOUND(40401, HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
+    USER_NOT_FOUND(40402, HttpStatus.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."),
     //S3 ERROR - 404
-    S3_IMAGE_NOT_FOUND(40402, HttpStatus.NOT_FOUND, "이미지가 비어있거나 파일 이름이 없습니다."),
+    S3_IMAGE_NOT_FOUND(40403, HttpStatus.NOT_FOUND, "이미지가 비어있거나 파일 이름이 없습니다."),
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(50000, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류입니다."),

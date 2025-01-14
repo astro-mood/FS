@@ -31,6 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return CustomUserDetails.builder()
                 .userIdx(userPrincipal.getUserIdx())
                 .email(userPrincipal.getEmail())
+                .profileImage(userPrincipal.getProfileImage())
                 .nickname(userPrincipal.getNickname())
                 .authorities(roles)
                 .build();
@@ -66,6 +67,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .userIdx(userPrincipal.getUserIdx())
                 .email(userPrincipal.getEmail())
                 .nickname(userPrincipal.getNickname())
+                .profileImage(userPrincipal.getProfileImage())
                 .authorities(userPrincipal.getAuthorities())
                 .build();
 

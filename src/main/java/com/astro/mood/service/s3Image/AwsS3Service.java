@@ -88,7 +88,7 @@ public class AwsS3Service {
                     .bucket(bucket) // bucket 변수를 사용
                     .key(s3FileName)
                     .contentType("image/" + extension) // 콘텐츠 타입 설정
-                    .acl(ObjectCannedACL.PUBLIC_READ) // ACL 설정 (선택적)
+//                    .acl(ObjectCannedACL.PUBLIC_READ) // ACL 설정 (선택적)
                     .build();
 
             // S3에 객체 업로드
