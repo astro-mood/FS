@@ -54,4 +54,17 @@ public class AuthService {
         return UserInfoResponse.from(user);
     }
 
+    //회원탈퇴
+    @Transactional(transactionManager = "tmJpa")
+    public void withdrawUser(Integer loginIdx) {
+        User user = findUserByIdOrThrow(loginIdx);
+
+        if (user.getIsDeleted()) {
+            throw new CustomException(ErrorCode.WITHDRAW_FORBIDDEN);
+        }
+
+        user.deleteUser();
+        authRepository.save(user);
+    }
+
 }

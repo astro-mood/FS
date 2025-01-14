@@ -29,6 +29,7 @@ public enum ErrorCode {
 
     // 403 Forbidden
     FORBIDDEN(40300, HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    WITHDRAW_FORBIDDEN(40301, HttpStatus.FORBIDDEN, "이미 탈퇴한 회원입니다."),
 
     // 404 Not Found
     NOT_FOUND_END_POINT(40400, HttpStatus.NOT_FOUND, "존재하지 않는 API입니다."),

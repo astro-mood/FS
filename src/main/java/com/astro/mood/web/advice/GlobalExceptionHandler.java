@@ -40,11 +40,10 @@ public class GlobalExceptionHandler {
         return ApiResponse.fail(e);
     }
 
+    //필수 파라미터 검증 예외처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<?>  handleValidationExceptions( MethodArgumentNotValidException e) {
-        log.error("handleException() in GlobalExceptionHandler throw Exception : {}", e.getMessage());
-        e.printStackTrace();
-
+        log.error("handleException() in GlobalExceptionHandler throw Exception : {}", e.getMessage(), e);
         return ApiResponse.fail(new CustomException(ErrorCode.MISSING_REQUIRED_PARAMETER));
     }
 
@@ -52,8 +51,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<?> handleException(Exception e) {
-        log.error("handleException() in GlobalExceptionHandler throw Exception : {}", e.getMessage());
-        e.printStackTrace();
+        log.error("handleException() in GlobalExceptionHandler throw Exception : {}", e.getMessage(), e);
         return ApiResponse.fail(new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }
