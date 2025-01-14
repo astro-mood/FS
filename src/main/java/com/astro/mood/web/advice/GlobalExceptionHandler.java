@@ -40,6 +40,7 @@ public class GlobalExceptionHandler {
         return ApiResponse.fail(e);
     }
 
+    //필수 파라미터 검증 예외처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<?>  handleValidationExceptions( MethodArgumentNotValidException e) {
         log.error("handleException() in GlobalExceptionHandler throw Exception : {}", e.getMessage());

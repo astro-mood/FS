@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User userPrincipal = authRepository.findUserByEmail(email).orElseThrow(()
+        User userPrincipal = authRepository.findUserByEmailAndIsDeleted(email, false).orElseThrow(()
                 -> new UsernameNotFoundException("email 에 해당하는 UserPrincipal가 없습니다"));
 
         Set<UserRole> roles = userPrincipal.getAuthorities();
@@ -45,7 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         String picture = userInfo.get("picture").toString();
         String name = userInfo.get("name").toString();
 
-        Optional<User> findUser = authRepository.findUserByOauthIdAndOauthProvider(providerId, provider);
+        Optional<User> findUser = authRepository.findUserByOauthIdAndOauthProviderAndIsDeleted(providerId, provider, false);
         User userPrincipal;
         if (findUser.isEmpty() ) {
             //유저정보가 없으면 회원가입

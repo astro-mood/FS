@@ -116,4 +116,21 @@ public class UserController {
         }
     }
 
+    //회원탈퇴
+    @DeleteMapping("/{loginIdx}")
+    public ApiResponse<?> deleteUserInfo( @PathVariable Integer loginIdx, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // 유저 검증
+        authService.validateUser(userDetails, loginIdx);
+
+        try {
+            authService.withdrawUser(loginIdx);
+            return ApiResponse.ok("ok");
+        } catch (Exception e) {
+            log.error("회원탈퇴 error : {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+
+
 }
