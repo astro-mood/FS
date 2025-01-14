@@ -21,12 +21,12 @@ const Header = () => {
 
     const handleLogoutClick = () => {
         localStorage.removeItem("token");
-        navigate("/"); // 인트로페이지 경로로 이동
+        window.location.href = `/`;
     };
 
     return (
         <HeaderContainer>
-            <Logo src={LogoImage} alt="Logo" />
+            <Logo src={LogoImage} alt="Logo"  onClick={handleProfileClick} />
             <HeaderTitle>ASTRO MOOD</HeaderTitle>
             <ProfileContainer onClick={handleProfileClick}>
                 <ProfileImage src={profileImage} alt="" />
