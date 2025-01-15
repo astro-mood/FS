@@ -22,6 +22,7 @@ public enum ErrorCode {
     S3_INVALID_VALUE_URL(40006, HttpStatus.BAD_REQUEST, "잘못된 URL 형식입니다"),
     S3_FILE_EXTENSION_NOT_FOUND(40007, HttpStatus.BAD_REQUEST, "확장자를 찾을 수 없습니다."),
     S3_UNSUPPORTED_FILE_TYPE(40008, HttpStatus.BAD_REQUEST, "[jpg, jpeg, png, gif]의 확장자만 사용 가능합니다."),
+    LIKE_COMMENT_IS_REPORTED(40009, HttpStatus.BAD_REQUEST, "신고된 댓글에 좋아요 할 수 없습니다."),
 
 
     // 401 Unauthorized
