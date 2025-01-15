@@ -80,7 +80,7 @@ public class SecurityConfig {
         configuration.addAllowedHeader("Authorization");
         configuration.addAllowedHeader("Content-Type");
 //        configuration.addAllowedHeader("*");
-        configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE", "PATCH"));
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

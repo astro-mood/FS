@@ -1,39 +1,40 @@
-import React from "react";
+import React, {useEffect} from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router";
 import WriteButton from "../components/button/WriteButton";
+import {useState} from "react";
+import { getAllWorries } from "../api/api";
 
 
 const BoardWorry = () => {
     const navigate = useNavigate();
+    const [worries, setWorries] = useState([]);
 
-    //더미데이터
-    const worry = [
-        {id : 1, title: "첫 번째 고민", content: "이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙 이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙이것은 첫 번째 고민의 내용입니다.구글 로그인이 너무 어렵다. 으아아앙" },
-        { id: 2, title: "두 번째 고민", content: "이것은 두 번째 고민의 내용입니다." },
-        { id: 3, title: "세 번째 고민", content: "이것은 세 번째 고민의 내용입니다." },
-        { id: 4, title: "네 번째 고민", content: "이것은 네 번째 고민의 내용입니다." },
-        { id: 5, title: "다섯 번째 고민", content: "이것은 다섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
-        { id: 6, title: "여섯 번째 고민", content: "이것은 여섯 번째 고민의 내용입니다." },
+    useEffect(() => {
+        const fetchWorries = async () => {
+            try {
+                const data = await getAllWorries();
+                // 최신글이 먼저 나오도록 정렬 변경
 
-    ];
+                const sortedData = data.sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                );
+                setWorries(data);
+            } catch (error) {
+                console.error("고민 데이터를 불러오는 데 실패했습니다.", error);
+            }
+        };
+        fetchWorries();
+    }, []);
 
     return (
         <Container>
             <Title>고민상담소</Title>
             <GridContainer>
-                {worry.map((worry) => (
-                    <Card key={worry.idx}
-                          onClick={() => navigate(`/worry/${worry.idx}`)} // 클릭 시 상세 페이지로 이동
+                {worries.map((worry) => (
+
+                    <Card key={worry.worryIdx}
+                          onClick={() => navigate(`/worry/${worry.worryIdx}`)}
                     >>
                         <CardTitle>{worry.title}</CardTitle>
                         <CardContent>{worry.content}</CardContent>

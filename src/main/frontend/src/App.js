@@ -18,10 +18,11 @@ import HeaderLayout from "./components/layout/HeaderLayout";
 import Background from "./components/layout/Background";
 import GlobalStyle from "./components/layout/GlobalStyle";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-
+import { UserProvider } from "./context/UserContext";
 
 const App = () => {
     return (
+    <UserProvider>
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID}>
         <BrowserRouter>
             <GlobalStyle />
@@ -46,14 +47,14 @@ const App = () => {
                     <Route path="/main" element={<Main />} />
                     <Route path="/mydiary" element={<MyDiary />} />
                     <Route path="/myworry" element={<MyWorry />} />
-                    <Route path="/worry/:idx" element={<OthersWorry />} />
+                    <Route path="/worry/:worryIdx" element={<OthersWorry />} />
                     <Route path="/writediary" element={<WriteDiary />} />
                     <Route path="/writeworry" element={<WriteWorry />} />
                 </Route>
             </Routes>
         </BrowserRouter>
         </GoogleOAuthProvider>
-
+    </UserProvider>
     );
 };
 
