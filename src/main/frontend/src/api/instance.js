@@ -1,4 +1,5 @@
 import axios from 'axios';
+import customJwtDecode from './jwtDecode';
 
 // const baseURL = process.env.REACT_APP_API_BASE_URL;
 const instance = axios.create({
@@ -34,6 +35,11 @@ instance.interceptors.response.use(
             const token = localStorage.getItem('token');
             if(token !== bearer_token){
                 localStorage.setItem("token", bearer_token); // 토큰 저장
+                let userInfo = customJwtDecode(bearer_token);
+                // console.log("userInfo : ", userInfo);
+                // console.log("loginIdx : ", userInfo.loginIdx);
+                // console.log("nickname : ", userInfo.nickname);
+                // console.log("profileImage : ", userInfo.profileImage);
             }
         }
         return response;

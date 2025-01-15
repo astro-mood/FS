@@ -3,7 +3,9 @@ import styled from "styled-components";
 import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import {useNavigate} from "react-router";
+import customJwtDecode from '../../api/jwtDecode';
 import { useUser } from "../../context/UserContext";
+
 
 const GoogleLoginButton = () => {
     const { setUserIdx } = useUser();
@@ -31,6 +33,11 @@ const GoogleLoginButton = () => {
             .then((response) => {
                 let bearer_token = response.headers['bearer_token'];
                 localStorage.setItem("token", bearer_token); // 토큰 저장
+                let userInfo = customJwtDecode(bearer_token);
+                console.log("userInfo : ", userInfo);
+                console.log("loginIdx : ", userInfo.loginIdx);
+                console.log("nickname : ", userInfo.nickname);
+                console.log("profileImage : ", userInfo.profileImage);
                 navigate("/main"); // 마이페이지 경로로 이동
             })
             .catch((error) => {
