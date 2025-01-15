@@ -25,15 +25,8 @@ public class DiaryComment {
     @Column(name = "diary_idx")
     private Integer diaryIdx;
 
-    @Column(name = "user_score")
-    private int userScore;
-
-    @Column(name = "api_score")
-    private Float apiScore;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "emotion_idx")
-    private Emotions emotions;
+    @Column(name="content")
+    private String content;
 
     @CreationTimestamp
     @Column(name = "created_at")

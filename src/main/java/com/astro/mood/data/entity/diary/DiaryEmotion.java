@@ -1,5 +1,6 @@
 package com.astro.mood.data.entity.diary;
 
+import com.astro.mood.data.entity.emotion.Emotions;
 import com.astro.mood.data.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,10 +25,15 @@ public class DiaryEmotion {
     @Column(name = "diary_idx")
     private Integer diaryIdx;
 
+    @Column(name = "user_score")
+    private int userScore;
+
+    @Column(name = "api_score")
+    private Float apiScore;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_idx")
-    private User user;
+    @JoinColumn(name = "emotion_idx")
+    private Emotions emotions;
 
     @CreationTimestamp
     @Column(name = "created_at")
