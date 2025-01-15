@@ -9,14 +9,38 @@ export const UserProvider = ({ children }) => {
         return storedUserIdx ? Number(storedUserIdx) : null;
     });
 
+    const [nickname, setNickname] = useState(() => {
+        return localStorage.getItem("nickname") || null;
+    });
+
+    const [profileImage, setProfileImage] = useState(() => {
+        return localStorage.getItem("profileImage") || null;
+    });
+
     const updateUserIdx = (newUserIdx) => {
         setUserIdx(newUserIdx);
         localStorage.setItem("userIdx", newUserIdx);
     };
 
+    const updateNickname = (newNickname) => {
+        setNickname(newNickname);
+        localStorage.setItem("nickname", newNickname);
+    };
+
+    const updateProfileImage = (newProfileImage) => {
+        setProfileImage(newProfileImage);
+        localStorage.setItem("profileImage", newProfileImage);
+    };
+
 
     return (
-        <UserContext.Provider value={{ userIdx, setUserIdx: updateUserIdx }}>
+        <UserContext.Provider value={{
+            userIdx,
+            setUserIdx: updateUserIdx,
+            nickname,
+            setNickname: updateNickname,
+            profileImage,
+            setProfileImage: updateProfileImage, }}>
             {children}
         </UserContext.Provider>
     );
