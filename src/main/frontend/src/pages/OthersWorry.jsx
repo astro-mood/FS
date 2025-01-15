@@ -6,8 +6,13 @@ import CommentInput from "../components/comment/CommentInput";
 import styled from "styled-components";
 import { getWorryByIdx, updateWorry, deleteWorry, resolveChangeWorry } from "../api/api";
 import { useParams } from "react-router";
+import { useUser } from "../context/UserContext";
 
-const ViewWorry = ({ userIdx }) => {
+
+const ViewWorry = () => {
+    const { userIdx } = useUser();
+    console.log("지금 로그인한 회원 userIdx", userIdx)
+
     const { worryIdx } = useParams();
     const [worry, setWorry] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -18,8 +23,6 @@ const ViewWorry = ({ userIdx }) => {
         { id: 2, text: "공감합니다!", ownerId: 3, likes: 8 },
     ]);
     const [newComment, setNewComment] = useState(""); // 댓글 입력 상태
-
-    console.log("idx", userIdx);
 
     const handleAddComment = () => {
         if (!newComment.trim()) return; // 빈 댓글 방지
@@ -101,6 +104,7 @@ const ViewWorry = ({ userIdx }) => {
         return <div>Loading...</div>;
     }
 
+    console.log("고민글 쓴 userIdx:", worry.userIdx);
     const isOwner = userIdx === worry.userIdx; // 현재 사용자가 작성자인지 판단
 
     return (
