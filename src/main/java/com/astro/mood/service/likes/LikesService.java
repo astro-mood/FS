@@ -8,7 +8,6 @@ import com.astro.mood.data.repository.likes.LikesRepository;
 import com.astro.mood.data.repository.worry.WorryCommentRepository;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
-import com.astro.mood.service.worry.WorryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

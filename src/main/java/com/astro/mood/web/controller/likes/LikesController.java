@@ -6,7 +6,6 @@ import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.service.likes.LikesService;
 import com.astro.mood.web.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
