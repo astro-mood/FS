@@ -30,6 +30,7 @@ public class WorryDto {
         private Boolean isResolved;
         private LocalDateTime createdAt;
         private LocalDateTime resolvedAt;
+        private Integer userIdx;
 
         public static Response fromEntity(Worry worry) {
             return Response.builder()
@@ -40,6 +41,7 @@ public class WorryDto {
                     .isResolved(worry.getIsResolved())
                     .createdAt(worry.getCreatedAt())
                     .resolvedAt(worry.getResolvedAt())
+                    .userIdx(worry.getUser().getUserIdx())
                     .build();
         }
     }
