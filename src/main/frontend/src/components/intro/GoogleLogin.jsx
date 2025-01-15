@@ -4,13 +4,22 @@ import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import {useNavigate} from "react-router";
 import customJwtDecode from '../../api/jwtDecode';
+import { useUser } from "../../context/UserContext";
+
 
 const GoogleLoginButton = () => {
+    const { setUserIdx } = useUser();
     const navigate = useNavigate();
+
     const handleLogin = async (credentialResponse) => {
         const token = credentialResponse.credential;
-        //console.log("token:", token);
+        const fakeUserIdx = 1; // 가짜 userIdx 테스트용
 
+        // 전역 상태 업데이트
+        setUserIdx(fakeUserIdx);
+        console.log("지금 로그인한 회원 userIdx ", fakeUserIdx);
+
+        //console.log("token:", token);
         if (!token) {
             console.error("Token is null");
             return;
