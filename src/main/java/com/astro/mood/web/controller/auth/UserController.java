@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,12 +40,12 @@ public class UserController {
 
     //유저정보 보기
     @GetMapping("/{loginIdx}")
-    public ApiResponse<?> getUserInfo( @PathVariable Integer loginIdx, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<?>> getUserInfo(@PathVariable Integer loginIdx, @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 유저 검증
         authService.validateUser(userDetails, loginIdx);
         try{
             UserInfoResponse result = authService.getUserInfo(loginIdx);
-            return ApiResponse.ok(result);
+            return ResponseEntity.ok(ApiResponse.ok(result));
         } catch (Exception e) {
             log.error("유저정보 error : {}", e.getMessage(), e);
             throw e;
@@ -53,7 +54,7 @@ public class UserController {
 
     //유저정보 수정
     @PutMapping("/{loginIdx}")
-    public ApiResponse<?> putUserInfo(
+    public ResponseEntity<ApiResponse<?>> putUserInfo(
             @PathVariable Integer loginIdx,
             @Valid @ModelAttribute UserInfoRequest userInfoRequest,
             HttpServletResponse response,
@@ -99,7 +100,7 @@ public class UserController {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
             }
 
-            return ApiResponse.ok(result);
+            return ResponseEntity.ok(ApiResponse.ok(result));
 
         } catch (CustomException e) {
             if (newImageUrl != null) {
@@ -118,13 +119,13 @@ public class UserController {
 
     //회원탈퇴
     @DeleteMapping("/{loginIdx}")
-    public ApiResponse<?> deleteUserInfo( @PathVariable Integer loginIdx, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<?>> deleteUserInfo( @PathVariable Integer loginIdx, @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 유저 검증
         authService.validateUser(userDetails, loginIdx);
 
         try {
             authService.withdrawUser(loginIdx);
-            return ApiResponse.ok("ok");
+            return ResponseEntity.ok(ApiResponse.ok("ok"));
         } catch (Exception e) {
             log.error("회원탈퇴 error : {}", e.getMessage(), e);
             throw e;
