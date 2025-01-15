@@ -10,8 +10,10 @@ import { useUser } from "../context/UserContext";
 
 
 const ViewWorry = () => {
-    const { userIdx } = useUser();
+    const { userIdx, nickname, profileImage,  } = useUser();
     console.log("지금 로그인한 회원 userIdx", userIdx)
+    console.log("지금 로그인한 회원 nickname : ", nickname);
+    console.log("지금 로그인한 회원 profileImage : ", profileImage);
 
     const { worryIdx } = useParams();
     const [worry, setWorry] = useState(null);

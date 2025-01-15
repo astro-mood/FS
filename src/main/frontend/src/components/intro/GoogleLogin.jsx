@@ -9,40 +9,47 @@ import { useUser } from "../../context/UserContext";
 
 const GoogleLoginButton = () => {
     const { setUserIdx } = useUser();
+    const { setNickname } = useUser();
+    const { setProfileImage } = useUser();
+
     const navigate = useNavigate();
 
     const handleLogin = async (credentialResponse) => {
         const token = credentialResponse.credential;
-        const fakeUserIdx = 1; // 가짜 userIdx 테스트용
 
-        // 전역 상태 업데이트
-        setUserIdx(fakeUserIdx);
-        console.log("지금 로그인한 회원 userIdx ", fakeUserIdx);
-
-        //console.log("token:", token);
         if (!token) {
             console.error("Token is null");
             return;
         }
 
-        axios
-            .post("http://localhost:8080/api/auth/google",
+        try {
+            const response = await axios.post(
+                "http://localhost:8080/api/auth/google",
                 { idToken: token },
                 { headers: { 'Content-Type': 'application/json' } }
-            )
-            .then((response) => {
-                let bearer_token = response.headers['bearer_token'];
-                localStorage.setItem("token", bearer_token); // 토큰 저장
-                let userInfo = customJwtDecode(bearer_token);
-                console.log("userInfo : ", userInfo);
-                console.log("loginIdx : ", userInfo.loginIdx);
-                console.log("nickname : ", userInfo.nickname);
-                console.log("profileImage : ", userInfo.profileImage);
-                navigate("/main"); // 마이페이지 경로로 이동
-            })
-            .catch((error) => {
-                console.error('Login failed:', error);
-            });
+            );
+
+            const bearer_token = response.headers['bearer_token'];
+            localStorage.setItem("token", bearer_token); // 토큰 저장
+
+            // 사용자 정보 추출
+            const userInfo = customJwtDecode(bearer_token);
+
+            console.log("userInfo:", userInfo);
+            console.log("loginIdx:", userInfo.loginIdx);
+            console.log("nickname : ", userInfo.nickname);
+            console.log("profileImage : ", userInfo.profileImage);
+            navigate("/main"); // 마이페이지 경로로 이동
+
+
+            // 전역 상태로 userIdx 업데이트
+            setUserIdx(userInfo.loginIdx);
+            setNickname(userInfo.nickname);
+            setProfileImage(userInfo.profileImage);
+
+        } catch (error) {
+            console.error('Login failed:', error);
+        }
     };
 
     return (
