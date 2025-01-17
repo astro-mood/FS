@@ -1,24 +1,41 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import Title from "../components/board/PostTitle";
 import Content from "../components/board/PostContent";
 import CommentList from "../components/comment/CommentList";
 import CommentInput from "../components/comment/CommentInput";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
+import {getDiaryByIdx} from "../api/api";
 
-const ViewDiary = ({ userId }) => {
+const ViewDiary = ({ userId, diary_idx }) => {
     const location = useLocation();
     const params = new URLSearchParams(location.search);
-    const rawDate = params.get("date"); // YYYY-MM-DD 형식의 날짜 추출
-    // 년-월-일로 변경
-    let formattedDate = rawDate;
-    if (rawDate) {
-        const [year, month, day] = rawDate.split("-");
-        formattedDate = `${year}년 ${month}월 ${day}일`;
-    }
+    const [diary, setDiary] = useState([]);
+
+
 
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState(""); // 댓글 입력 상태
+    const [emotions, setEmotions] = useState([
+        { emoji: "😊", description: "기쁨", userScore: 8 },
+        { emoji: "😢", description: "슬픔", userScore: 2 }
+]);
+
+    // 일기 데이터 가져오기
+    useEffect(() => {
+        const fetchDiary = async () => {
+            try {
+                const diaryData = await getDiaryByIdx(diary_idx);
+                setDiary(diaryData);
+                setComments(diaryData.comments || []);
+                setEmotions(diaryData.emotions || []);
+            } catch (error) {
+                console.error("일기 데이터를 가져오는 중 오류 발생:", error);
+            }
+        };
+
+        fetchDiary();
+    }, [diary_idx]);
 
     const handleAddComment = () => {
         if (!newComment.trim()) return; // 빈 댓글 방지
@@ -26,32 +43,43 @@ const ViewDiary = ({ userId }) => {
             id: Date.now(), // 임시 ID (백엔드와 연동 시 수정 필요)
             text: newComment,
             ownerId: userId,
-            likes: 0,        };
+            likes: 0,
+        };
         setComments((prev) => [...prev, newCommentData]);
         setNewComment("");
     };
 
-
     return (
         <Container>
-            <Board> {formattedDate} 일기</Board>
+            <Board> 일기</Board>
             <ContentsContainer>
-                <Title title="코딩은 어려워"/>
-                <div style={{height: '20px'}}/>
+                <Title title="코딩은 어려워" />
+                <div style={{ height: '20px' }} />
+                <EmotionSection>
+                    <EmotionTitle>이날의 감정지수</EmotionTitle>
+                    <EmotionList>
+                        {emotions.map((emotion, index) => (
+                            <EmotionItem key={index}>
+                                <Emoji>{emotion.emoji}</Emoji>
+                                <Description>{emotion.description} {emotion.userScore}점</Description>
+                            </EmotionItem>
+                        ))}
+                    </EmotionList>
+                </EmotionSection>
+                <Content content="코딩은 정말 정말 어려워" />
 
-                <Content content="코딩은 정말 정말 어려워"/>
                 <Spacer />
                 <CommentList
                     comments={comments}
                     userId={userId}
                     onLike={(id) =>
                         setComments((prev) =>
-                            prev.map((c) => (c.id === id ? {...c, likes: c.likes + 1} : c))
+                            prev.map((c) => (c.id === id ? { ...c, likes: c.likes + 1 } : c))
                         )
                     }
                     onEdit={(id, newText) =>
                         setComments((prev) =>
-                            prev.map((c) => (c.id === id ? {...c, text: newText} : c))
+                            prev.map((c) => (c.id === id ? { ...c, text: newText } : c))
                         )
                     }
                     onDelete={(id) => setComments((prev) => prev.filter((c) => c.id !== id))}
@@ -93,6 +121,48 @@ const ContentsContainer = styled.div`
     scrollbar-width: none; // 스크롤바 안보이기
 `;
 
+const EmotionSection = styled.div`
+    margin: 20px 0;
+`;
+
+const EmotionTitle = styled.h2`
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+    display: flex;
+    flex-direction: row;
+`;
+
+const EmotionList = styled.div`
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+
+`;
+
+const EmotionItem = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`;
+
+const Emoji = styled.div`
+    font-size: 2rem;
+`;
+
+const Description = styled.div`
+    margin-top: 5px;
+    color: #555;
+    font-size: 1.5rem;
+    gap : 30px;
+`;
+
 const Spacer = styled.div`
-  height: 30px; 
+    height: 30px;
 `;
