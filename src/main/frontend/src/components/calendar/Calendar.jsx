@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-const Calendar = () => {
+const Calendar = ({
+                      currentYear ,
+                      currentMonth ,
+                      setCurrentYear,
+                      setCurrentMonth,
+                      emotions = {},}) => {
     const navigate = useNavigate();
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
-    const [emotions, setEmotions] = useState({
-        "2025-01-05": ["😊", "😃"],
-        "2025-01-12": ["😢"]
-    });
 
     const today = new Date();
     const todayDate = `${today.getFullYear()}-${(today.getMonth() + 1)
@@ -54,14 +53,14 @@ const Calendar = () => {
         }
 
         for (let i = 1; i <= daysInMonth; i++) {
-            const date = `${currentYear}-${currentMonth
+            const date = `${currentYear || new Date().getFullYear()}-${(currentMonth || 1)
                 .toString()
                 .padStart(2, "0")}-${i.toString().padStart(2, "0")}`;
             const isToday = date === todayDate;
             const dayOfWeek = new Date(currentYear, currentMonth - 1, i).getDay();
             const isSunday = dayOfWeek === 0;
             const isSaturday = dayOfWeek === 6;
-            const emotion = emotions[date];
+            const emotion = emotions[date] || [];
 
             days.push(
                 <Day key={date} isSunday={isSunday} isSaturday={isSaturday} isToday={isToday}>
@@ -69,7 +68,7 @@ const Calendar = () => {
                         {i}
                     </DayNumber>
                     <DayContent>
-                        {isToday && (
+                        {isToday  && emotion.length === 0 && (
                             <WriteButton onClick={() => navigate(`/writediary?date=${date}`)}>
                                 오늘의 일기쓰기
                             </WriteButton>

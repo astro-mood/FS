@@ -70,10 +70,35 @@ export const resolveChangeWorry = async (worry_idx, updatedData) => {
 export const postDiary = async (data) => {
     try {
         const response = await instance.post("/writediary", data);
-        return response.data; // 성공적으로 전송된 데이터 반환
+        return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
-        throw error; // 에러를 호출한 곳에서 처리하도록 던짐
+        throw error;
     }
 };
+
+// 달력에 일기 가져오기 API
+export const getMyDiary = async (data) => {
+    try {
+        const response = await instance.get("/mydiary", {
+            params: data,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+//일기 상세보기 API
+export const getDiaryByIdx = async (diaryIdx) => {
+    try {
+        const response = await instance.get(`/diary/${diaryIdx}`);
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
 
