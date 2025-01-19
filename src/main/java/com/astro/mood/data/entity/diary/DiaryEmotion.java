@@ -4,6 +4,7 @@ import com.astro.mood.data.entity.emotion.Emotions;
 import com.astro.mood.data.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -16,14 +17,17 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 @Table(name = "diary_emotion")
+@BatchSize(size = 10) // 연관 엔티티 한번에 로드하도록
 public class DiaryEmotion {
     @Id
     @Column(name = "de_idx")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer deIdx;
 
-    @Column(name = "diary_idx")
-    private Integer diaryIdx;
+    // diaryIdx 대신 diary entity 직접 참조
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_idx")
+    private Diary diary;
 
     @Column(name = "user_score")
     private int userScore;

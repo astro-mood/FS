@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-const Calendar = () => {
+const Calendar = ({
+                      currentYear ,
+                      currentMonth ,
+                      setCurrentYear,
+                      setCurrentMonth,
+                      diariesMap = {}, // 여기에 날짜별 data가 있음.
+                  }) => {
     const navigate = useNavigate();
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
-    const [emotions, setEmotions] = useState({
-        "2025-01-05": ["😊", "😃"],
-        "2025-01-12": ["😢"]
-    });
 
     const today = new Date();
     const todayDate = `${today.getFullYear()}-${(today.getMonth() + 1)
@@ -54,14 +54,14 @@ const Calendar = () => {
         }
 
         for (let i = 1; i <= daysInMonth; i++) {
-            const date = `${currentYear}-${currentMonth
+            const date = `${currentYear || new Date().getFullYear()}-${(currentMonth || 1)
                 .toString()
                 .padStart(2, "0")}-${i.toString().padStart(2, "0")}`;
             const isToday = date === todayDate;
             const dayOfWeek = new Date(currentYear, currentMonth - 1, i).getDay();
             const isSunday = dayOfWeek === 0;
             const isSaturday = dayOfWeek === 6;
-            const emotion = emotions[date];
+            const dayData = diariesMap[date];
 
             days.push(
                 <Day key={date} isSunday={isSunday} isSaturday={isSaturday} isToday={isToday}>
@@ -69,21 +69,21 @@ const Calendar = () => {
                         {i}
                     </DayNumber>
                     <DayContent>
-                        {isToday && (
+                        {isToday   && !dayData && (
                             <WriteButton onClick={() => navigate(`/writediary?date=${date}`)}>
                                 오늘의 일기쓰기
                             </WriteButton>
                         )}
-                        {emotion && Array.isArray(emotion) ? (
+                        {dayData && Array.isArray(dayData.emojis) &&  (
                             <EmotionDisplay
-                                onClick={() => navigate(`/viewdiary?date=${date}`)}
+                                onClick={() => navigate(`/diary/${dayData.diaryIdx}`)}
                                 title="이날의 일기보기"
                             >
-                                {emotion.map((emo, idx) => (
+                                {dayData.emojis.map((emo, idx) => (
                                     <EmotionSpan key={idx}>{emo}</EmotionSpan>
                                 ))}
                             </EmotionDisplay>
-                        ) : null}
+                        )}
                     </DayContent>
                 </Day>
             );
