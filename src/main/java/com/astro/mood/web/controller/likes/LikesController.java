@@ -1,6 +1,7 @@
 package com.astro.mood.web.controller.likes;
 
 import com.astro.mood.security.login.CustomUserDetails;
+import com.astro.mood.service.auth.AuthService;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.service.likes.LikesService;
@@ -19,14 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/likes")
 public class LikesController {
     private final LikesService likesService;
+    private final AuthService authService;
 
     // 좋아요 기능
     @PostMapping("/{commentIdx}")
     public ResponseEntity<ApiResponse<?>>  toggleLike(@PathVariable Integer commentIdx, @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 유저 검증
-        if (userDetails == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
+        authService.validateUser(userDetails, 0);
 
         Integer userIdx = userDetails.getUserIdx();
         likesService.toggleLike(commentIdx, userIdx);
