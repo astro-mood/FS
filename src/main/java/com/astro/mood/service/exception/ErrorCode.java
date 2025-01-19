@@ -23,6 +23,15 @@ public enum ErrorCode {
     S3_FILE_EXTENSION_NOT_FOUND(40007, HttpStatus.BAD_REQUEST, "확장자를 찾을 수 없습니다."),
     S3_UNSUPPORTED_FILE_TYPE(40008, HttpStatus.BAD_REQUEST, "[jpg, jpeg, png, gif]의 확장자만 사용 가능합니다."),
     LIKE_COMMENT_IS_REPORTED(40009, HttpStatus.BAD_REQUEST, "신고된 댓글에 좋아요 할 수 없습니다."),
+    REPLY_COMMENT_IS_REPORTED(40010, HttpStatus.BAD_REQUEST, "신고된 댓글에 답글을 할 수 없습니다."),
+    REPLY_COMMENT_IS_DELETED(40010, HttpStatus.BAD_REQUEST, "삭제된 댓글에 답글을 할 수 없습니다."),
+    CANNOT_EDIT_REPORTED_COMMENT(40011, HttpStatus.BAD_REQUEST, "신고된 댓글은 수정 할 수 없습니다."),
+    CANNOT_EDIT_DELETED_COMMENT(40012, HttpStatus.BAD_REQUEST, "삭제된 댓글은 수정 할 수 없습니다."),
+    DELETED_COMMENT_REPORT_ERROR(40013, HttpStatus.BAD_REQUEST, "삭제된 댓글은 신고 할 수 없습니다."),
+    ALREADY_REPORTED_COMMENT_ERROR(40014, HttpStatus.BAD_REQUEST, "이미 신고된 댓글입니다."),
+    ALREADY_DELETED_COMMENT_ERROR(40014, HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
+    BAD_WORD_FILTER_ERROR(40014, HttpStatus.BAD_REQUEST, "고운 말을 나눠주세요."),
+    SELF_REPORT_ERROR(40015, HttpStatus.BAD_REQUEST, "본인의 댓글을 신고할 수 없습니다. 삭제를 진행해 주세요."),
 
 
     // 401 Unauthorized

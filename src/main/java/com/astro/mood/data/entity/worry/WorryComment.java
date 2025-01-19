@@ -1,12 +1,15 @@
 package com.astro.mood.data.entity.worry;
 
-import com.astro.mood.data.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Entity
 @DynamicInsert
@@ -21,16 +24,11 @@ public class WorryComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer commentIdx;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_idx")
-    private User user;
+    @Column(name="user_idx")
+    private Integer userIdx;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "worry_idx")
-    private Worry worry;
-
-    @Column(name = "parent_comment_id")
-    private int parentCommentId;
+    @Column(name="worry_idx")
+    private Integer worryIdx;
 
     @Column(name = "content")
     private String content;
@@ -38,10 +36,28 @@ public class WorryComment {
     @Column(name = "is_reported")
     private Boolean isReported;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
     @Column(name = "like_count")
     private int likeCount;
 
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private WorryComment parentComment; //부모 댓글
+
+    @JsonIgnore // 순환 참조 방지
+    @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<WorryComment> childrenComment = new ArrayList<>(); //자식 댓글들(대댓글)
+//
+//    // 대댓글 추가 메서드
+//    public void addChildComment(WorryComment childComment) {
+//        childComment.setParentComment(this);
+//        this.childrenComment.add(childComment);
+//    }
+
 }

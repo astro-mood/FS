@@ -34,6 +34,8 @@ public class User {
     @Column(name = "nickname", nullable = false)
     @NotEmpty(message = "닉네임은 필수입니다.")
     private String nickname;
+    @Column(name="comment_count")
+    private int commentCount;
     @Column(name = "profile_image")
     private String profileImage;
     @Column(name = "phone")
@@ -91,15 +93,5 @@ public class User {
         }
     }
 
-    public void updateEmail(String newEmail) {
-        if (newEmail != null  && !newEmail.isEmpty()) {
-            boolean isEmailValid = EmailValidator.getInstance().isValid(newEmail);
-            if (isEmailValid) {
-                this.email = newEmail;
-            }else{
-                throw new CustomException(ErrorCode.INVALID_VALUE_EMAIL);
-            }
-        }
-    }
 
 }

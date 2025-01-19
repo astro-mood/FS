@@ -49,11 +49,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 인증 비활성화
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/**","/resources/static/**").permitAll() // 루트 경로 허용
+                        .requestMatchers("/", "/resources/static/**").permitAll() // 루트 경로 허용
                         .requestMatchers("/api/auth/google").permitAll() // 구글 로그인 경로 허용
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger 관련 경로 허용
                         .requestMatchers("/test/**").hasAuthority("ROLE_USER")
-                        .requestMatchers("/main","/api/worry/**", "/api/diary/**","/api/emotions/**","/api/likes/**").hasAuthority("ROLE_USER")
+                        .requestMatchers("/main","/api/worry/**", "/api/diary/**","/api/worry-comments/**","/api/diary-comments/**","/api/emotions/**","/api/likes/**").hasAuthority("ROLE_USER")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
