@@ -52,12 +52,7 @@ public class WorryComment {
 
     @JsonIgnore // 순환 참조 방지
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY, orphanRemoval = true)
+    @Builder.Default
     private List<WorryComment> childrenComment = new ArrayList<>(); //자식 댓글들(대댓글)
-//
-//    // 대댓글 추가 메서드
-//    public void addChildComment(WorryComment childComment) {
-//        childComment.setParentComment(this);
-//        this.childrenComment.add(childComment);
-//    }
 
 }
