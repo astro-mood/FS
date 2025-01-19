@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +7,8 @@ const Calendar = ({
                       currentMonth ,
                       setCurrentYear,
                       setCurrentMonth,
-                      emotions = {},}) => {
+                      diariesMap = {}, // 여기에 날짜별 data가 있음.
+                  }) => {
     const navigate = useNavigate();
 
     const today = new Date();
@@ -60,7 +61,7 @@ const Calendar = ({
             const dayOfWeek = new Date(currentYear, currentMonth - 1, i).getDay();
             const isSunday = dayOfWeek === 0;
             const isSaturday = dayOfWeek === 6;
-            const emotion = emotions[date] || [];
+            const dayData = diariesMap[date];
 
             days.push(
                 <Day key={date} isSunday={isSunday} isSaturday={isSaturday} isToday={isToday}>
@@ -68,21 +69,21 @@ const Calendar = ({
                         {i}
                     </DayNumber>
                     <DayContent>
-                        {isToday  && emotion.length === 0 && (
+                        {isToday   && !dayData && (
                             <WriteButton onClick={() => navigate(`/writediary?date=${date}`)}>
                                 오늘의 일기쓰기
                             </WriteButton>
                         )}
-                        {emotion && Array.isArray(emotion) ? (
+                        {dayData && Array.isArray(dayData.emojis) &&  (
                             <EmotionDisplay
-                                onClick={() => navigate(`/viewdiary?date=${date}`)}
+                                onClick={() => navigate(`/diary/${dayData.diaryIdx}`)}
                                 title="이날의 일기보기"
                             >
-                                {emotion.map((emo, idx) => (
+                                {dayData.emojis.map((emo, idx) => (
                                     <EmotionSpan key={idx}>{emo}</EmotionSpan>
                                 ))}
                             </EmotionDisplay>
-                        ) : null}
+                        )}
                     </DayContent>
                 </Day>
             );

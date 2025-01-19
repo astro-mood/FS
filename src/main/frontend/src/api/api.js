@@ -91,9 +91,31 @@ export const getMyDiary = async (data) => {
 };
 
 //일기 상세보기 API
-export const getDiaryByIdx = async (diaryIdx) => {
+export const getDiaryByIdx = async (diary_idx) => {
     try {
-        const response = await instance.get(`/diary/${diaryIdx}`);
+        const response = await instance.get(`/diary/${diary_idx}`);
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 일기 삭제
+export const deleteDiary = async (diary_idx) => {
+    try {
+        const response = await instance.delete(`/diary/${diary_idx}`);
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 일기 수정
+export const updateDiary = async (diary_idx, updatedData) => {
+    try {
+        const response = await instance.put(`/diary/${diary_idx}`, updatedData);
         return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
