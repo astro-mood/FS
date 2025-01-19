@@ -108,7 +108,10 @@ public class DiaryService {
                             ))
                             .collect(Collectors.toList());
 
-                    return new DiaryDto.CalendarResponse(diary.getCreatedAt().toLocalDate(), emotions);
+                    return new DiaryDto.CalendarResponse(
+                            diary.getDiaryIdx(),
+                            diary.getCreatedAt().toLocalDate(),
+                            emotions);
                 })
                 .collect(Collectors.toList());
     }
@@ -123,5 +126,44 @@ public class DiaryService {
         List<DiaryEmotion> emotions = diaryEmotionRepository.findByDiary(diary);
 
         return DiaryDto.Response.fromEntity(diary, emotions);
+    }
+
+    // 일기 삭제
+    @Transactional
+    public void deleteDiary(Integer diaryIdx) {
+        Diary diary = diaryRepository.findById(diaryIdx)
+                .orElseThrow(() -> new RuntimeException("Diary not found"));
+        diaryRepository.delete(diary);
+    }
+
+    // 일기 수정
+    @Transactional
+    public DiaryDto.Response updateDiary(Integer diaryIdx, DiaryDto.UpdateRequest updateRequest) {
+        Diary diary = diaryRepository.findById(diaryIdx)
+                .orElseThrow(() -> new RuntimeException("Diary not found"));
+
+        diary.setTitle(updateRequest.getTitle());
+        diary.setContent(updateRequest.getContent());
+
+        // 기존 감정 삭제
+        diaryEmotionRepository.deleteByDiary(diary);
+
+        // 새로운 감정 저장
+        updateRequest.getEmotions().forEach(emotionData -> {
+            Emotions emotion = emotionsRepository.findById(emotionData.getEmotionIdx())
+                    .orElseThrow(() -> new RuntimeException("Emotion not found"));
+
+            DiaryEmotion diaryEmotion = DiaryEmotion.builder()
+                    .diary(diary)
+                    .emotions(emotion)
+                    .userScore(emotionData.getUserScore())
+                    .build();
+
+            diaryEmotionRepository.save(diaryEmotion);
+            log.info("Saved diary emotion: {}", diaryEmotion);
+
+        });
+
+        return DiaryDto.Response.fromEntity(diary, diaryEmotionRepository.findByDiary(diary));
     }
 }

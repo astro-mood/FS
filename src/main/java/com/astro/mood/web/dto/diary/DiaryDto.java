@@ -22,14 +22,14 @@ public class DiaryDto {
         private String content;
 
         // 여러 감정을 담는 리스트
-        private List<EmotionData> emotions; // 최대 7개
+        private List<EmotionData> emotions;
 
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
         public static class EmotionData {
-            private Integer emotionIdx; // 어떤 감정인지(예: 1=기쁨, 2=슬픔 등)
-            private int userScore;      // 감정 점수
+            private Integer emotionIdx;
+            private int userScore;
         }
     }
 
@@ -42,7 +42,7 @@ public class DiaryDto {
         private Integer diaryIdx;
         private String title;
         private String content;
-        private LocalDateTime createdAt;
+        private LocalDate createdAt;
         private Integer userIdx;
 
         // 감정 여러개 선택-> List 형식
@@ -53,8 +53,11 @@ public class DiaryDto {
         @AllArgsConstructor
         public static class DiaryEmotionResponse {
             private Integer emotionIdx;
+            private String description;
+            private String emoji;
             private int userScore;
         }
+
 
         // 일기는 1개 + 감정 최대 7개까지 / 감정정보 필수
         public static Response fromEntity(Diary diary, List<DiaryEmotion> diaryEmotions) {
@@ -65,6 +68,8 @@ public class DiaryDto {
             List<DiaryEmotionResponse> emotionList = diaryEmotions.stream()
                     .map(de -> new DiaryEmotionResponse(
                             de.getEmotions() != null ? de.getEmotions().getEmotionIdx() : null,
+                            de.getEmotions() != null ? de.getEmotions().getDescription() : null,
+                            de.getEmotions() != null ? de.getEmotions().getEmoji() : null,
                             de.getUserScore()
                     ))
                     .collect(Collectors.toList());
@@ -73,7 +78,7 @@ public class DiaryDto {
                     .diaryIdx(diary.getDiaryIdx())
                     .title(diary.getTitle())
                     .content(diary.getContent())
-                    .createdAt(diary.getCreatedAt())
+                    .createdAt(diary.getCreatedAt().toLocalDate())
                     .userIdx(diary.getUser() != null ? diary.getUser().getUserIdx() : null)
                     .emotions(emotionList)
                     .build();
@@ -84,6 +89,7 @@ public class DiaryDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CalendarResponse {
+        private Integer diaryIdx;
         private LocalDate date;
         private List<CalendarEmotion> emotions;
     }
@@ -96,12 +102,22 @@ public class DiaryDto {
         private String emoji;
         private int userScore;
     }
-
+    // 일기 수정
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateRequest {
         private String title;
         private String content;
+        private String emoji;
+        private List<EmotionData> emotions;
+
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class EmotionData {
+            private Integer emotionIdx;
+            private int userScore;
+        }
     }
 }

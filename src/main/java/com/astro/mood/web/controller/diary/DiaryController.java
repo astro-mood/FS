@@ -38,4 +38,20 @@ public class DiaryController {
         DiaryDto.Response response = diaryService.getDiaryByIdx(diary_idx);
         return ResponseEntity.ok(response);
     }
+
+    // 일기 삭제
+    @DeleteMapping("/diary/{diary_idx}")
+    public ResponseEntity<Void> deleteDiary(@PathVariable Integer diary_idx) {
+        diaryService.deleteDiary(diary_idx);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 일기 수정
+    @PutMapping("/diary/{diary_idx}")
+    public ResponseEntity<DiaryDto.Response> updateDiary(
+            @PathVariable Integer diary_idx,
+            @RequestBody DiaryDto.UpdateRequest updateRequest) {
+        DiaryDto.Response response = diaryService.updateDiary(diary_idx, updateRequest);
+        return ResponseEntity.ok(response);
+    }
 }
