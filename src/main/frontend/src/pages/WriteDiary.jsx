@@ -10,6 +10,27 @@ import Content from "../components/write/Content";
 import EmotionSelect from "../components/write/EmotionSelector";
 import WhiteContentsArea from "../components/layout/WhiteContentsArea";
 
+// 감정 이모지 -> emotionIdx 매핑
+const EMOTION_MAP = {
+    "😄기쁨": 1,
+    "😚설렘": 2,
+    "😌안도": 3,
+    "🤖보통": 4,
+    "😭슬픔": 5,
+    "🥺불안": 6,
+    "😡분노": 7,
+};
+
+// emotion, userScore 배열 형식 변경.emotions [ / ] 로 보낼 수 있게
+const transformEmotionScores = (scores) => {
+    return scores.map((item) => {
+        return {
+            emotionIdx: EMOTION_MAP[item.emotion] || 0,
+            userScore: parseInt(item.score, 10) || 0,
+        };
+    });
+};
+
 const WriteDiary = () => {
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
@@ -49,8 +70,20 @@ const WriteDiary = () => {
             return;
         }
 
+        const transformedEmotions = transformEmotionScores(emotionScores);
+
+        // payload 형식
+        const payload = {
+            title,
+            content,
+            emotions: transformedEmotions,
+        };
+
+        console.log("전송할 payload:", payload);
+
         try {
-            await postDiary({ title, content, emotionScores });
+            // 보낼 값 payload로 설정
+            await postDiary(payload);
             setModalMessage("작성이 완료되었습니다!");
             setIsModalOpen(true);
         } catch (error) {
@@ -60,8 +93,8 @@ const WriteDiary = () => {
     };
 
     const handleConfirm = () => {
-        setIsConfirmModalOpen(false); // 확인 모달 닫기
-        navigate("/mydiary"); // 내 일기로 이동
+        setIsConfirmModalOpen(false);
+        navigate("/mydiary");
     };
 
     const handleCancel = () => {
@@ -127,9 +160,7 @@ const ContentsContainer = styled.div`
     gap: 16px;
     //height: calc(100vh - 160px);
     overflow-y: auto;
-    scrollbar-width: none; // 스크롤바 안보이게 하기       
-
-
+    scrollbar-width: none; // 스크롤바 안보이게 하기
 `;
 
 const Title = styled.h1`

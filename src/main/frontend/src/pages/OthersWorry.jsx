@@ -7,13 +7,13 @@ import styled from "styled-components";
 import { getWorryByIdx, updateWorry, deleteWorry, resolveChangeWorry } from "../api/api";
 import { useParams } from "react-router";
 import { useUser } from "../context/UserContext";
+import WorryEditForm from "../components/board/WorryEditForm";
+import OwnerAction from "../components/button/EditDeleteButton";
+import ResolveDropdown from "../components/dropdown/ResolveDropdown";
 
 
 const ViewWorry = () => {
-    const { userIdx, nickname, profileImage,  } = useUser();
-    console.log("지금 로그인한 회원 userIdx", userIdx)
-    console.log("지금 로그인한 회원 nickname : ", nickname);
-    console.log("지금 로그인한 회원 profileImage : ", profileImage);
+    const { userIdx  } = useUser();
 
     const { worryIdx } = useParams();
     const [worry, setWorry] = useState(null);
@@ -22,7 +22,6 @@ const ViewWorry = () => {
 
     const [comments, setComments] = useState([
         { id: 1, text: "저도 그럴 때가 있었어요. 힘내세요!", ownerId: 2, likes: 15 },
-        { id: 2, text: "공감합니다!", ownerId: 3, likes: 8 },
     ]);
     const [newComment, setNewComment] = useState(""); // 댓글 입력 상태
 
@@ -114,43 +113,36 @@ const ViewWorry = () => {
             <Board>고민상담소</Board>
             <ContentsContainer>
                 {isEditing ? (
-                    <EditForm>
-                        <EditInput
-                            name="title"
-                            value={editedWorry.title}
-                            onChange={handleEditChange}
-                            placeholder="제목을 입력하세요"
-                        />
-                        <EditTextarea
-                            name="content"
-                            value={editedWorry.content}
-                            onChange={handleEditChange}
-                            placeholder="내용을 입력하세요"
-                        />
-                        <EditActions>
-                            <ActionButton onClick={handleEditSave}>저장하기</ActionButton>
-                            <ActionButton onClick={handleEditToggle}>취소하기</ActionButton>
-                        </EditActions>
-                    </EditForm>
+                    <WorryEditForm
+                        editedWorry={editedWorry}
+                        handleEditChange={handleEditChange}
+                        handleEditSave={handleEditSave}
+                        handleEditToggle={handleEditToggle}
+                    />
                 ) : (
                     <>
                         <Title title={worry.title} createdAt={worry.createdAt} />
-                        <p>조회수: {worry.viewCount}</p>
+                        <DropdownContainer>
+                            <ViewCount>조회수: {worry.viewCount}</ViewCount>
+                            {isOwner && !isEditing ? (
+                                <ResolveDropdown
+                                    onChange={handleResolveChange}
+                                    isResolved={worry.isResolved}
+                                />
+                            ) : (
+                                <StatusText>
+                                    {worry.isResolved ? "🚀 고민 해결 완료" : "🪐 고민 진행 중"}
+                                </StatusText>
+                            )}
+                        </DropdownContainer>
                         <Content content={worry.content} />
                     </>
                 )}
                 {isOwner && !isEditing && (
-                    <FlexRow>
-                        <ActionButton onClick={handleEditToggle}>수정하기</ActionButton>
-                        <ActionButton onClick={handleDelete}>삭제하기</ActionButton>
-                        <Dropdown
-                            onChange={handleResolveChange}
-                            defaultValue={worry.isResolved ? "해결 완료" : "진행 중"}
-                        >
-                            <option value="진행 중">진행 중</option>
-                            <option value="해결 완료">해결 완료</option>
-                        </Dropdown>
-                    </FlexRow>
+                    <OwnerAction
+                        handleEditToggle={handleEditToggle}
+                        handleDelete={handleDelete}
+                    />
                 )}
                 <Spacer />
                 <CommentList
@@ -209,51 +201,24 @@ const Spacer = styled.div`
     height: 30px;
 `;
 
-const FlexRow = styled.div`
+const DropdownContainer = styled.h1`
     display: flex;
+    justify-content: space-between; 
     align-items: center;
-    justify-content: flex-start;
-    gap: 20px;
+    margin: 10px 0;
+`;
+
+const ViewCount = styled.h1`
+    color: #7A7A7A;
+    font-size: 1rem;
     margin-bottom: 20px;
+    text-align: left;
+    margin: 0;
 `;
 
-const ActionButton = styled.button`
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-
-    &:hover {
-        text-decoration: underline;
-    }
-`;
-
-const Dropdown = styled.select`
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-`;
-
-const EditForm = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-`;
-
-const EditInput = styled.input`
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-`;
-
-const EditTextarea = styled.textarea`
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: none;
-`;
-
-const EditActions = styled.div`
-    display: flex;
-    gap: 10px;
+const StatusText = styled.div`
+  font-family: 'NeoDunggeunmo';
+  font-size: 1rem;
+  color: #535252;
+  margin: 0;
 `;

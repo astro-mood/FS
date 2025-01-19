@@ -30,4 +30,7 @@ public class Emotions {
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "emotion_emoji")
+    private String emoji;
 }
