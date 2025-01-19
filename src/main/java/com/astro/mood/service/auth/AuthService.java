@@ -25,14 +25,16 @@ public class AuthService {
         if (userDetails == null) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
-        if (!userDetails.getUserIdx().equals(loginIdx)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
+        if(loginIdx > 0){
+            if (!userDetails.getUserIdx().equals(loginIdx)) {
+                throw new CustomException(ErrorCode.FORBIDDEN);
+            }
         }
     }
 
 
     // 사용자 찾기 메서드
-    private User findUserByIdOrThrow(Integer userIdx) {
+    public User findUserByIdOrThrow(Integer userIdx) {
         return authRepository.findById(userIdx)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
     }
