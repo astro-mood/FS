@@ -1,26 +1,53 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
-import useUserActions from "../../hooks/useUserActions";
+import {useUser} from "../../context/UserContext";
+import {commentLike} from "../../api/api";
+import SmallButton from "../button/SmallButton";
 
-const Comment = ({ comment, userId, onLike, onEdit, onDelete, onReport }) => {
-    const { isMyComment } = useUserActions(userId, null, comment.ownerId);
+const Comment = ({ comment = {}, onLike=true, onEdit, onDelete, onReport, isDiary }) => {
+    const { userIdx } = useUser();
+    const isMyComment = userIdx === comment.userIdx;
+    const [liked, setLiked] = useState(comment.liked || false);
+    const [likeCount, setLikeCount] = useState(comment.likeCount || 0);
+
+    const handleLike = async () => {
+        try {
+            const response = await commentLike(comment.commentIdx);
+            setLiked((prev) => !prev);
+            setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+        } catch (error) {
+            console.error("좋아요 처리 중 오류 발생:", error);
+        }
+    };
 
     return (
         <CommentContainer>
             <CommentText>
-                (작성일시)에 건넨 💌 <br /> {comment.text}
+                <span>{comment.createdAt || "(작성일시)"}</span>에 건넨 💌 <br />
+                {comment.content}
             </CommentText>
+
             <CommentActions>
-                <Heart onClick={() => onLike(comment.id)}>❤️ {comment.likes}</Heart>
+                {onLike && (
+                    <Heart onClick={handleLike}>
+                        {liked ? "❤️" : "🤍"} {likeCount}
+                    </Heart>
+                )}
                 {isMyComment ? (
                     <>
-                        <EditButton onClick={() => onEdit(comment.id, "수정된 내용")}>
+                        <SmallButton onClick={() => onEdit(comment.commentIdx, prompt("수정할 내용을 입력하세요:", comment.content))}>
                             수정
-                        </EditButton>
-                        <DeleteButton onClick={() => onDelete(comment.id)}>삭제</DeleteButton>
+                        </SmallButton>
+                        <SmallButton onClick={() => onDelete(comment.commentIdx)}>
+                            삭제
+                        </SmallButton>
                     </>
                 ) : (
-                    <MoreButton onClick={() => onReport(comment.id)}>...</MoreButton>
+                    !isDiary && (
+                        <SmallButton onClick={() => onReport(comment.commentIdx)}>
+                            신고
+                        </SmallButton>
+                    )
                 )}
             </CommentActions>
         </CommentContainer>
@@ -46,8 +73,10 @@ const CommentText = styled.div`
 
 const CommentActions = styled.div`
     display: flex;
+    align-items: center;
+    justify-content: flex-end;
     gap: 10px;
-    margin-top: 5px;
+    margin-top: -10px;
 `;
 
 const Heart = styled.button`
@@ -59,44 +88,5 @@ const Heart = styled.button`
 
     &:hover {
         opacity: 0.8;
-    }
-`;
-
-const EditButton = styled.button`
-    background: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-
-    &:hover {
-        background: #45a049;
-    }
-`;
-
-const DeleteButton = styled.button`
-    background: #f44336;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-
-    &:hover {
-        background: #e53935;
-    }
-`;
-
-const MoreButton = styled.button`
-    background: #555;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-
-    &:hover {
-        background: #444;
     }
 `;
