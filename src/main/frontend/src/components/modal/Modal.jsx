@@ -8,11 +8,18 @@ const Modal = ({
                                 onCancel,
                             }) => {
     if (!isOpen) return null;
+    // \n을 <br />로 변환
+    const formattedMessage = message.split('\n').map((line, index) => (
+        <span key={index}>
+            {line}
+            <br />
+        </span>
+    ));
 
     return (
         <Overlay>
             <ModalContainer>
-                <Message>{message}</Message>
+                <Message>{formattedMessage}</Message>
                 <ButtonContainer>
                     <Button onClick={onCancel}>취소</Button>
                     <Button onClick={onConfirm}>확인</Button>
@@ -46,7 +53,7 @@ const ModalContainer = styled.div`
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
-const Message = styled.p`
+const Message = styled.div`
     font-size: 1rem;
     margin-bottom: 20px;
     color: #333;
