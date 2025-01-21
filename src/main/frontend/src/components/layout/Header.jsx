@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router";
 import LogoImage from '../../images/logo.png';
+import {useUser} from "../../context/UserContext";
 
 const Header = () => {
+    const { nickname, profileImage  } = useUser();
     const navigate = useNavigate();
     const [activeItem, setActiveItem] = useState("");
-    // db에서 가져와야 하는 정보
-    const [nickname, setNickname] = useState("닉네임");
-    const [profileImage, setProfileImage] = useState("");
 
     const handleNavClick = (item, path) => {
         setActiveItem(item);
@@ -61,11 +60,12 @@ const Header = () => {
 export default Header;
 
 const HeaderContainer = styled.div`
-    width: 300px;
+    width: 250px;
     height: 100%;
     background: linear-gradient(180deg, #111731 22.5%, #963b74 100%);
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
@@ -89,39 +89,36 @@ const Logo = styled.img`
     width: 227px;
     height: 227px;
     margin-bottom: -60px;
+    cursor: pointer;
 `;
 
 const ProfileContainer = styled.div`
     display: flex;
     align-items: center;
+    justify-content: center;
     margin: 20px 0;
     cursor: pointer;
-    
+    gap : 25px;
+    width: 100%;
 `;
 
 const ProfileImage = styled.img`
     width: 60px;
     height: 60px;
     flex-shrink: 0;
-    background-color: #D9D9D9;
+    background: #2e4055;
     border-radius: 50%;
-    border: 2px solid white;
-    margin-right: 20px; // 이미지와 닉네임 간격
+    border: 1px solid white;
 `;
 
 const Nickname = styled.p`
     display: flex;
-    width: 136px;
-    height: 64px;
     flex-direction: column;
     justify-content: center;
     flex-shrink: 0;
     color: #7D8DDE;
-    text-align: center;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 800;
-    line-height: normal;
+    font-size: 20px;
+    font-weight: bold;
 `;
 
 const NavItem = styled.div`
