@@ -19,11 +19,12 @@ const InputDiv = styled.div`
     flex-wrap: wrap;
     align-items: center;
     width: 35rem;
-    @media only screen and (max-width: 1024px) {
+
+    ${MediaQuery.mobile`
         flex-direction: column;
         gap: 0.3125rem;
         width: 100%;
-    }
+    `}
 `;
 const Label = styled.label`
     color: #7D8DDE;
