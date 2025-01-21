@@ -4,12 +4,20 @@ import Content from "../components/board/PostContent";
 import CommentList from "../components/comment/CommentList";
 import CommentInput from "../components/comment/CommentInput";
 import styled from "styled-components";
-import { deleteDiary, getDiaryByIdx, updateDiary } from "../api/api";
+import {
+    deleteDiary, deleteDiaryComment,
+    getDiaryByIdx, getDiaryComment,
+    postDiaryComment,
+    updateDiary, updateDiaryComment,
+} from "../api/api";
 import { useParams } from "react-router";
 import DiaryEditForm from "../components/board/DiaryEditForm";
 import OwnerAction from "../components/button/EditDeleteButton";
+import {useUser} from "../context/UserContext";
 
 const ViewDiary = ({ userId }) => {
+    const { userIdx  } = useUser();
+    const [editedComment, setEditedComment] =  useState({ id: null, content: "" });
     const { diaryIdx } = useParams();
     const [diary, setDiary] = useState({});
     const [comments, setComments] = useState([]);
@@ -45,18 +53,6 @@ const ViewDiary = ({ userId }) => {
 
         fetchDiary();
     }, [diaryIdx]);
-
-    const handleAddComment = () => {
-        if (!newComment.trim()) return;
-        const newCommentData = {
-            id: Date.now(),
-            text: newComment,
-            ownerId: userId,
-            likes: 0,
-        };
-        setComments((prev) => [...prev, newCommentData]);
-        setNewComment("");
-    };
 
     const handleEditToggle = () => setIsEditing((prev) => !prev);
 
@@ -134,6 +130,66 @@ const ViewDiary = ({ userId }) => {
         });
     };
 
+    //comment 관련
+    // 댓글 데이터 불러오기
+    const fetchDiaryComment = async () => {
+        try {
+            const response = await getDiaryComment(diaryIdx)
+            setComments(response.data.content);
+            console.log("diary comment", response)
+        } catch (error) {
+            console.error("댓글 데이터를 불러오는 데 실패했습니다.", error);
+        }
+    };
+
+    useEffect(() => {
+        if (diaryIdx) {
+            fetchDiaryComment()
+        }
+    }, [diaryIdx]);
+
+    if (!diary) {
+        return <div>Loading...</div>;
+    }
+
+    // 댓글 추가
+    const handleAddComment = async () => {
+        if (!newComment.trim()) return;
+        try {
+            const data = { content: newComment };
+            const response = await postDiaryComment(diaryIdx, data);
+            setComments((prev) => [...prev, response]);
+            setNewComment("");
+            fetchDiaryComment();
+        } catch (error) {
+        }
+    };
+
+    // 댓글 수정
+    const handleCommentEdit = async (commentIdx, newContent) => {
+        try {
+            await updateDiaryComment(commentIdx, { content: newContent });
+            fetchDiaryComment();
+            setEditedComment({ id: null, content: "" });
+            alert("댓글이 수정되었습니다.");
+        } catch (error) {
+            console.error("댓글 수정에 실패했습니다.", error);
+        }
+    };
+
+    // 댓글 삭제
+    const handleCommentDelete = async (commentIdx) => {
+        if (window.confirm("정말 삭제하시겠습니까?")) {
+            try {
+                await deleteDiaryComment(commentIdx);
+                fetchDiaryComment();
+                alert("댓글이 삭제되었습니다.");
+            } catch (error) {
+                console.error("댓글 삭제에 실패했습니다.", error);
+            }
+        }
+    };
+
     return (
         <Container>
             <Board>{diary.createdAt} 일기</Board>
@@ -170,25 +226,19 @@ const ViewDiary = ({ userId }) => {
                         />
                         <Spacer />
                         <CommentList
-                            comments={comments}
-                            userId={userId}
-                            onLike={(id) =>
-                                setComments((prev) =>
-                                    prev.map((c) => (c.id === id ? { ...c, likes: c.likes + 1 } : c))
-                                )
-                            }
-                            onEdit={(id, newText) =>
-                                setComments((prev) =>
-                                    prev.map((c) => (c.id === id ? { ...c, text: newText } : c))
-                                )
-                            }
-                            onDelete={(id) => setComments((prev) => prev.filter((c) => c.id !== id))}
                             title="이때의 나에게 건넨 말"
+                            comments={comments}
+                            userIdx={userIdx}
+                            onEdit={handleCommentEdit}
+                            onDelete={handleCommentDelete}
+                            isDiary={true}
                         />
                         <CommentInput
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            onSubmit={handleAddComment}
+                            onSubmit={(content) => {
+                                handleAddComment(content);
+                            }}
                             placeholder="지금의 나를 전하세요."
                         />
                     </>

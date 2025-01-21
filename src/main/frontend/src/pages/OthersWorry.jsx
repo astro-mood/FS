@@ -4,13 +4,20 @@ import Content from "../components/board/PostContent";
 import CommentList from "../components/comment/CommentList";
 import CommentInput from "../components/comment/CommentInput";
 import styled from "styled-components";
-import { getWorryByIdx, updateWorry, deleteWorry, resolveChangeWorry } from "../api/api";
+import {
+    getWorryByIdx,
+    updateWorry,
+    deleteWorry,
+    resolveChangeWorry,
+    getWorryComment,
+    postWorryComment,
+    updateWorryComment, deleteWorryComment, reportWorryComment
+} from "../api/api";
 import { useParams } from "react-router";
 import { useUser } from "../context/UserContext";
 import WorryEditForm from "../components/board/WorryEditForm";
 import OwnerAction from "../components/button/EditDeleteButton";
 import ResolveDropdown from "../components/dropdown/ResolveDropdown";
-
 
 const ViewWorry = () => {
     const { userIdx  } = useUser();
@@ -20,22 +27,9 @@ const ViewWorry = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedWorry, setEditedWorry] = useState({ title: "", content: "" });
 
-    const [comments, setComments] = useState([
-        { id: 1, text: "저도 그럴 때가 있었어요. 힘내세요!", ownerId: 2, likes: 15 },
-    ]);
-    const [newComment, setNewComment] = useState(""); // 댓글 입력 상태
-
-    const handleAddComment = () => {
-        if (!newComment.trim()) return; // 빈 댓글 방지
-        const newCommentData = {
-            id: Date.now(), // 임시 ID (백엔드와 연동 시 수정 필요)
-            text: newComment,
-            ownerId: userIdx,
-            likes: 0,
-        };
-        setComments((prev) => [...prev, newCommentData]);
-        setNewComment("");
-    };
+    const [comments, setComments] = useState();
+    const [editedComment, setEditedComment] = useState({ id: null, content: "" });
+    const [newComment, setNewComment] = useState("");
 
     const fetchWorry = async () => {
         try {
@@ -95,9 +89,23 @@ const ViewWorry = () => {
         }
     };
 
+    // comment 관련
+    // 댓글 데이터 불러오기
+    const fetchWorryComment = async () => {
+        try {
+            const response = await getWorryComment(worryIdx)
+            console.log("댓글 API 응답:", response.data.content);  // 실제로 찍어보기
+            setComments(response.data.content);
+        } catch (error) {
+            console.error("댓글 데이터를 불러오는 데 실패했습니다.", error);
+        }
+    };
+
     useEffect(() => {
         if (worryIdx) {
             fetchWorry();
+            fetchWorryComment();
+
         }
     }, [worryIdx]);
 
@@ -105,8 +113,60 @@ const ViewWorry = () => {
         return <div>Loading...</div>;
     }
 
-    console.log("고민글 쓴 userIdx:", worry.userIdx);
     const isOwner = userIdx === worry.userIdx; // 현재 사용자가 작성자인지 판단
+
+    // 댓글 추가
+    const handleAddComment = async () => {
+        if (!newComment.trim()) return;
+        try {
+            const data = { content: newComment }; // 전송할 데이터 형식
+            const response = await postWorryComment(worryIdx, data);
+            setComments((prev) => [...prev, response]);
+            setNewComment("");
+            fetchWorryComment();
+        } catch (error) {
+        }
+    };
+
+    // 댓글 수정
+    const handleCommentEdit = async (commentIdx, newContent) => {
+        try {
+            await updateWorryComment(commentIdx, { content: newContent });
+            fetchWorryComment();
+            setEditedComment({ id: null, content: "" });
+            alert("댓글이 수정되었습니다.");
+        } catch (error) {
+            console.error("댓글 수정에 실패했습니다.", error);
+        }
+    };
+
+    // 댓글 삭제
+    const handleCommentDelete = async (commentIdx) => {
+        if (window.confirm("정말 삭제하시겠습니까?")) {
+            try {
+                await deleteWorryComment(commentIdx);
+                fetchWorryComment();
+                alert("댓글이 삭제되었습니다.");
+            } catch (error) {
+                console.error("댓글 삭제에 실패했습니다.", error);
+            }
+        }
+    };
+
+    // 댓글 신고
+    const handleCommentReport = async (commentIdx) => {
+        if (window.confirm("정말 신고하시겠습니까?")) {
+            try {
+                console.log("신고 요청 데이터:", { commentIdx }); // 요청 데이터 로그
+                await reportWorryComment(commentIdx);
+                console.log("신고 성공:");
+                // fetchWorryComment();
+                alert("댓글이 신고되었습니다.");
+            } catch (error) {
+                console.error("댓글 신고에 실패했습니다.", error);
+            }
+        }
+    };
 
     return (
         <Container>
@@ -148,23 +208,16 @@ const ViewWorry = () => {
                 <CommentList
                     comments={comments}
                     userIdx={userIdx}
-                    onLike={(id) =>
-                        setComments((prev) =>
-                            prev.map((c) => (c.id === id ? { ...c, likes: c.likes + 1 } : c))
-                        )
-                    }
-                    onEdit={(id, newText) =>
-                        setComments((prev) =>
-                            prev.map((c) => (c.id === id ? { ...c, text: newText } : c))
-                        )
-                    }
-                    onDelete={(id) => setComments((prev) => prev.filter((c) => c.id !== id))}
-                    onReport={(id) => alert(`댓글 ${id} 신고 완료.`)}
+                    onReport={handleCommentReport}
+                    onEdit={handleCommentEdit}
+                    onDelete={handleCommentDelete}
                 />
                 <CommentInput
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    onSubmit={handleAddComment}
+                    onSubmit={(content) => {
+                        handleAddComment(content);
+                    }}
                     placeholder="위로의 말을 건네세요."
                 />
             </ContentsContainer>

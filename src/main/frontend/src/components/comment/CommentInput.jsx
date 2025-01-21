@@ -6,10 +6,18 @@ const CommentInput = ({ value, onChange, onSubmit, placeholder }) => {
         <CommentInputContainer>
             <Input
                 placeholder={placeholder}
-                value={value}
-                onChange={onChange}
+                value={value}e 사용
+                onChange={(e) => {
+                    onChange(e);
+                }}
             />
-            <AddButton onClick={onSubmit}>등록</AddButton>
+            <AddButton
+                onClick={() => {
+                    onSubmit();
+                }}
+            >
+                등록
+            </AddButton>
         </CommentInputContainer>
     );
 };

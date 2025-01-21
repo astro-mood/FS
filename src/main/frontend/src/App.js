@@ -36,6 +36,7 @@ const App = () => {
 
                 <Route element={<HeaderLayout />}>
                     <Route path="/aboutlogin" element={<AboutLogin />} />
+                    <Route path="/main" element={<Main />} />
                 </Route>
 
                 <Route element={<Layout />}>
@@ -44,7 +45,6 @@ const App = () => {
                     <Route path="/answerworrydetail" element={<AnswerWorryDetail />} />
                     <Route path="/boardworry" element={<BoardWorry />} />
                     <Route path="/diary/:diaryIdx" element={<ViewDiary />} />
-                    <Route path="/main" element={<Main />} />
                     <Route path="/mydiary" element={<MyDiary />} />
                     <Route path="/myworry" element={<MyWorry />} />
                     <Route path="/worry/:worryIdx" element={<OthersWorry />} />
