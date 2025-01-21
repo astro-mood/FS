@@ -123,4 +123,26 @@ export const updateDiary = async (diary_idx, updatedData) => {
     }
 };
 
+// 유저정보 보기
+export const getUserInfo = async (loginIdx) => {
+    try {
+        console.log("loginIdx : ", loginIdx);
+        const response = await instance.get(`/user/${loginIdx}`);
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+//유저정보 수정은 ModifyUser.jsx
 
+// 회원탈퇴
+export const withdrawUser = async (loginIdx) => {
+    try {
+        const response = await instance.delete(`/user/${loginIdx}`);
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};

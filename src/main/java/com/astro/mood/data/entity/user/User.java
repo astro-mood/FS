@@ -6,14 +6,12 @@ import com.astro.mood.web.dto.auth.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import org.apache.commons.validator.EmailValidator;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 
 @Data
 @Entity
@@ -84,6 +82,9 @@ public class User {
     }
 
     public void updatePhone(String newPhone) {
+        if(newPhone.isEmpty()){
+            this.phone = null;
+        }
         if (newPhone != null  && !newPhone.isEmpty()) {
             if(newPhone.length() == 11){
                 this.phone = newPhone;
@@ -92,6 +93,5 @@ public class User {
             }
         }
     }
-
 
 }
