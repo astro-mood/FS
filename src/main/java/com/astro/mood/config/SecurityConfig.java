@@ -72,7 +72,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000","http://localhost:8080"
+                "http://localhost:3000","http://localhost:8080", "https://astromood.co.kr"
         ));
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader("Bearer_Token");
