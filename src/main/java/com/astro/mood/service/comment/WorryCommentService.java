@@ -211,7 +211,7 @@ public class WorryCommentService {
     public void reportComment(Integer userIdx, Integer commentIdx) {
         WorryComment comment = worryCommentRepository.findByCommentIdxWithLock(commentIdx)
                 .orElseThrow( () -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
-        if(!userIdx.equals(comment.getUserIdx())){
+        if(userIdx.equals(comment.getUserIdx())){
             throw new CustomException(ErrorCode.SELF_REPORT_ERROR);
         }else if(comment.getIsDeleted()){
             throw new CustomException(ErrorCode.DELETED_COMMENT_REPORT_ERROR);
