@@ -6,6 +6,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,15 +47,9 @@ public class JWTUtil {
 
     //이메일 반환 메서드
     private String getUserEmail(String token) {
-//        return Jwts.parserBuilder()
-//                .setSigningKey(secretKey)
-//                .build()
-//                .parseClaimsJws(token)
-//                .getBody()
-//                .getSubject();
-
-        Claims claims = Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("email", String.class);
@@ -60,8 +57,9 @@ public class JWTUtil {
 
     // loginIdx 반환 메서드
     public Integer getLoginIdx(String token) {
-        Claims claims = Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("loginIdx", Integer.class);
@@ -69,16 +67,18 @@ public class JWTUtil {
 
     // role 반환 메서드
     public String getRole(String token) {
-        Claims claims = Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("role", String.class);
     }
     // nickname 반환 메서드
     public String getNickname(String token) {
-        Claims claims = Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("nickname", String.class);
@@ -88,10 +88,11 @@ public class JWTUtil {
     // 토큰이 소멸 (유효기간 만료) 하였는지 검증 메서드
     public Boolean isExpired(String token) {
          try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token)
-                    .getBody();
+             Claims claims = Jwts.parserBuilder()
+                     .setSigningKey(secretKey)
+                     .build()
+                     .parseClaimsJws(token)
+                     .getBody();
             return claims.getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
             // 토큰이 만료된 경우
@@ -130,8 +131,14 @@ public class JWTUtil {
         RestTemplate restTemplate = new RestTemplate();
         String googleVerifyUrl = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken;
 
-        // ID 토큰 검증
-        return restTemplate.getForObject(googleVerifyUrl, Map.class);
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                googleVerifyUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
+
+        return response.getBody();
     }
 
 
