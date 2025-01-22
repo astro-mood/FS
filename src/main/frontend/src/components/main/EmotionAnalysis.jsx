@@ -9,10 +9,11 @@ import {
     LineElement,
     Title,
     Tooltip,
-    Legend,
+    Legend, BubbleController,
 } from "chart.js";
 
 ChartJS.register(
+    BubbleController,
     CategoryScale,
     LinearScale,
     PointElement,
@@ -121,8 +122,9 @@ const EmotionAnalysis = () => {
 
     return (
         <Container>
-            <h3>감정 분석</h3>
+            <SubTitle>감정 분석</SubTitle>
             <Chart type="bubble" data={data} options={options} />
+            <Message>힘든 한달을 보내셨네요. 이번 달은 좋은 일만 가득하실 거예요!</Message>
         </Container>
     );
 };
@@ -138,6 +140,20 @@ const Container = styled.div`
     width: 40%;
     flex: 1;
     max-width: 100%;
+`;
 
+const SubTitle = styled.h2`
+    font-size: 1.2rem;
+    margin: 0;
+    margin-top: -5px;
+    display: flex;
+    justify-content: flex-start;
+`;
 
+const Message = styled.h2`
+    font-size: 1.1rem;
+    display: flex;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;

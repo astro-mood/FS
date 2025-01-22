@@ -23,8 +23,9 @@ const GoogleLoginButton = () => {
         }
 
         try {
+            const originUrl = window.location.origin;
             const response = await axios.post(
-                "http://localhost:8080/api/auth/google",
+                originUrl+"/api/auth/google",
                 { idToken: token },
                 { headers: { 'Content-Type': 'application/json' } }
             );
