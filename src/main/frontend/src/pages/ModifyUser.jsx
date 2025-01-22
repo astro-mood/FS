@@ -155,8 +155,9 @@ const ModifyUser = () => {
             });
 
             const token = localStorage.getItem('token');
+            const originUrl = window.location.origin;
             await axios.put(
-                `http://localhost:8080/api/user/${userIdx}`,
+                originUrl+`/api/user/${userIdx}`,
                 formData,
                 {
                     headers: { Authorization: `Bearer ${token}` },

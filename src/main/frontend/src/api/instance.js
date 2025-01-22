@@ -3,7 +3,7 @@ import customJwtDecode from './jwtDecode';
 
 // const baseURL = process.env.REACT_APP_API_BASE_URL;
 const instance = axios.create({
-    baseURL: "http://localhost:8080/api",
+    baseURL: window.location.origin+"/api",
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
