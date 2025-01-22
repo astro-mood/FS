@@ -26,7 +26,7 @@ export default Dashboard;
 const Container = styled.div`
     width: calc(100% - 60px); 
     max-width: 2000px; 
-    height: calc(100vh - 10px); 
+    height: calc(100vh - 10px);
     flex-shrink: 0;
     background-size: cover;
     padding: 20px;
@@ -51,12 +51,11 @@ const EmotionContainer = styled.div`
     display: flex;
     justify-content: flex-start;
     gap: 20px;
-    flex-wrap: wrap; //줄바꿈 허용
     width: 100%; 
     box-sizing: border-box;
     flex: 1; 
-    height: 100%;
-    overflow: hidden;
+    height: 90%;
+    overflow: auto;
     align-items: stretch;
 
 `;
