@@ -84,8 +84,7 @@ public class User {
     public void updatePhone(String newPhone) {
         if(newPhone.isEmpty()){
             this.phone = null;
-        }
-        if (newPhone != null  && !newPhone.isEmpty()) {
+        }else{
             if(newPhone.length() == 11){
                 this.phone = newPhone;
             }else{
@@ -93,5 +92,4 @@ public class User {
             }
         }
     }
-
 }
