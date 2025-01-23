@@ -6,7 +6,6 @@ const Title = ({ title, createdAt }) => {
         <TitleContainer>
             <h1>{title}</h1>
 
-            {/*createdAt을 전달하지 않으면 이 값이 출력되지 않음*/}
             {createdAt && <p>{createdAt} 에 남긴 📩</p>}
         </TitleContainer>
     );
@@ -19,7 +18,7 @@ const TitleContainer = styled.div`
     h1 {
         font-size: 1.8rem;
         color: black;
-        margin-bottom: 5px;
+        margin-top: 0px;
     }
 
     p {

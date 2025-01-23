@@ -34,13 +34,13 @@ const ViewDiary = ({ userId }) => {
         const fetchDiary = async () => {
             try {
                 const diaryData = await getDiaryByIdx(diaryIdx);
-                setDiary(diaryData);
-                setComments(diaryData.comments || []);
-                setEmotions(diaryData.emotions || []);
+                setDiary(diaryData.data);
+                setComments(diaryData.data.comments || []);
+                setEmotions(diaryData.data.emotions || []);
                 setEditedDiary({
-                    title: diaryData.title || "",
-                    content: diaryData.content || "",
-                    emotions: diaryData.emotions?.map((e) => ({
+                    title: diaryData.data.title || "",
+                    content: diaryData.data.content || "",
+                    emotions: diaryData.data.emotions?.map((e) => ({
                         emotion: e.emoji,
                         score: e.userScore,
                         emotionIdx: e.emotionIdx,
@@ -74,29 +74,38 @@ const ViewDiary = ({ userId }) => {
 
             const response = await updateDiary(diaryIdx, updatedData);
 
-            // 바로 상태업데이트. 새로고침안해도 반영될 수 있게.
-            setDiary((prev) => ({
-                ...prev,
-                title: response.title,
-                content: response.content,
-                emotions: response.emotions,
-            }));
-            setEmotions(response.emotions || []);
+            if (response.isSuccess) {
+                // 바로 상태업데이트. 새로고침안해도 반영될 수 있게.
+                setDiary((prev) => ({
+                    ...prev,
+                    ...response.data,
+                }));
+                setEmotions(response.data.emotions || []);
 
-            setIsEditing(false);
-            alert("수정되었습니다.");
+                setIsEditing(false);
+                alert("수정되었습니다.");
+            } else {
+                console.error("수정 중 오류 발생:", response.error.message);
+                alert(response.error.message || "수정에 실패했습니다. 다시 시도해주세요.");
+            }
         } catch (error) {
             console.error("수정에 실패했습니다.", error);
             alert("수정에 실패했습니다. 다시 시도해주세요.");
         }
     };
-
     const handleDelete = async () => {
         if (window.confirm("정말 삭제하시겠습니까?")) {
             try {
-                await deleteDiary(diaryIdx);
-                alert("삭제되었습니다.");
-                window.location.href = "/mydiary";
+                const response = await deleteDiary(diaryIdx);
+
+                if (response.isSuccess) {
+                    alert("삭제되었습니다.");
+                    setDiary(null);
+                    window.location.href = "/mydiary";
+                } else {
+                    console.error("삭제 중 오류 발생:", response.error.message);
+                    alert(response.error.message || "삭제에 실패했습니다. 다시 시도해주세요.");
+                }
             } catch (error) {
                 console.error("삭제에 실패했습니다.", error);
                 alert("삭제에 실패했습니다. 다시 시도해주세요.");

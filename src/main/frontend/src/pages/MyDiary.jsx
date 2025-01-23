@@ -16,34 +16,43 @@ const MyDiary = () => {
             const data = { year: currentYear, month: currentMonth };
             const response = await getMyDiary(data);
 
-            // 3) 응답을 받아 날짜별로 diaryIdx, topEmotions를 맵핑
-            const tempMap = {};
+            if (response.isSuccess) {
+                const diaryData = response.data;
 
-            // 날짜별로 감정 데이터를 매핑
-            response.forEach((entry) => {
-                // entry = { date: "2025-01-11", diaryIdx:16, emotions:[...] }
+                // 3) 응답을 받아 날짜별로 diaryIdx, topEmotions를 맵핑
+                const tempMap = {};
 
-                // 이모지 상위 2개 선택
-                const topEmotions = entry.emotions
-                    .sort((a, b) => b.userScore - a.userScore)
-                    .slice(0, 2)
-                    .map((e) => e.emoji);
+                // 날짜별로 감정 데이터를 매핑
+                diaryData.forEach((entry) => {
+                    // entry = { date: "2025-01-11", diaryIdx:16, emotions:[...] }
 
-                // 날짜를 key로, { diaryIdx, emotions: [...]} 형태로 저장
-                tempMap[entry.date] = {
-                    diaryIdx: entry.diaryIdx,
-                    emojis: topEmotions,
-                };
-            });
+                    // 이모지 상위 2개 선택
+                    const topEmotions = entry.emotions
+                        .sort((a, b) => b.userScore - a.userScore)
+                        .slice(0, 2)
+                        .map((e) => e.emoji);
 
-            // 4) State에 저장
-            setDiariesMap(tempMap);
+                    // 날짜를 key로, { diaryIdx, emotions: [...]} 형태로 저장
+                    tempMap[entry.date] = {
+                        diaryIdx: entry.diaryIdx,
+                        emojis: topEmotions,
+                    };
+                });
 
+                // 4) State에 저장
+                setDiariesMap(tempMap);
+            } else {
+                console.error("일기 데이터를 가져오는 데 실패했습니다:", response.error.message);
+            }
         } catch (error) {
             console.error("일기 데이터를 가져오는 중 오류 발생:", error);
         }
     };
 
+    // 5) 달력 변경 시마다 데이터 가져오기
+    useEffect(() => {
+        fetchDiaryData();
+    }, [currentYear, currentMonth]);
     // 5) 달력 변경 시마다 데이터 가져오기
     useEffect(() => {
         fetchDiaryData();
