@@ -1,6 +1,7 @@
 package com.astro.mood.web.controller.diary;
 
 import com.astro.mood.service.diary.DiaryService;
+import com.astro.mood.web.dto.ApiResponse;
 import com.astro.mood.web.dto.diary.DiaryDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,39 +20,41 @@ public class DiaryController {
 
     // 일기쓰기
     @PostMapping("/writediary")
-    public ResponseEntity<DiaryDto.Response> createDiary(@RequestBody DiaryDto.CreateRequest request) {
+    public ApiResponse<DiaryDto.Response> createDiary(@RequestBody DiaryDto.CreateRequest request) {
         DiaryDto.Response response = diaryService.createDiary(request);
-        return ResponseEntity.ok(response);
+        return ApiResponse.created(response);
     }
 
     // 달력으로 내가 쓴 일기 가져오기
     @GetMapping("/mydiary")
-    public List<DiaryDto.CalendarResponse> getDiaryCalendar(
+    public ResponseEntity<ApiResponse<List<DiaryDto.CalendarResponse>>> getDiaryCalendar(
             @RequestParam("year") Integer year,
             @RequestParam("month") Integer month) {
-        return diaryService.getDiaryCalendar(year, month);
+        List<DiaryDto.CalendarResponse> response = diaryService.getDiaryCalendar(year, month);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
+
 
     // 일기 상세보기
     @GetMapping("/diary/{diary_idx}")
-    public ResponseEntity<DiaryDto.Response> getDiary(@PathVariable Integer diary_idx) {
+    public ApiResponse<DiaryDto.Response> getDiary(@PathVariable Integer diary_idx) {
         DiaryDto.Response response = diaryService.getDiaryByIdx(diary_idx);
-        return ResponseEntity.ok(response);
+        return ApiResponse.ok(response);
     }
 
     // 일기 삭제
     @DeleteMapping("/diary/{diary_idx}")
-    public ResponseEntity<Void> deleteDiary(@PathVariable Integer diary_idx) {
+    public ApiResponse<Void> deleteDiary(@PathVariable Integer diary_idx) {
         diaryService.deleteDiary(diary_idx);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.ok(null);
     }
 
     // 일기 수정
     @PutMapping("/diary/{diary_idx}")
-    public ResponseEntity<DiaryDto.Response> updateDiary(
+    public ApiResponse<DiaryDto.Response> updateDiary(
             @PathVariable Integer diary_idx,
             @RequestBody DiaryDto.UpdateRequest updateRequest) {
         DiaryDto.Response response = diaryService.updateDiary(diary_idx, updateRequest);
-        return ResponseEntity.ok(response);
+        return ApiResponse.ok(response);
     }
 }
