@@ -7,7 +7,7 @@ import SmallButton from "../button/SmallButton";
 const Comment = ({ comment = {}, onLike=true, onEdit, onDelete, onReport, isDiary }) => {
     const { userIdx } = useUser();
     const isMyComment = userIdx === comment.userIdx;
-    const [liked, setLiked] = useState(comment.liked || false);
+    const [liked, setLiked] = useState(comment.isLiked || false);
     const [likeCount, setLikeCount] = useState(comment.likeCount || 0);
 
     const handleLike = async () => {
