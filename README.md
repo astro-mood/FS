@@ -1,7 +1,7 @@
 ## 🌠 ASTRO MOOD
 
 ↓ 감정 일기 / 익명의 고민상담소
-
+<br>https://caramel-surgeon-63d.notion.site/ASTRO-MOOD-1707035cda4f806ba428cdbc0aa3688c
 
 ## What is AstroMood?
 
@@ -28,18 +28,18 @@
 ## TEAM
 
 <aside>
-🌟
 
-**박조은 (FS)**
+
+**🌟 박조은 (FS)**
 
 *“ 언젠가 익명의 고민상담소를 꼭 만들고 싶었다. 그래서 AstroMood에 대한 기획을 하게 되었을 때 너무 신났다! 아무튼, 모든 사람들이 솔직할 수 있는 공간이 어디서든 있었으면 좋겠다.”* 
 
 </aside>
 
 <aside>
-🌟
 
-**김현지 (FS)**
+
+**🌟 김현지 (FS)**
 
  *“마음에 드는 아이디어가 있다,라고 시작된 대화로부터 의기투합해서 즐겁게 기획했다. 그만큼 기간 안에 주요 기능들은 다 만들 수 있을 줄 알았는데-후순위로 미뤄둔 것들을 제외하고!- 빨리 끝낼 수 있을 거라고 생각했던 부분에서 오래 걸리는 바람에 죄송했다. 오랜만에 하는 리액트도 어려웠고, 조은님께 많이 의지하면서 프로젝트를 하는 동안 덕분에 으쌰으쌰하면서 할 수 있었다. 기간 안에 전부를 할 수는 없었지만, 이 후에도 완성까지 달릴 예정이다. 완성까지 하고 싶은 프로젝트를 만나서 좋았다.”*
 
@@ -67,6 +67,7 @@
 - React
 - MariaDB 10.11
 - AWS EC2/S3/RDS
+  
 </aside>
 
 ## **🛸Page layout**
@@ -85,7 +86,8 @@
     
 
 # **🛰**API 명세서
-
+✨ 자세한 API 명세서는 노션을 참고해주세요!
+<br>
 ![image](https://github.com/user-attachments/assets/28be763e-dc84-468f-ad59-bc13d26afb3c)
 ![image](https://github.com/user-attachments/assets/36780d51-4ffd-491f-b471-2447ca505c3d)
 
