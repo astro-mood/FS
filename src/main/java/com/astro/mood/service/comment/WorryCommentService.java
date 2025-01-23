@@ -6,6 +6,7 @@ import com.astro.mood.data.entity.worry.Worry;
 import com.astro.mood.data.entity.worry.WorryComment;
 import com.astro.mood.data.entity.worry.WorryCommentReport;
 import com.astro.mood.data.repository.auth.AuthRepository;
+import com.astro.mood.data.repository.likes.LikesRepository;
 import com.astro.mood.data.repository.worry.WorryCommentReportsRepository;
 import com.astro.mood.data.repository.worry.WorryCommentRepository;
 import com.astro.mood.data.repository.worry.WorryRepository;
@@ -18,9 +19,13 @@ import com.astro.mood.web.dto.comment.WorryCommentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class WorryCommentService {
     private final WorryCommentRepository worryCommentRepository;
     private final WorryCommentReportsRepository worryCommentReportsRepository;
     private final WorryRepository worryRepository;
+    private final LikesRepository likesRepository;
 
     private final AuthService authService;
     private final AuthRepository authRepository;
@@ -97,11 +103,33 @@ public class WorryCommentService {
 
     // 걱정 댓글 조회
     @Transactional(transactionManager = "tmJpa")
-    public Page<WorryCommentResponse> getCommentsByWorry(Integer worryIdx, Pageable pageable) {
+    public Page<WorryCommentResponse> getCommentsByWorry(Integer worryIdx, Integer userIdx, Pageable pageable) {
         validateWorry(worryIdx);
-
         Page<WorryComment> comments = worryCommentRepository.findByWorryIdxAndParentCommentIsNull(worryIdx, pageable);
-        return comments.map(WorryCommentResponse::toDto);
+        List<WorryCommentResponse> commentResponses = comments.stream()
+                .map(comment -> {
+                    WorryCommentResponse response = WorryCommentResponse.toDto(comment);
+                    response.setIsLiked(isCommentLiked(response, userIdx));
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(commentResponses, pageable, comments.getTotalElements());
+    }
+
+    private boolean isCommentLiked(WorryCommentResponse comment, Integer userIdx) {
+        if(userIdx == null || userIdx < 1){
+            return false;
+        }
+        // 현재 댓글에 대한 좋아요 여부 확인
+        boolean isLiked = likesRepository.existsByUserIdxAndWorryCommentIdx(userIdx, comment.getCommentIdx());
+
+        // 자식 댓글에 대해 재귀적으로 좋아요 여부 설정
+        for (WorryCommentResponse childComment : comment.getChildrenComments()) {
+            boolean childIsLiked = isCommentLiked(childComment, userIdx);
+            childComment.setIsLiked(childIsLiked);
+        }
+        return isLiked;
     }
 
     //댓글 수정

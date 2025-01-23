@@ -30,13 +30,13 @@ public class CommentController {
     private final WorryCommentService worryCommentService;
 
 
-    //일기 댓글 조회
+    //댓글 조회
     @GetMapping("/{type}-comments/{postIdx}")
     public ResponseEntity<ApiResponse<Page<?>>> getComments(
             @PathVariable Integer postIdx, @PathVariable String type,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "30") int size
             ) {
 
         try{
@@ -44,7 +44,7 @@ public class CommentController {
                 Page<DiaryCommentResponse> result = diaryCommentService.getCommentsByDiary(postIdx, userDetails.getUserIdx(), PageRequest.of(page, size));
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else if(type.equals("worry")){
-                Page<WorryCommentResponse> result = worryCommentService.getCommentsByWorry(postIdx, PageRequest.of(page, size));
+                Page<WorryCommentResponse> result = worryCommentService.getCommentsByWorry(postIdx, userDetails.getUserIdx(), PageRequest.of(page, size));
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else{
                 throw new CustomException(ErrorCode.NOT_FOUND_END_POINT);

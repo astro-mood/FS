@@ -21,6 +21,8 @@ public class WorryCommentResponse {
     private Boolean isDeleted;
     private int likeCount;
     private String createdAt;
+    private Boolean isLiked;
+
 
     private List<WorryCommentResponse> childrenComments; // 자식 댓글
 
