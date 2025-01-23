@@ -1,5 +1,4 @@
 import axios from 'axios';
-import customJwtDecode from './jwtDecode';
 
 // const baseURL = process.env.REACT_APP_API_BASE_URL;
 const instance = axios.create({
@@ -35,11 +34,6 @@ instance.interceptors.response.use(
             const token = localStorage.getItem('token');
             if(token !== bearer_token){
                 localStorage.setItem("token", bearer_token); // 토큰 저장
-                let userInfo = customJwtDecode(bearer_token);
-                // console.log("userInfo : ", userInfo);
-                // console.log("loginIdx : ", userInfo.loginIdx);
-                // console.log("nickname : ", userInfo.nickname);
-                // console.log("profileImage : ", userInfo.profileImage);
             }
         }
         return response;
@@ -49,7 +43,6 @@ instance.interceptors.response.use(
         // 응답 오류가 있는 작업 수행
         if (error.response && error.response.status) {
             switch (error.response.status) {
-                // status code가 401인 경우 `logout`을 커밋하고 `/login` 페이지로 리다이렉트
                 case 401:
                     alert('세션이 만료되었습니다. 다시 로그인해 주시기 바랍니다.');
                     window.location.href = `/`;

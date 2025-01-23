@@ -4,7 +4,6 @@ import MediaQuery from '../components/layout/MediaQuery';
 import { useNavigate } from "react-router";
 import Modal from "../components/modal/Modal";
 import ConfirmModal from "../components/modal/ConfirmModal";
-import LogoImageBlack from '../images/logo_black_120.png';
 import { useUser } from '../context/UserContext';
 import axios from 'axios';
 import {getUserInfo,withdrawUser} from "../api/api";
@@ -14,7 +13,7 @@ import InputBox from "../components/userInfo/InputBox";
 const ModifyUser = () => {
 
     const navigate = useNavigate();
-    const { userIdx } = useUser();
+    const { userIdx, profileImage, setNickname, setProfileImage } = useUser();
 
     // 유효성 상태
     const [isPhoneValid, setIsPhoneValid] = useState(true);
@@ -53,10 +52,10 @@ const ModifyUser = () => {
                     nickname: user.nickname,
                     profileImage: user.profileImage,
                     email: user.email,
-                    phone: user.phone,
+                    phone: (user.phone)? user.phone : "",
                     oauthProvider: user.oauthProvider,
                 });
-                setImgFile(user.profileImage);
+                setImgFile(profileImage);
             } catch (error) {
                 console.error("API 요청 에러:", error);
                 throw error;
@@ -126,7 +125,7 @@ const ModifyUser = () => {
     };
 
     const handleUpdate =  async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         // 사용자 정보 업데이트 로직 구현
         if (!form.nickname) {
             showConfirmModal("닉네임을 입력해주세요!");
@@ -155,14 +154,19 @@ const ModifyUser = () => {
             });
 
             const token = localStorage.getItem('token');
-            const originUrl = window.location.origin;
-            await axios.put(
-                originUrl+`/api/user/${userIdx}`,
+            const response = await axios.put(
+                `http://localhost:8080/api/user/${userIdx}`,
                 formData,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
+
+            // 전역 상태로 user 업데이트
+            setNickname(response.data.data.nickname);
+            setProfileImage(response.data.data.profileImage);
+
+
             showConfirmModal("수정이 완료되었습니다!");
         } catch (error) {
             console.error("정보 수정 실패:", error);
@@ -209,10 +213,7 @@ const ModifyUser = () => {
                 <form>
                     <FormInnerDIV>
                         <ProfileImgSection>
-                            <ProfileImage
-                                src={imgFile ? imgFile : LogoImageBlack}
-                                alt="프로필 이미지"
-                            />
+                            <ProfileImage  src={imgFile} alt="프로필 이미지"  />
                             <FileUploadLabel htmlFor="profileImg">이미지 수정</FileUploadLabel>
                             <FileUploadInput
                                 type="file"
@@ -356,7 +357,7 @@ const WithdrawButton = styled.button`
     cursor: pointer;
     font-family: inherit;
     &:hover {color:#7D8DDE;}
-    
+
 `;
 
 const UpdateButton = styled.button`
