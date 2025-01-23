@@ -33,9 +33,9 @@ const ViewWorry = () => {
 
     const fetchWorry = async () => {
         try {
-            const data = await getWorryByIdx(worryIdx);
-            setWorry(data);
-            setEditedWorry({ title: data.title, content: data.content });
+            const response = await getWorryByIdx(worryIdx);
+            setWorry(response.data);
+            setEditedWorry({ title: response.data.title, content: response.data.content });
         } catch (error) {
             console.error("고민 데이터를 불러오는 데 실패했습니다.", error);
         }
@@ -94,7 +94,6 @@ const ViewWorry = () => {
     const fetchWorryComment = async () => {
         try {
             const response = await getWorryComment(worryIdx)
-            console.log("댓글 API 응답:", response.data.content);  // 실제로 찍어보기
             setComments(response.data.content);
         } catch (error) {
             console.error("댓글 데이터를 불러오는 데 실패했습니다.", error);

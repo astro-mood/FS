@@ -13,13 +13,16 @@ const BoardWorry = () => {
     useEffect(() => {
         const fetchWorries = async () => {
             try {
-                const data = await getAllWorries();
+                const response = await getAllWorries();
+                let worries = [];
+                if (response.isSuccess) {
+                    worries = response.data;
+                }
                 // 최신글이 먼저 나오도록 정렬 변경
-
-                const sortedData = data.sort(
+                const sortedData = worries.sort(
                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
                 );
-                setWorries(data);
+                setWorries(sortedData);
             } catch (error) {
                 console.error("고민 데이터를 불러오는 데 실패했습니다.", error);
             }
