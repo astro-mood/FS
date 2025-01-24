@@ -125,7 +125,7 @@ public class UserController {
 
         try {
             authService.withdrawUser(loginIdx);
-            return ResponseEntity.ok(ApiResponse.ok("ok"));
+            return ResponseEntity.ok(ApiResponse.ok("탈퇴되었습니다."));
         } catch (Exception e) {
             log.error("회원탈퇴 error : {}", e.getMessage(), e);
             throw e;

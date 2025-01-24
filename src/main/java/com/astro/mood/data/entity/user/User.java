@@ -73,7 +73,7 @@ public class User {
 
     public void updateNickname(String newName) {
         if (newName != null && !newName.isEmpty()) {
-            if(newName.length() <= 20){
+            if(newName.length() <= 10){
                 this.nickname = newName;
             }else{
                 throw new CustomException(ErrorCode.INVALID_VALUE_NICKNAME);
