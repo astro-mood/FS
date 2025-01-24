@@ -16,7 +16,7 @@ public enum ErrorCode {
     INVALID_REQUEST_BODY(40002, HttpStatus.BAD_REQUEST, "잘못된 요청 본문입니다."),
     //  400 Bad Request - 사용자정보 수정
     INVALID_VALUE_EMAIL(40003, HttpStatus.BAD_REQUEST, "잘못된 이메일 형식입니다."),
-    INVALID_VALUE_NICKNAME(40004, HttpStatus.BAD_REQUEST, "20자 이내의 닉네임을 설정해주세요."),
+    INVALID_VALUE_NICKNAME(40004, HttpStatus.BAD_REQUEST, "10자 이내의 닉네임을 설정해주세요."),
     INVALID_VALUE_PHONE(40005, HttpStatus.BAD_REQUEST, "전화번호는 11자로 설정되어야 합니다."),
     //S3 ERROR - 400
     S3_INVALID_VALUE_URL(40006, HttpStatus.BAD_REQUEST, "잘못된 URL 형식입니다"),

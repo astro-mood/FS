@@ -235,7 +235,6 @@ export const commentLike = async (commentIdx) => {
 // 유저정보 보기
 export const getUserInfo = async (loginIdx) => {
     try {
-        console.log("loginIdx : ", loginIdx);
         const response = await instance.get(`/user/${loginIdx}`);
         return response.data;
     } catch (error) {

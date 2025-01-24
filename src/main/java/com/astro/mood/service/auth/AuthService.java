@@ -36,7 +36,7 @@ public class AuthService {
     // 사용자 찾기 메서드
     public User findUserByIdOrThrow(Integer userIdx) {
         return authRepository.findById(userIdx)
-                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     //유저정보 수정
