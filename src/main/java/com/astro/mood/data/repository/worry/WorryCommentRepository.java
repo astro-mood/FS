@@ -23,4 +23,6 @@ public interface WorryCommentRepository  extends JpaRepository<WorryComment,Inte
 
     int countByParentCommentAndIsDeletedFalseAndIsReportedFalse(WorryComment parentComment);
     int countByParentComment(WorryComment parentComment);
+
+    int countByUserIdxAndIsDeletedFalseAndIsReportedFalseAndParentCommentIsNull(Integer userIdx);
 }
