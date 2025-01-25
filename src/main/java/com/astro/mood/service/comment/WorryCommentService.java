@@ -1,11 +1,13 @@
 package com.astro.mood.service.comment;
 
 
+import com.astro.mood.data.entity.level.LevelThresholds;
 import com.astro.mood.data.entity.user.User;
 import com.astro.mood.data.entity.worry.Worry;
 import com.astro.mood.data.entity.worry.WorryComment;
 import com.astro.mood.data.entity.worry.WorryCommentReport;
 import com.astro.mood.data.repository.auth.AuthRepository;
+import com.astro.mood.data.repository.level.LevelRepository;
 import com.astro.mood.data.repository.likes.LikesRepository;
 import com.astro.mood.data.repository.worry.WorryCommentReportsRepository;
 import com.astro.mood.data.repository.worry.WorryCommentRepository;
@@ -35,6 +37,7 @@ public class WorryCommentService {
     private final WorryCommentReportsRepository worryCommentReportsRepository;
     private final WorryRepository worryRepository;
     private final LikesRepository likesRepository;
+    private final LevelRepository levelRepository;
 
     private final AuthService authService;
     private final AuthRepository authRepository;
@@ -67,7 +70,15 @@ public class WorryCommentService {
 
         //유저정보의 위로 건넨 횟수 카운트 +1(댓글만 해당)
         User user = authService.findUserByIdOrThrow(userIdx);
-        user.setCommentCount(user.getCommentCount() + 1);
+        int count = getCountCommentsByUserIdx(userIdx);
+        user.setCommentCount(count);
+
+        //댓글 입력시 레벨 체크하기
+        LevelThresholds levelInfo = levelRepository.findByLevel(user.getLevel());
+        if(user.getCommentCount() > levelInfo.getThreshold()){
+            user.setLevel(user.getLevel() + 1);
+        }
+
         authRepository.save(user);
 
         return WorryCommentResponse.toDto(savedComment);
@@ -117,6 +128,7 @@ public class WorryCommentService {
         return new PageImpl<>(commentResponses, pageable, comments.getTotalElements());
     }
 
+    //좋아요 여부 확인
     private boolean isCommentLiked(WorryCommentResponse comment, Integer userIdx) {
         if(userIdx == null || userIdx < 1){
             return false;
@@ -130,6 +142,11 @@ public class WorryCommentService {
             childComment.setIsLiked(childIsLiked);
         }
         return isLiked;
+    }
+
+    //유저의 댓글 수 조회 - 삭제나 신고 상태인 것을 제외한 부모댓글만 적용
+    public int getCountCommentsByUserIdx(Integer userIdx){
+        return  worryCommentRepository.countByUserIdxAndIsDeletedFalseAndIsReportedFalseAndParentCommentIsNull(userIdx);
     }
 
     //댓글 수정
@@ -165,6 +182,14 @@ public class WorryCommentService {
 
         // 댓글 삭제 처리
         handleCommentDeletion(comment);
+
+        //유저 댓글 갯수 수정
+        if(comment.getParentComment() == null){
+            User user = authService.findUserByIdOrThrow(userIdx);
+            int count = getCountCommentsByUserIdx(userIdx);
+            user.setCommentCount(count);
+            authRepository.save(user);
+        }
     }
 
 
