@@ -26,17 +26,21 @@ public class EmotionAnalysis {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "most_frequent_emotion")
+    @JoinColumn(name = "emotion_idx")
     private Emotions emotions;
 
     @Column(name = "average_score")
     private Float averageScore;
+
+    @Column(name = "average_frequency")
+    private Float averageFrequency;
 
     @Column(name = "recommendation")
     private String recommendation;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
+
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
