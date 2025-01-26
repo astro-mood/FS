@@ -43,8 +43,13 @@ public class EmotionAnalysisService {
                 .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
     }
 
+    // 감정 분석 + DB 저장
     public void analyzeAndStore(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         User user = getAuthenticatedUser();
+
+        // 기존 분석 결과 삭제
+        emotionAnalysisRepository.deleteAnalysis(user, startDateTime, endDateTime);
+        log.info("Delete data : user {} between {} and {}", user.getUserIdx(), startDateTime, endDateTime);
 
         // Diary의 createdAt 기준으로 DiaryEmotion 데이터를 가져오기 (diaryEmotion의 createdAt은 수정 기준으로 업데이트가 됨.)
         List<DiaryEmotion> diaryEmotions = emotionAnalysisRepository.findByDiaryCreatedAtForDiaryEmotion(user, startDateTime, endDateTime);
@@ -98,8 +103,8 @@ public class EmotionAnalysisService {
                     .endDate(endDateTime)
                     .build();
 
-            emotionAnalysisRepository.save(analysis);
-        }
+                emotionAnalysisRepository.save(analysis);
+            }
 
         // 가장 높은 점수의 감정에 recommendation 추가
         if (highestEmotion != null) {
