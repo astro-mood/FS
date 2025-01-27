@@ -1,7 +1,6 @@
 package com.astro.mood.data.entity.diary;
 
 import com.astro.mood.data.entity.emotion.Emotions;
-import com.astro.mood.data.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -25,7 +24,7 @@ public class DiaryEmotion {
     private Integer deIdx;
 
     // diaryIdx 대신 diary entity 직접 참조
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "diary_idx")
     private Diary diary;
 
