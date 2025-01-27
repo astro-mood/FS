@@ -18,11 +18,13 @@ import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.service.notice.NoticeService;
 import com.astro.mood.service.wordFilter.BadwordFilterService;
 import com.astro.mood.web.dto.comment.CommentRequest;
+import com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse;
 import com.astro.mood.web.dto.comment.WorryCommentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +68,7 @@ public class WorryCommentService {
 
         WorryComment comment = commentRequest.toWorryComment();
         comment.setUserIdx(userIdx);
-        comment.setWorryIdx(worryIdx);
+        comment.setWorry(worry);
         comment.setIsReported(false);
         WorryComment savedComment = worryCommentRepository.save(comment);
 
@@ -86,7 +88,7 @@ public class WorryCommentService {
         //댓글 등록 유저 idx와 고민글 유저 idx를 비교하여 다를 경우에만 알림 생성
         Integer targetUserIdx = worry.getUser().getUserIdx();
         if(!targetUserIdx.equals(userIdx)){
-            noticeService.addNotice(worryIdx, targetUserIdx, "comment");
+            noticeService.addNotice(savedComment, targetUserIdx, "comment");
         }
 
         return WorryCommentResponse.toDto(savedComment);
@@ -109,7 +111,7 @@ public class WorryCommentService {
         WorryComment reply = WorryComment.builder()
                 .parentComment(parentComment)
                 .content(commentRequest.getContent())
-                .worryIdx(parentComment.getWorryIdx())
+                .worry(parentComment.getWorry())
                 .userIdx(userIdx)
                 .isReported(false)
                 .isDeleted(false)
@@ -118,9 +120,9 @@ public class WorryCommentService {
         WorryComment savedComment = worryCommentRepository.save(reply);
 
         //댓글 등록 유저 idx와 부모댓글 유저 idx를 비교하여 다를 경우에만 알림 생성
-        Integer targetUserIdx =parentComment.getWorryIdx();
+        Integer targetUserIdx =parentComment.getUserIdx();
         if(!targetUserIdx.equals(userIdx)){
-            noticeService.addNotice(parentCommentIdx, targetUserIdx, "reply");
+            noticeService.addNotice(parentComment, targetUserIdx, "reply");
         }
 
         return WorryCommentResponse.toDto(savedComment);
@@ -129,12 +131,12 @@ public class WorryCommentService {
     // 걱정 댓글 조회
     @Transactional(transactionManager = "tmJpa")
     public Page<WorryCommentResponse> getCommentsByWorry(Integer worryIdx, Integer userIdx, Pageable pageable) {
-        validateWorry(worryIdx);
-        Page<WorryComment> comments = worryCommentRepository.findByWorryIdxAndParentCommentIsNull(worryIdx, pageable);
+        Worry worry =validateWorry(worryIdx);
+        Page<WorryComment> comments = worryCommentRepository.findByWorryAndParentCommentIsNull(worry, pageable);
         List<WorryCommentResponse> commentResponses = comments.stream()
                 .map(comment -> {
                     WorryCommentResponse response = WorryCommentResponse.toDto(comment);
-                    response.setIsLiked(isCommentLiked(response, userIdx));
+                    response.setIsLiked(isCommentLikedRecursive(response, userIdx));
                     return response;
                 })
                 .collect(Collectors.toList());
@@ -143,19 +145,22 @@ public class WorryCommentService {
     }
 
     //좋아요 여부 확인
-    private boolean isCommentLiked(WorryCommentResponse comment, Integer userIdx) {
+    private boolean isCommentLikedRecursive(WorryCommentResponse comment, Integer userIdx) {
         if(userIdx == null || userIdx < 1){
             return false;
         }
         // 현재 댓글에 대한 좋아요 여부 확인
-        boolean isLiked = likesRepository.existsByUserIdxAndWorryCommentIdx(userIdx, comment.getCommentIdx());
+        boolean isLiked = isLiked(userIdx, comment.getCommentIdx());
 
         // 자식 댓글에 대해 재귀적으로 좋아요 여부 설정
         for (WorryCommentResponse childComment : comment.getChildrenComments()) {
-            boolean childIsLiked = isCommentLiked(childComment, userIdx);
+            boolean childIsLiked = isCommentLikedRecursive(childComment, userIdx);
             childComment.setIsLiked(childIsLiked);
         }
         return isLiked;
+    }
+    private boolean isLiked(Integer commentIdx, Integer userIdx){
+        return likesRepository.existsByUserIdxAndWorryCommentIdx(userIdx, commentIdx);
     }
 
     //유저의 댓글 수 조회 - 삭제나 신고 상태인 것을 제외한 부모댓글만 적용
@@ -295,7 +300,24 @@ public class WorryCommentService {
         worryCommentRepository.save(comment);
 
         //알림생성
-        noticeService.addNotice(commentIdx, comment.getUserIdx(), "report");
+        noticeService.addNotice(comment, comment.getUserIdx(), "report");
 
+    }
+
+    //유저 받은 답변 보기
+    public Page<ReceiveWorryCommentResponse> getReceivedCommentsByUser(Integer userIdx, Pageable pageable){
+        User user = authService.findUserByIdOrThrow(userIdx);
+        Page<WorryComment> comments = worryCommentRepository.findByUserIdAndParentCommentIsNull(userIdx, pageable);
+        List<ReceiveWorryCommentResponse> commentResponses = comments.stream()
+                .map(comment -> {
+                    ReceiveWorryCommentResponse response = ReceiveWorryCommentResponse.toDto(comment);
+                    // 현재 댓글에 대한 좋아요 여부 확인
+                    boolean isLiked = isLiked( comment.getCommentIdx(), userIdx);
+                    response.setIsLiked(isLiked);
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(commentResponses, pageable, comments.getTotalElements());
     }
 }

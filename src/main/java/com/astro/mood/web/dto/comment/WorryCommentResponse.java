@@ -30,7 +30,7 @@ public class WorryCommentResponse {
     public static WorryCommentResponse toDto(WorryComment comment) {
         WorryCommentResponse commentDto = new WorryCommentResponse();
         commentDto.setCommentIdx(comment.getCommentIdx());
-        commentDto.setWorryIdx(comment.getWorryIdx());
+        commentDto.setWorryIdx(comment.getWorry().getWorryIdx());
         commentDto.setUserIdx(comment.getUserIdx());
         commentDto.setContent(comment.getContent());
         commentDto.setIsReported(comment.getIsReported());
