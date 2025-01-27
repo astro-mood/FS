@@ -255,3 +255,14 @@ export const withdrawUser = async (loginIdx) => {
         throw error;
     }
 };
+
+// 메인페이지 - 유저정보
+export const getMainUserInfo = async (loginIdx) => {
+    try{
+       const response = await instance.get(`/main/user/${loginIdx}`);
+       return response.data;
+    }catch (error){
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};

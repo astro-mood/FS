@@ -4,6 +4,7 @@ import AboutAll from "./pages/AboutAll";
 import AboutLogin from "./pages/AboutLogin";
 import AnswerWorryDetail from "./pages/AnswerWorryDetail";
 import AnswerWorryBoard from "./pages/AnswerWorryBoard";
+import ReceiveAnswerWorryBoard from "./pages/ReceiveAnswerWorryBoard";
 import BoardWorry from "./pages/BoardWorry";
 import ViewDiary from "./pages/ViewDiary";
 import Main from "./pages/Main";
@@ -43,6 +44,7 @@ const App = () => {
                     <Route path="/modifyuser" element={<ModifyUser />} />
                     <Route path="/answerworryboard" element={<AnswerWorryBoard />} />
                     <Route path="/answerworrydetail" element={<AnswerWorryDetail />} />
+                    <Route path="/receiveanswerboard" element={<ReceiveAnswerWorryBoard />} />
                     <Route path="/boardworry" element={<BoardWorry />} />
                     <Route path="/diary/:diaryIdx" element={<ViewDiary />} />
                     <Route path="/mydiary" element={<MyDiary />} />

@@ -28,6 +28,7 @@ const ModifyUser = () => {
 
     const [imgFile, setImgFile] = useState("");
     const imgRef = useRef();
+    const [userData, setUserData] = useState({});
     const [form, setForm] = useState({
         userIdx: null,
         nickname: "",
@@ -47,6 +48,7 @@ const ModifyUser = () => {
             try {
                 const response = await getUserInfo(userIdx);
                 const user = response.data;
+                setUserData(user);
                 setForm({
                     userIdx: user.userIdx,
                     nickname: user.nickname,
@@ -205,7 +207,9 @@ const ModifyUser = () => {
         setConfirmModalMessage(message);
         setIsConfirmModalOpen(true);
     };
-
+    if (!userData) {
+        return <LoadingDiv>Loading...</LoadingDiv>;
+    }
     return (
         <Container>
             <ContainerInnerDiv>
@@ -290,7 +294,14 @@ const Board = styled.h1`
     margin-bottom: 1.25rem;
     text-align: left;
 `;
-
+const LoadingDiv = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+`;
 const FormInnerDIV = styled.div`
     display: flex;
     justify-content: flex-start;
