@@ -8,6 +8,7 @@ import com.astro.mood.data.repository.likes.LikesRepository;
 import com.astro.mood.data.repository.worry.WorryCommentRepository;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
+import com.astro.mood.service.notice.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class LikesService {
     private final LikesRepository likesRepository;
     private final WorryCommentRepository commentRepository;
+    private final NoticeService noticeService;
 
     //좋아요 기능
     @Transactional(transactionManager = "tmJpa")
@@ -46,6 +48,12 @@ public class LikesService {
                     .build();
             likesRepository.save(like);
             updateLikeCount(comment, 1);
+
+            //알림생성
+            Integer targetUserIdx = comment.getUserIdx();
+            if(!targetUserIdx.equals(userIdx)){
+                noticeService.addNotice(commentIdx, targetUserIdx, "like");
+            }
         }
     }
 

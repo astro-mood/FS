@@ -32,6 +32,7 @@ public enum ErrorCode {
     ALREADY_DELETED_COMMENT_ERROR(40014, HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
     BAD_WORD_FILTER_ERROR(40014, HttpStatus.BAD_REQUEST, "고운 말을 나눠주세요."),
     SELF_REPORT_ERROR(40015, HttpStatus.BAD_REQUEST, "본인의 댓글을 신고할 수 없습니다. 삭제를 진행해 주세요."),
+    NOTICE_TYPE_ERROR(40015, HttpStatus.BAD_REQUEST, "잘못된 알림 타입입니다."),
 
 
     // 401 Unauthorized
@@ -56,7 +57,8 @@ public enum ErrorCode {
     S3_UPLOAD_IO_ERROR(50003, HttpStatus.BAD_REQUEST, "이미지 업로드 중 IO 예외가 발생했습니다."),
     S3_DELETE_ERROR(50004, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패했습니다."),
     S3_DELETE_UNEXPECTED_ERROR(50005, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제 중 알 수 없는 오류가 발생했습니다."),
-    S3_URL_DECODING_ERROR(50006, HttpStatus.INTERNAL_SERVER_ERROR, "URL 디코딩에 실패했습니다.")
+    S3_URL_DECODING_ERROR(50006, HttpStatus.INTERNAL_SERVER_ERROR, "URL 디코딩에 실패했습니다."),
+    ADD_NOTICE_ERROR(50007, HttpStatus.INTERNAL_SERVER_ERROR, "알림 생성에 실패했습니다."),
 
 ;
     private final Integer code;

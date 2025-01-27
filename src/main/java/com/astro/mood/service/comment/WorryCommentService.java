@@ -15,6 +15,7 @@ import com.astro.mood.data.repository.worry.WorryRepository;
 import com.astro.mood.service.auth.AuthService;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
+import com.astro.mood.service.notice.NoticeService;
 import com.astro.mood.service.wordFilter.BadwordFilterService;
 import com.astro.mood.web.dto.comment.CommentRequest;
 import com.astro.mood.web.dto.comment.WorryCommentResponse;
@@ -43,11 +44,12 @@ public class WorryCommentService {
     private final AuthRepository authRepository;
 
     private final BadwordFilterService badwordFilterService;
+    private final NoticeService noticeService;
 
 
     //고민 대상 검증
-    public void validateWorry(Integer worryIdx){
-        Worry worry = worryRepository.findById(worryIdx).orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+    public Worry validateWorry(Integer worryIdx){
+        return worryRepository.findById(worryIdx).orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
     }
     //비속어 필터링
     public void filteringText(String text){
@@ -59,7 +61,7 @@ public class WorryCommentService {
 
     // 댓글 추가 메서드
     public WorryCommentResponse addComment(Integer worryIdx, Integer userIdx, CommentRequest commentRequest) {
-        validateWorry(worryIdx);
+        Worry worry = validateWorry(worryIdx);
         filteringText(commentRequest.getContent()); // 비속어필터링
 
         WorryComment comment = commentRequest.toWorryComment();
@@ -80,6 +82,12 @@ public class WorryCommentService {
         }
 
         authRepository.save(user);
+
+        //댓글 등록 유저 idx와 고민글 유저 idx를 비교하여 다를 경우에만 알림 생성
+        Integer targetUserIdx = worry.getUser().getUserIdx();
+        if(!targetUserIdx.equals(userIdx)){
+            noticeService.addNotice(worryIdx, targetUserIdx, "comment");
+        }
 
         return WorryCommentResponse.toDto(savedComment);
     }
@@ -108,6 +116,12 @@ public class WorryCommentService {
                 .build();
 
         WorryComment savedComment = worryCommentRepository.save(reply);
+
+        //댓글 등록 유저 idx와 부모댓글 유저 idx를 비교하여 다를 경우에만 알림 생성
+        Integer targetUserIdx =parentComment.getWorryIdx();
+        if(!targetUserIdx.equals(userIdx)){
+            noticeService.addNotice(parentCommentIdx, targetUserIdx, "reply");
+        }
 
         return WorryCommentResponse.toDto(savedComment);
     }
@@ -195,7 +209,7 @@ public class WorryCommentService {
 
     // 댓글 삭제 처리 메서드
     private void handleCommentDeletion(WorryComment comment) {
-        int childCommentCount = worryCommentRepository.countByParentComment(comment);
+        int childCommentCount = worryCommentRepository.countByParentComment(comment); //자식 갯수
 
         if (childCommentCount > 0) {
             if (canDeleteRecursively(comment)) {
@@ -279,5 +293,9 @@ public class WorryCommentService {
         comment.setContent("가려진 \uD83D\uDCE8 입니다.");
 
         worryCommentRepository.save(comment);
+
+        //알림생성
+        noticeService.addNotice(commentIdx, comment.getUserIdx(), "report");
+
     }
 }
