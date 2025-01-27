@@ -3,10 +3,12 @@ import styled from "styled-components";
 import {useUser} from "../../context/UserContext";
 import {useNavigate} from "react-router";
 
-const UserInfo = () => {
+const UserInfo = (props) => {
     const { nickname, profileImage  } = useUser();
     const navigate = useNavigate();
-
+    if (!props.diaryCount) {
+        return <Container><LoadingDiv>Loading...</LoadingDiv></Container>;
+    }
     return (
         <Container>
             <Header>
@@ -17,7 +19,7 @@ const UserInfo = () => {
                 <ProfileImage src={profileImage} />
                 <Info>
                     <h2>{nickname}</h2>
-                    <p>작성한 일기 수: 555 건</p>
+                    <p>작성한 일기 수: <a onClick={() => navigate(`/mydiary`)}>{props.diaryCount} 건</a></p>
                 </Info>
             </Content>
         </Container>
@@ -33,6 +35,14 @@ const Container = styled.div`
     padding: 20px;
     border-radius: 10px;
     width: 50%;
+    flex: 1;
+`;
+
+const LoadingDiv = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 120px;
     flex: 1;
 `;
 
@@ -67,6 +77,13 @@ const ProfileImage = styled.img`
 `;
 
 const Info = styled.div`
+    & a{
+        cursor: pointer;
+        &:hover{
+            color: #7D8DDE;
+            border-bottom: 1px solid;
+        }
+    }
 `;
 
 const EditButton = styled.button`

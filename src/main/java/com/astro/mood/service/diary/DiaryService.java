@@ -166,4 +166,10 @@ public class DiaryService {
 
         return DiaryDto.Response.fromEntity(diary, diaryEmotionRepository.findByDiary(diary));
     }
+
+
+    //메인페이지 사용, 사용자 일기 작성 수
+    public int getCountDiaryByUserIdx(Integer loginIdx) {
+        return diaryRepository.countByUserIdx(loginIdx);
+    }
 }

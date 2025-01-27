@@ -34,6 +34,8 @@ public class User {
     private String nickname;
     @Column(name="comment_count")
     private int commentCount;
+    @Column(name="level")
+    private int level;
     @Column(name = "profile_image")
     private String profileImage;
     @Column(name = "phone")
