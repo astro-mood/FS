@@ -242,7 +242,7 @@ export const getUserInfo = async (loginIdx) => {
         throw error;
     }
 };
-      
+
 //유저정보 수정은 ModifyUser.jsx
 
 // 회원탈퇴
@@ -261,6 +261,17 @@ export const getMainUserInfo = async (loginIdx) => {
     try{
        const response = await instance.get(`/main/user/${loginIdx}`);
        return response.data;
+    }catch (error){
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 받은 답변
+export const getReceiveAnswer = async (loginIdx) => {
+    try{
+        const response = await instance.get(`/receive-comments/${loginIdx}`);
+        return response.data;
     }catch (error){
         console.error("API 요청 에러:", error);
         throw error;

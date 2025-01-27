@@ -27,8 +27,12 @@ public class WorryComment {
     @Column(name="user_idx")
     private Integer userIdx;
 
-    @Column(name="worry_idx")
-    private Integer worryIdx;
+//    @Column(name="worry_idx")
+//    private Integer worryIdx;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "worry_idx")
+    private Worry worry;
 
     @Column(name = "content")
     private String content;

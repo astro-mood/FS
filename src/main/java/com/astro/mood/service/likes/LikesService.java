@@ -52,7 +52,7 @@ public class LikesService {
             //알림생성
             Integer targetUserIdx = comment.getUserIdx();
             if(!targetUserIdx.equals(userIdx)){
-                noticeService.addNotice(commentIdx, targetUserIdx, "like");
+                noticeService.addNotice(comment, targetUserIdx, "like");
             }
         }
     }
