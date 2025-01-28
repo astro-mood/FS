@@ -12,4 +12,6 @@ public class EmotionDto {
     private float averageScore;   // y
     private float averageFrequency; // r
     private int emotionIdx;
+
+    private java.time.LocalDate sortKey;
 }

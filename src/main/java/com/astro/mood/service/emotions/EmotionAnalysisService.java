@@ -19,10 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -72,7 +69,7 @@ public class EmotionAnalysisService {
 
         // 기간으로 묶인 그룹에서 Emotion으로 또 묶어서 통계
         for (Map.Entry<String, List<DiaryEmotion>> entry : periodGroups.entrySet()) {
-            String periodLabel = entry.getKey();  // 예: "2025년" / "3월" / "2025-12주" 등
+            String periodLabel = entry.getKey();
             List<DiaryEmotion> group = entry.getValue();   // 해당 기간에 속한 DiaryEmotion 전부
 
             // period 그룹에서의 다이어리 갯수 구하기 (감정이 여러개여도 다이어리는 1번만 카운트)
@@ -103,7 +100,13 @@ public class EmotionAnalysisService {
                         periodLabel,
                         averageScore,
                         frequency,
-                        emotion.getEmotionIdx());
+                        emotion.getEmotionIdx(),
+                        computeSortKey(emotionList.get(0).getDiary().getCreatedAt(), period)
+                );
+
+                // 데이터 정렬을 위한 sortKey 세팅
+                emotionDto.setSortKey(computeSortKey(emotionList.get(0).getDiary().getCreatedAt(), period));
+
                 datasets.add(emotionDto);
 
                 // 가장 높은 빈도 감정 갱신
@@ -114,12 +117,29 @@ public class EmotionAnalysisService {
             }
         }
 
+        // 데이터 없는 기간 zerodata 추가
+        addZeroData(datasets, startDate, endDate, period);
+
+        // sortKey 기준으로 오름차순
+        datasets.sort(Comparator.comparing(EmotionDto::getSortKey));
+
+        // 버블차트를 위한 전송 형식
+        List<Map<String, Object>> bubbleData = new ArrayList<>();
+        for (EmotionDto e : datasets) {
+            Map<String, Object> point = new HashMap<>();
+            point.put("x", e.getPeriod());
+            point.put("y", e.getAverageScore());
+            point.put("r", e.getAverageFrequency());
+            point.put("emotionIdx", e.getEmotionIdx());
+            bubbleData.add(point);
+        }
+
         // Recommendation 문구 생성
         String recommendation = highestFrequencyEmotion != null
                 ? emotionRecommendation(highestFrequencyEmotion.getEmotionIdx())
                 : "recommendation 문구를 생성할 데이터가 없습니다.";
 
-        return Map.of("datasets", datasets, "recommendation", recommendation);
+        return Map.of("datasets", bubbleData, "recommendation", recommendation);
     }
 
     // PeriodKey로 Label 만들기
@@ -202,6 +222,65 @@ public class EmotionAnalysisService {
 
         // 혹시 못 찾으면 마지막 주차로 반환
         return weekStarts.size();
+    }
+
+    // sortkey 정렬 계산
+    private LocalDate computeSortKey(LocalDateTime dateTime, String period) {
+        LocalDate date = dateTime.toLocalDate();
+        switch (period) {
+            case "monthly":
+                // 1일을 시작으로
+                return LocalDate.of(date.getYear(), date.getMonth(), 1);
+
+            case "weekly":
+                // 월요일이 sortKey. 월요일을 구해서 월요일부터 반환.
+                LocalDate monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                return monday;
+
+            case "daily":
+                return date;
+
+            default:
+                return LocalDate.MIN; // sotrkey null값으로 반환 방지를 위한 기본값 설정 (null값으로 나오면 오류가 생김)
+        }
+    }
+
+    // 빈 기간 zeroData 추가
+    private void addZeroData(List<EmotionDto> datasets, LocalDateTime startDate, LocalDateTime endDate, String period) {
+        // 모든 기간 라벨 생성
+        Set<String> existingPeriods = datasets.stream()
+                .map(EmotionDto::getPeriod)
+                .collect(Collectors.toSet());
+
+        LocalDate currentDate = startDate.toLocalDate();
+        while (!currentDate.isAfter(endDate.toLocalDate())) {
+            String periodLabel = generatePeriodKey(currentDate.atStartOfDay(), period);
+
+            // 빈 기간에 0값 추가
+            if (!existingPeriods.contains(periodLabel)) {
+                EmotionDto zeroData = new EmotionDto(periodLabel, 0, 0, 0,  computeSortKey(startDate, period));
+                zeroData.setSortKey(computeSortKey(currentDate.atStartOfDay(), period));
+                datasets.add(zeroData);
+            }
+
+            // 기간별로 날짜 이동
+            switch (period) {
+                case "yearly":
+                    currentDate = currentDate.plusYears(1);
+                    break;
+                case "monthly":
+                    currentDate = currentDate.plusMonths(1);
+                    break;
+                case "weekly":
+                    currentDate = currentDate.plusWeeks(1);
+                    break;
+                case "daily":
+                    currentDate = currentDate.plusDays(1);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid period: " + period);
+            }
+        }
     }
 
     // emotionIdx 기준 recommendation 문구
