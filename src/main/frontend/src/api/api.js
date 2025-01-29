@@ -122,6 +122,17 @@ export const updateDiary = async (diary_idx, updatedData) => {
     }
 };
 
+// 최신 일기 3개 가져오기
+export const getLatestDiary = async () => {
+    try {
+        const response = await instance.get("/diary/latest");
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
 // 고민 댓글 작성
 export const postWorryComment = async (worry_idx, data) => {
     try {
