@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,6 @@ public class DiaryDto {
             private int userScore;
         }
 
-
         // 일기는 1개 + 감정 최대 7개까지 / 감정정보 필수
         public static Response fromEntity(Diary diary, List<DiaryEmotion> diaryEmotions) {
             if (diaryEmotions == null || diaryEmotions.isEmpty()) {
@@ -84,6 +82,7 @@ public class DiaryDto {
                     .build();
         }
     }
+
     // 일기 달력 조회
     @Data
     @AllArgsConstructor
@@ -93,6 +92,7 @@ public class DiaryDto {
         private LocalDate date;
         private List<CalendarEmotion> emotions;
     }
+
     // 일기 감정 조회
     @Data
     @AllArgsConstructor
@@ -102,6 +102,7 @@ public class DiaryDto {
         private String emoji;
         private int userScore;
     }
+
     // 일기 수정
     @Data
     @NoArgsConstructor
@@ -118,6 +119,28 @@ public class DiaryDto {
         public static class EmotionData {
             private Integer emotionIdx;
             private int userScore;
+        }
+    }
+    // 최신 일기 조회 (감정 X)
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class LatestResponse {
+        private Integer diaryIdx;
+        private String title;
+        private String content;
+        private LocalDate createdAt;
+        private Integer userIdx;
+
+        public static LatestResponse fromEntity(Diary diary) {
+            return LatestResponse.builder()
+                    .diaryIdx(diary.getDiaryIdx())
+                    .title(diary.getTitle())
+                    .content(diary.getContent())
+                    .createdAt(diary.getCreatedAt().toLocalDate())
+                    .userIdx(diary.getUser() != null ? diary.getUser().getUserIdx() : null)
+                    .build();
         }
     }
 }
