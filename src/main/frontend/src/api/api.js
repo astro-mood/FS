@@ -277,3 +277,20 @@ export const getReceiveAnswer = async (loginIdx) => {
         throw error;
     }
 };
+
+// 감정분석
+export const getAnalysis = async (startDate, endDate, period) => {
+    try {
+        const response = await instance.get("/analysis", {
+            params: {
+                startDate: startDate,
+                endDate: endDate,
+                period: period,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
