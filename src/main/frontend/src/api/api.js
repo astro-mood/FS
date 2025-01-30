@@ -65,6 +65,17 @@ export const resolveChangeWorry = async (worry_idx, updatedData) => {
     }
 };
 
+//최신 순서로 내가 쓴 고민 가져오기
+export const getMyWorry = async () => {
+    try {
+        const response = await instance.get("/myworry");
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
 // 일기작성 API WriteDiary-postDiary
 export const postDiary = async (data) => {
     try {
