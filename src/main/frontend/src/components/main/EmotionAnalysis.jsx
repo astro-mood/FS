@@ -13,6 +13,7 @@ import {
     BubbleController,
 } from "chart.js";
 import { getAnalysis } from "../../api/api";
+import DateDropdown from "../dropdown/DateDropdown";
 
 ChartJS.register(
     BubbleController,
@@ -25,9 +26,10 @@ ChartJS.register(
 );
 
 const EmotionAnalysis = () => {
+    const today = new Date().toLocaleDateString('ko-KR')
     const [chartData, setChartData] = useState({ datasets: [] });
     const [recommendation, setRecommendation] = useState("");
-    const [startDate, setStartDate] = useState("");
+    const [startDate, setStartDate] = useState(today);
     const [endDate, setEndDate] = useState("");
     const [period, setPeriod] = useState("daily");
     const [loading, setLoading] = useState(false);
@@ -51,13 +53,21 @@ const EmotionAnalysis = () => {
     };
 
     useEffect(() => {
-        fetchData();
+        if (startDate && endDate) {
+            fetchData();
+        }
     }, [startDate, endDate, period]);
+
+    const handleDateChange = (selectedDate) => {
+        setStartDate(selectedDate);
+        setEndDate(selectedDate);
+        setPeriod("daily");
+    };
 
     const handlePeriodClick = (p) => {
         setPeriod(p);
 
-        const now = new Date(); // 오늘
+        const now = new Date(startDate);
         let newStart = "";
         let newEnd = "";
 
@@ -112,6 +122,8 @@ const EmotionAnalysis = () => {
             default:
                 break;
         }
+        setStartDate(newStart);
+        setEndDate(newEnd);
     };
 
     // 차트용으로 데이터 변환
@@ -238,13 +250,20 @@ const EmotionAnalysis = () => {
     return (
         <Container>
             <SubTitle>감정 분석</SubTitle>
+            <ControlContainer>
+            <DropdownContainer>
+            <Dropdown>
+            <DateDropdown selectedDate={endDate} onDateChange={handleDateChange} />
+            </Dropdown>
+            </DropdownContainer>
             <ButtonContainer>
                 <button onClick={() => handlePeriodClick("daily")}>일간</button>
                 <button onClick={() => handlePeriodClick("weekly")}>주간</button>
                 <button onClick={() => handlePeriodClick("monthly")}>월간</button>
                 <button onClick={() => handlePeriodClick("yearly")}>연간</button>
             </ButtonContainer>
-            {loading ? (
+        </ControlContainer>
+    {loading ? (
                 <Message>Loading...</Message>
             ) : (
                 <>
@@ -303,6 +322,44 @@ const SubTitle = styled.h2`
     display: flex;
     justify-content: flex-start;
 `;
+
+const Dropdown = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    button {
+        background: #7D8DDE;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        
+        &:hover {
+            background-color: #4E2850;
+            transform: scale(1.05);
+        }
+    }
+`;
+
+const ControlContainer = styled.div`
+    display: flex;
+    justify-content: flex-end; 
+    align-items: center;
+    margin-top: -13px;
+`;
+
+const DropdownContainer = styled.div`
+    flex-shrink: 0; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    margin-top: -17px;
+`;
+
 
 const ButtonContainer = styled.div`
     display: flex;

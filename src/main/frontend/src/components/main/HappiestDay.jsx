@@ -82,6 +82,9 @@ const DiaryContent = styled.div`
     line-height: 1.2;
     cursor: pointer;
 
+    &:hover {
+        transform: scale(1.01);
+    }
 `;
 
 const CreatedAt = styled.div`
