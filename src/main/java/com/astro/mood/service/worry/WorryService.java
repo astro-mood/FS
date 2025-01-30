@@ -5,6 +5,9 @@ import com.astro.mood.data.entity.worry.Worry;
 import com.astro.mood.data.repository.auth.AuthRepository;
 import com.astro.mood.data.repository.worry.WorryRepository;
 import com.astro.mood.security.login.CustomUserDetails;
+import com.astro.mood.service.exception.CustomException;
+import com.astro.mood.service.exception.ErrorCode;
+import com.astro.mood.service.wordFilter.BadwordFilterService;
 import com.astro.mood.web.dto.worry.WorryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -21,30 +24,42 @@ import java.util.stream.Collectors;
 public class WorryService {
 
     private final WorryRepository worryRepository;
-    private final AuthRepository authRepository;  // authRepository 추가-userIdx를 받아오기 위해
+    private final AuthRepository authRepository;
+    private final BadwordFilterService badwordFilterService;
 
-    public WorryService(WorryRepository worryRepository, AuthRepository authRepository) {
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            throw new RuntimeException("인증된 사용자를 찾을 수 없습니다.");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer userIdx = userDetails.getUserIdx();
+
+        return authRepository.findById(userIdx)
+                .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
+    }
+
+    //비속어 필터링
+    public void filteringText(String text){
+        if(!badwordFilterService.textFilterCheck(text)) {
+            log.info("비속어가 포함되어 있음");
+            throw new CustomException(ErrorCode.BAD_WORD_FILTER_ERROR);
+        }
+    }
+
+    public WorryService(WorryRepository worryRepository, AuthRepository authRepository, BadwordFilterService badwordFilterService) {
         this.worryRepository = worryRepository;
         this.authRepository = authRepository;
+        this.badwordFilterService = badwordFilterService;
     }
 
     // 고민글 작성
     @Transactional
     public WorryDto.Response createWorry(WorryDto.CreateRequest request) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new RuntimeException("인증된 사용자를 찾을 수 없습니다.");
-        }
-
-        // CustomUserDetails에서 사용자 IDX추출
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Integer userIdx = userDetails.getUserIdx();
-
-        // userIdx로 db에서 User 엔티티 조회
-        User user = authRepository.findById(userIdx)
-                .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
+        User user = getAuthenticatedUser();
+        filteringText(request.getTitle());
+        filteringText(request.getContent());
 
         // Worry 엔티티 생성 및 저장
         Worry worry = Worry.builder()
@@ -77,6 +92,7 @@ public class WorryService {
                 .map(WorryDto.Response::fromEntity)
                 .collect(Collectors.toList());
     }
+
     // 고민글 수정
     @Transactional
     public WorryDto.Response updateWorry(Integer worryIdx, WorryDto.UpdateRequest request) {
@@ -114,4 +130,15 @@ public class WorryService {
         return WorryDto.Response.fromEntity(worry);
     }
 
+    // 내 고민 가져오기
+    @Transactional
+    public List<WorryDto.Response> getMyWorry() {
+        User user = getAuthenticatedUser();
+
+        List<Worry> myWorries = worryRepository.getWorryByUserIdx(user.getUserIdx());
+
+        return myWorries.stream()
+                .map(WorryDto.Response::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

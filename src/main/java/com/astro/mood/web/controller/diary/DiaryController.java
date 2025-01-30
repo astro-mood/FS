@@ -57,4 +57,11 @@ public class DiaryController {
         DiaryDto.Response response = diaryService.updateDiary(diary_idx, updateRequest);
         return ApiResponse.ok(response);
     }
+
+    // 최신 일기 3개 가져오기
+    @GetMapping("/diary/latest")
+    public ApiResponse<List<DiaryDto.LatestResponse>> getLatestDiaries() {
+        List<DiaryDto.LatestResponse> response = diaryService.getLatestDiaries();
+        return ApiResponse.ok(response);
+    }
 }

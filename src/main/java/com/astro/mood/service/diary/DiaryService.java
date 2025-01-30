@@ -167,6 +167,22 @@ public class DiaryService {
         return DiaryDto.Response.fromEntity(diary, diaryEmotionRepository.findByDiary(diary));
     }
 
+    // 최신일기 3개 가져오기
+    @Transactional
+    public List<DiaryDto.LatestResponse> getLatestDiaries() {
+        User user = getAuthenticatedUser();
+
+        List<Diary> diaries = diaryRepository.getLatestDiary(user.getUserIdx());
+
+        if (diaries.isEmpty()) {
+            throw new RuntimeException("최근 작성한 일기가 없습니다.");
+        }
+
+        return diaries.stream()
+                .limit(3)
+                .map(DiaryDto.LatestResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
 
     //메인페이지 사용, 사용자 일기 작성 수
     public int getCountDiaryByUserIdx(Integer loginIdx) {

@@ -65,6 +65,17 @@ export const resolveChangeWorry = async (worry_idx, updatedData) => {
     }
 };
 
+//최신 순서로 내가 쓴 고민 가져오기
+export const getMyWorry = async () => {
+    try {
+        const response = await instance.get("/myworry");
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
 // 일기작성 API WriteDiary-postDiary
 export const postDiary = async (data) => {
     try {
@@ -115,6 +126,17 @@ export const deleteDiary = async (diary_idx) => {
 export const updateDiary = async (diary_idx, updatedData) => {
     try {
         const response = await instance.put(`/diary/${diary_idx}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 최신 일기 3개 가져오기
+export const getLatestDiary = async () => {
+    try {
+        const response = await instance.get("/diary/latest");
         return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
@@ -273,6 +295,23 @@ export const getReceiveAnswer = async (loginIdx) => {
         const response = await instance.get(`/receive-comments/${loginIdx}`);
         return response.data;
     }catch (error){
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 감정분석
+export const getAnalysis = async (startDate, endDate, period) => {
+    try {
+        const response = await instance.get("/analysis", {
+            params: {
+                startDate: startDate,
+                endDate: endDate,
+                period: period,
+            },
+        });
+        return response.data;
+    } catch (error) {
         console.error("API 요청 에러:", error);
         throw error;
     }

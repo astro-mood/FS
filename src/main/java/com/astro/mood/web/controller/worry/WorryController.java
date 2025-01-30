@@ -64,4 +64,10 @@ public class WorryController {
         WorryDto.Response response = worryService.changeResolveStatus(worryIdx, request);
         return ApiResponse.ok(response);
     }
+    // 최신 순서로 내 고민 가져오기
+    @GetMapping("/myworry")
+    public ApiResponse<List<WorryDto.Response>> getMyWorry() {
+        List<WorryDto.Response> myWorries = worryService.getMyWorry();
+        return ApiResponse.ok(myWorries);
+    }
 }
