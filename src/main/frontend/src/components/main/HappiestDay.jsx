@@ -30,6 +30,10 @@ const HappiestDays = () => {
         navigate(`/diary/${diary_idx}`);
     };
 
+    // swiper 갯수 유지
+    const totalSlides = 3;
+    const emptySlidesNeeded = Math.max(totalSlides - diaries.length, 0);
+
     return (
         <Container>
             <Title>✨ 나의 최근 일기 ✨</Title>
@@ -38,21 +42,25 @@ const HappiestDays = () => {
                 pagination={{ clickable: true }}
                 modules={[Pagination, Navigation]}
             >
-                {diaries.length > 0 ? (
-                    diaries.map((diary, index) => (
-                        <SwiperSlide key={index} onClick={() => handleDiaryClick(diary.diaryIdx)}>
-                            <DiaryContent>
-                                <CreatedAt>🛸 {diary.createdAt}의 기록</CreatedAt>
-                                <h3>{diary.title}</h3>
-                                <p>{diary.content}</p>
-                            </DiaryContent>
-                        </SwiperSlide>
-                    ))
-                ) : (
-                    <SwiperSlide>
-                        <DiaryContent>최근 일기가 없습니다.</DiaryContent>
+                {diaries.map((diary, index) => (
+                    <SwiperSlide key={index} onClick={() => handleDiaryClick(diary.diaryIdx)}>
+                        <DiaryContent>
+                            <CreatedAt>🛸 {diary.createdAt}의 기록</CreatedAt>
+                            <h3>{diary.title}</h3>
+                            <p>{diary.content}</p>
+                        </DiaryContent>
                     </SwiperSlide>
-                )}
+                ))}
+
+                {Array.from({ length: emptySlidesNeeded }).map((_, index) => (
+                    <SwiperSlide key={`empty-${index}`} onClick={() => navigate("/writediary")}>
+                        <DiaryContent>
+                            <CreatedAt>🛸</CreatedAt>
+                            <h3>아직 작성된 일기가 없습니다.</h3>
+                            <p>클릭하여 일기를 작성해보세요!</p>
+                        </DiaryContent>
+                    </SwiperSlide>
+                ))}
             </CustomSwiper>
         </Container>
     );

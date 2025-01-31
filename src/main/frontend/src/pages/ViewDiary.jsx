@@ -14,8 +14,11 @@ import { useParams } from "react-router";
 import DiaryEditForm from "../components/board/DiaryEditForm";
 import OwnerAction from "../components/button/EditDeleteButton";
 import {useUser} from "../context/UserContext";
+import {useModals} from "../context/ModalContext";
+import {useNavigate} from "react-router";
 
-const ViewDiary = ({ userId }) => {
+
+const ViewDiary = () => {
     const { userIdx  } = useUser();
     const [editedComment, setEditedComment] =  useState({ id: null, content: "" });
     const { diaryIdx } = useParams();
@@ -29,6 +32,9 @@ const ViewDiary = ({ userId }) => {
         content: "",
         emotions: [],
     });
+    const { openModal } = useModals();
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchDiary = async () => {
@@ -62,56 +68,79 @@ const ViewDiary = ({ userId }) => {
     };
 
     const handleEditSave = async () => {
-        try {
-            const updatedData = {
-                title: editedDiary.title,
-                content: editedDiary.content,
-                emotions: editedDiary.emotions.map((emotion) => ({
-                    emotionIdx: emotion.emotionIdx,
-                    userScore: emotion.score,
-                })),
-            };
+        openModal({
+            type: "confirm",
+            message: "정말로 수정하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    const updatedData = {
+                        title: editedDiary.title,
+                        content: editedDiary.content,
+                        emotions: editedDiary.emotions.map((emotion) => ({
+                            emotionIdx: emotion.emotionIdx,
+                            userScore: emotion.score,
+                        })),
+                    };
 
-            const response = await updateDiary(diaryIdx, updatedData);
+                    const response = await updateDiary(diaryIdx, updatedData);
 
-            if (response.isSuccess) {
-                // 바로 상태업데이트. 새로고침안해도 반영될 수 있게.
-                setDiary((prev) => ({
-                    ...prev,
-                    ...response.data,
-                }));
-                setEmotions(response.data.emotions || []);
-
-                setIsEditing(false);
-                alert("수정되었습니다.");
-            } else {
-                console.error("수정 중 오류 발생:", response.error.message);
-                alert(response.error.message || "수정에 실패했습니다. 다시 시도해주세요.");
+                    if (response.isSuccess) {
+                        // 바로 상태업데이트. 새로고침안해도 반영될 수 있게.
+                        setDiary((prev) => ({
+                            ...prev,
+                            ...response.data,
+                        }));
+                        setEmotions(response.data.emotions || []);
+                        setIsEditing(false);
+                        openModal({
+                            type: "alert",
+                            message: "수정이 완료되었습니다.",
+                        });
+                    } else {
+                        openModal({
+                            type: "alert",
+                            message: response.error.message || "수정에 실패했습니다. \n다시 시도해주세요.",
+                        });
+                    }
+                } catch (error) {
+                    openModal({
+                        type: "alert",
+                        message: "수정에 실패했습니다. \n다시 시도해주세요.",
+                    });
+                }
             }
-        } catch (error) {
-            console.error("수정에 실패했습니다.", error);
-            alert("수정에 실패했습니다. 다시 시도해주세요.");
-        }
+        });
     };
-    const handleDelete = async () => {
-        if (window.confirm("정말 삭제하시겠습니까?")) {
+
+        const handleDelete = () => {
+            openModal({
+                type: "confirm",
+                message: "정말로 삭제하시겠습니까?",
+                onConfirm: async () => {
             try {
                 const response = await deleteDiary(diaryIdx);
 
                 if (response.isSuccess) {
-                    alert("삭제되었습니다.");
-                    setDiary(null);
-                    window.location.href = "/mydiary";
+                    openModal({
+                        type: "alert",
+                        message: "삭제되었습니다.",
+                        onConfirm: () => navigate("/mydiary"),
+                    });
                 } else {
-                    console.error("삭제 중 오류 발생:", response.error.message);
-                    alert(response.error.message || "삭제에 실패했습니다. 다시 시도해주세요.");
+                    openModal({
+                        type: "alert",
+                        message: response.error.message || "삭제에 실패했습니다. \n다시 시도해주세요.",
+                    });
                 }
             } catch (error) {
-                console.error("삭제에 실패했습니다.", error);
-                alert("삭제에 실패했습니다. 다시 시도해주세요.");
+                openModal({
+                    type: "alert",
+                    message: "삭제에 실패했습니다. \n다시 시도해주세요.",
+                });
             }
-        }
-    };
+                },
+            });
+        };
 
     const handleEmotionChange = (index, field, value, emotionIdx) => {
         setEditedDiary((prev) => {
@@ -163,40 +192,87 @@ const ViewDiary = ({ userId }) => {
 
     // 댓글 추가
     const handleAddComment = async () => {
-        if (!newComment.trim()) return;
-        try {
-            const data = { content: newComment };
-            const response = await postDiaryComment(diaryIdx, data);
-            setComments((prev) => [...prev, response]);
-            setNewComment("");
-            fetchDiaryComment();
-        } catch (error) {
+        if (!newComment.trim()) {
+            openModal({
+                type: "alert",
+                message: "댓글을 입력하세요.",
+            });
+            return;
         }
+
+        openModal({
+            type: "confirm",
+            message: "정말 댓글을 작성하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    const data = { content: newComment };
+                    const response = await postDiaryComment(diaryIdx, data);
+                    setComments((prev) => [...prev, response]);
+                    setNewComment("");
+                    fetchDiaryComment();
+
+                    openModal({
+                        type: "alert",
+                        message: "댓글이 작성되었습니다.",
+                    });
+                } catch (error) {
+                    openModal({
+                        type: "alert",
+                        message: "댓글 작성에 실패했습니다. \n다시 시도해주세요.",
+                    });
+                }
+            },
+        });
     };
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
-        try {
-            await updateDiaryComment(commentIdx, { content: newContent });
-            fetchDiaryComment();
-            setEditedComment({ id: null, content: "" });
-            alert("댓글이 수정되었습니다.");
-        } catch (error) {
-            console.error("댓글 수정에 실패했습니다.", error);
-        }
+        if (!newContent.trim()) return;
+
+        openModal({
+            type: "confirm",
+            message: "정말 댓글을 수정하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    await updateDiaryComment(commentIdx, { content: newContent });
+                    fetchDiaryComment();
+                    setEditedComment({ id: null, content: "" });
+
+                    openModal({
+                        type: "alert",
+                        message: "댓글이 수정되었습니다.",
+                    });
+                } catch (error) {
+                    openModal({
+                        type: "alert",
+                        message: "댓글 수정에 실패했습니다. \n다시 시도해주세요.",
+                    });
+                }
+            },
+        });
     };
 
     // 댓글 삭제
     const handleCommentDelete = async (commentIdx) => {
-        if (window.confirm("정말 삭제하시겠습니까?")) {
-            try {
-                await deleteDiaryComment(commentIdx);
-                fetchDiaryComment();
-                alert("댓글이 삭제되었습니다.");
-            } catch (error) {
-                console.error("댓글 삭제에 실패했습니다.", error);
-            }
-        }
+        openModal({
+            type: "confirm",
+            message: "정말로 삭제하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    await deleteDiaryComment(commentIdx);
+                    fetchDiaryComment();
+                    openModal({
+                        type: "alert",
+                        message: "댓글이 삭제되었습니다.",
+                    });
+                } catch (error) {
+                    openModal({
+                        type: "alert",
+                        message: "댓글 삭제에 실패했습니다. \n다시 시도해주세요.",
+                    });
+                }
+            },
+        });
     };
 
     return (
@@ -245,9 +321,7 @@ const ViewDiary = ({ userId }) => {
                         <CommentInput
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            onSubmit={(content) => {
-                                handleAddComment(content);
-                            }}
+                            onSubmit={handleAddComment}
                             placeholder="지금의 나를 전하세요."
                         />
                     </>

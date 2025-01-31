@@ -20,14 +20,18 @@ import Background from "./components/layout/Background";
 import GlobalStyle from "./components/layout/GlobalStyle";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { UserProvider } from "./context/UserContext";
+import {ModalProvider} from "./context/ModalContext";
+import AllModal from "./components/modal/AllModal";
 
 const App = () => {
     return (
     <UserProvider>
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_AUTH_CLIENT_ID}>
-        <BrowserRouter>
+            <ModalProvider>
+            <BrowserRouter>
             <GlobalStyle />
             <Background />
+                <AllModal />
 
             <Routes>
                 <Route>
@@ -54,7 +58,8 @@ const App = () => {
                     <Route path="/writeworry" element={<WriteWorry />} />
                 </Route>
             </Routes>
-        </BrowserRouter>
+            </BrowserRouter>
+            </ModalProvider>
         </GoogleOAuthProvider>
     </UserProvider>
     );

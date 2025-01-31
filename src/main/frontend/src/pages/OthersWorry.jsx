@@ -18,6 +18,8 @@ import { useUser } from "../context/UserContext";
 import WorryEditForm from "../components/board/WorryEditForm";
 import OwnerAction from "../components/button/EditDeleteButton";
 import ResolveDropdown from "../components/dropdown/ResolveDropdown";
+import {useModals} from "../context/ModalContext";
+import {useNavigate} from "react-router";
 
 const ViewWorry = () => {
     const { userIdx  } = useUser();
@@ -30,6 +32,9 @@ const ViewWorry = () => {
     const [comments, setComments] = useState();
     const [editedComment, setEditedComment] = useState({ id: null, content: "" });
     const [newComment, setNewComment] = useState("");
+
+    const { openModal } = useModals();
+    const navigate = useNavigate();
 
     const fetchWorry = async () => {
         try {
@@ -51,42 +56,77 @@ const ViewWorry = () => {
     };
 
     const handleEditSave = async () => {
-        try {
-            const updatedData = {
-                ...worry, // 기존 worry의 모든 것 포함
-                title: editedWorry.title,
-                content: editedWorry.content,
-            };
-            await updateWorry(worryIdx, updatedData);
-            setWorry((prev) => ({ ...prev, ...updatedData }));
-            setIsEditing(false);
-            alert("수정되었습니다.");
-        } catch (error) {
-            console.error("수정에 실패했습니다.", error);
-        }
+        openModal({
+            type: "confirm",
+            message: "정말로 수정하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    const updatedData = {
+                        ...worry, // 기존 worry의 모든 것 포함
+                        title: editedWorry.title,
+                        content: editedWorry.content,
+                    };
+            const response = await updateWorry(worryIdx, updatedData);
+                    if (response.isSuccess) {
+                        setWorry((prev) => ({ ...prev, ...updatedData }));
+                        setIsEditing(false);
+                        openModal({
+                            type: "alert",
+                            message: "수정이 완료되었습니다.",
+                        });
+                    } else {
+                        openModal({ type: "alert", message: response.error.message || "수정에 실패했습니다. \n다시 시도해주세요." });
+                    }
+                } catch (error) {
+                    openModal({ type: "alert", message: "수정에 실패했습니다. \n다시 시도해주세요." });
+                }
+            },
+        });
     };
 
-    const handleDelete = async () => {
-        if (window.confirm("정말 삭제하시겠습니까?")) {
+    const handleDelete = () => {
+        openModal({
+            type: "confirm",
+            message: "정말로 삭제하시겠습니까?",
+            onConfirm: async () => {
             try {
-                await deleteWorry(worryIdx);
-                alert("삭제되었습니다.");
-                window.location.href = "/boardworry";
+                const response = await deleteWorry(worryIdx);
+                if (response.isSuccess) {
+                    openModal({
+                        type: "alert",
+                        message: "삭제되었습니다.",
+                        onConfirm: () => navigate("/boardworry"),
+                    });
+                } else {
+                    openModal({
+                        type: "alert",
+                        message: response.error.message || "삭제에 실패했습니다. \n다시 시도해주세요." });
+                }
             } catch (error) {
-                console.error("삭제에 실패했습니다.", error);
+                openModal({
+                    type: "alert",
+                    message: "삭제에 실패했습니다. \n다시 시도해주세요." });
             }
-        }
+            },
+        });
     };
+
 
     const handleResolveChange = async (e) => {
         const newStatus = e.target.value === "해결 완료";
-        try {
-            await resolveChangeWorry(worryIdx, { isResolved: newStatus });
-            setWorry((prev) => ({ ...prev, isResolved: newStatus }));
-            alert("상태가 변경되었습니다.");
-        } catch (error) {
-            console.error("상태 변경에 실패했습니다.", error);
-        }
+        openModal({
+            type: "confirm",
+            message: "정말 고민 상태를 변경하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    await resolveChangeWorry(worryIdx, { isResolved: newStatus });
+                    setWorry((prev) => ({ ...prev, isResolved: newStatus }));
+                    openModal({ type: "alert", message: "상태가 변경되었습니다." });
+                } catch (error) {
+                    openModal({ type: "alert", message: "상태 변경에 실패했습니다. \n다시 시도해주세요." });
+                }
+            },
+        });
     };
 
     // comment 관련
@@ -116,55 +156,83 @@ const ViewWorry = () => {
 
     // 댓글 추가
     const handleAddComment = async () => {
-        if (!newComment.trim()) return;
-        try {
-            const data = { content: newComment }; // 전송할 데이터 형식
-            const response = await postWorryComment(worryIdx, data);
-            setComments((prev) => [...prev, response]);
-            setNewComment("");
-            fetchWorryComment();
-        } catch (error) {
-        }
+        if (!newComment.trim())
+            return;
+        openModal({
+            type: "confirm",
+            message: "정말 댓글을 작성하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    const data = { content: newComment };
+                    await postWorryComment(worryIdx, data);
+                    setNewComment("");
+                    fetchWorryComment();
+                    openModal({ type: "alert", message: "댓글이 작성되었습니다." });
+                } catch (error) {
+                    openModal({ type: "alert", message: "댓글 작성에 실패했습니다. \n다시 시도해주세요." });
+                }
+            },
+        });
     };
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
-        try {
-            await updateWorryComment(commentIdx, { content: newContent });
-            fetchWorryComment();
-            setEditedComment({ id: null, content: "" });
-            alert("댓글이 수정되었습니다.");
-        } catch (error) {
-            console.error("댓글 수정에 실패했습니다.", error);
-        }
+        if (!newContent.trim()) return;
+
+        openModal({
+            type: "confirm",
+            message: "정말 댓글을 수정하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    await updateWorryComment(commentIdx, { content: newContent });
+                    fetchWorryComment();
+                    openModal({
+                        type: "alert",
+                        message: "댓글이 수정되었습니다.",
+                    });
+                } catch (error) {
+                    openModal({
+                        type: "alert",
+                        message: "댓글 수정에 실패했습니다. \n다시 시도해주세요.",
+                    });
+                }
+            },
+        });
     };
+
 
     // 댓글 삭제
     const handleCommentDelete = async (commentIdx) => {
-        if (window.confirm("정말 삭제하시겠습니까?")) {
-            try {
-                await deleteWorryComment(commentIdx);
-                fetchWorryComment();
-                alert("댓글이 삭제되었습니다.");
-            } catch (error) {
-                console.error("댓글 삭제에 실패했습니다.", error);
-            }
-        }
+        openModal({
+            type: "confirm",
+            message: "정말로 삭제하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    await deleteWorryComment(commentIdx);
+                    fetchWorryComment();
+                    openModal({ type: "alert", message: "댓글이 삭제되었습니다." });
+                } catch (error) {
+                    openModal({ type: "alert", message: "댓글 삭제에 실패했습니다. \n다시 시도해주세요." });
+                }
+            },
+        });
     };
 
     // 댓글 신고
     const handleCommentReport = async (commentIdx) => {
-        if (window.confirm("정말 신고하시겠습니까?")) {
+        openModal({
+            type: "confirm",
+            message: "정말로 신고하시겠습니까?",
+            onConfirm: async () => {
             try {
-                console.log("신고 요청 데이터:", { commentIdx }); // 요청 데이터 로그
                 await reportWorryComment(commentIdx);
-                console.log("신고 성공:");
                 // fetchWorryComment();
-                alert("댓글이 신고되었습니다.");
+                openModal({ type: "alert", message: "댓글이 신고되었습니다." });
             } catch (error) {
-                console.error("댓글 신고에 실패했습니다.", error);
+                openModal({ type: "alert", message: "댓글 신고에 실패했습니다. \n다시 시도해주세요." });
             }
-        }
+            },
+        });
     };
 
     return (

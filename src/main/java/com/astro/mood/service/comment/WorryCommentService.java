@@ -19,12 +19,12 @@ import com.astro.mood.service.notice.NoticeService;
 import com.astro.mood.service.wordFilter.BadwordFilterService;
 import com.astro.mood.web.dto.comment.CommentRequest;
 import com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse;
+import com.astro.mood.web.dto.comment.SendWorryCommentResponse;
 import com.astro.mood.web.dto.comment.WorryCommentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -308,6 +308,13 @@ public class WorryCommentService {
     public Page<ReceiveWorryCommentResponse> getReceivedCommentsByUser(Integer userIdx, Pageable pageable){
         authService.findUserByIdOrThrow(userIdx);
         Page<ReceiveWorryCommentResponse> comments = worryCommentRepository.findCommentsByUserAndNoticeType(userIdx, "comment", pageable);
+        return comments;
+    }
+
+    //유저 보낸 답변 보기
+    public Page<SendWorryCommentResponse> getSentCommentsByUser(Integer userIdx, Pageable pageable){
+        authService.findUserByIdOrThrow(userIdx);
+        Page<SendWorryCommentResponse> comments = worryCommentRepository.findSentCommentsByUser(userIdx, pageable);
         return comments;
     }
 }

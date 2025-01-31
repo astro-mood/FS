@@ -60,4 +60,10 @@ public class NoticeService {
         noticeRepository.updateIsReadByUserIdxAndType(userIdx,type);
     }
 
+    // 고민 답변 알림해제
+    @Transactional(transactionManager = "tmJpa")
+    public void readNoticesByWorryIdx(String type, Integer worryIdx) {
+        noticeRepository.updateIsReadByUserIdxAndTypeAndWorryIdx(type, worryIdx);
+    }
+
 }

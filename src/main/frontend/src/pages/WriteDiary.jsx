@@ -3,12 +3,11 @@ import styled from "styled-components";
 import WriteButton from "../components/button/WriteButton";
 import { useNavigate } from "react-router";
 import { postDiary } from "../api/api";
-import Modal from "../components/modal/Modal";
-import ConfirmModal from "../components/modal/ConfirmModal";
 import ContentTitle from "../components/write/ContentTitle";
 import Content from "../components/write/Content";
 import EmotionSelect from "../components/write/EmotionSelector";
 import WhiteContentsArea from "../components/layout/WhiteContentsArea";
+import {useModals} from "../context/ModalContext";
 
 // 감정 이모지 -> emotionIdx 매핑
 const EMOTION_MAP = {
@@ -38,14 +37,7 @@ const WriteDiary = () => {
 
     // emotion 초기값 설정
     const [emotionScores, setEmotionScores] = useState([{ emotion: "😄기쁨", score: "10" }]);
-
-    // Confirm 모달 관련
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const [confirmModalMessage, setConfirmModalMessage] = useState("");
-
-    // 모달 관련
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
+    const { openModal } = useModals();
 
     const handleEmotionChange = (index, field, value) => {
         setEmotionScores(prev => {
@@ -63,43 +55,56 @@ const WriteDiary = () => {
         setEmotionScores(prev => prev.filter((_, idx) => idx !== index));
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
         if (!title || !content) {
-            setConfirmModalMessage("제목과 내용을 입력해주세요!");
-            setIsConfirmModalOpen(true);
+            openModal({
+                type: "alert",
+                message: "제목과 내용을 입력해주세요!",
+            });
             return;
         }
 
+        openModal({
+            type: "confirm",
+            message: "정말로 작성하시겠습니까?",
+            onConfirm: async () => {
+                await submitDiary();
+            },
+        });
+    };
+
+    const submitDiary = async () => {
         const transformedEmotions = transformEmotionScores(emotionScores);
 
-        // payload 형식
         const payload = {
             title,
             content,
             emotions: transformedEmotions,
         };
 
-        console.log("전송할 payload:", payload);
-
         try {
-            // 보낼 값 payload로 설정
-            await postDiary(payload);
-            setModalMessage("작성이 완료되었습니다!");
-            setIsModalOpen(true);
+            const response = await postDiary(payload);
+
+            if (response.isSuccess) {
+                const diaryIdx = response.data.diaryIdx;
+
+                openModal({
+                    type: "alert",
+                    message: "일기 작성이 완료되었습니다!",
+                    onConfirm: () => navigate(`/diary/${diaryIdx}`),
+                });
+            } else {
+                openModal({
+                    type: "alert",
+                    message: "일기 작성에 실패했습니다. \n다시 시도해주세요.",
+                });
+            }
         } catch (error) {
-            setConfirmModalMessage("데이터 전송에 실패했습니다. 다시 시도해주세요.");
-            setIsConfirmModalOpen(true);
+            openModal({
+                type: "alert",
+                message: "데이터 전송에 실패했습니다. \n다시 시도해주세요.",
+            });
         }
-    };
-
-    const handleConfirm = () => {
-        setIsConfirmModalOpen(false);
-        navigate("/mydiary");
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-        setIsConfirmModalOpen(false);
     };
 
     return (
@@ -125,18 +130,6 @@ const WriteDiary = () => {
             </ContentsContainer>
             <WriteButton text="작성 완료!" onClick={handleSubmit} />
 
-            <ConfirmModal
-                isOpen={isConfirmModalOpen}
-                message={confirmModalMessage}
-                onConfirm={handleCancel}
-            />
-
-            <Modal
-                isOpen={isModalOpen}
-                message={modalMessage}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-            />
         </WhiteContentsArea>
         </Container>
     );

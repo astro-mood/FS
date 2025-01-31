@@ -3,51 +3,58 @@ import styled from "styled-components";
 import WriteButton from "../components/button/WriteButton";
 import { useNavigate } from "react-router";
 import { postWorry } from "../api/api";
-import Modal from "../components/modal/Modal";
-import ConfirmModal from "../components/modal/ConfirmModal";
 import ContentTitle from "../components/write/ContentTitle";
 import Content from "../components/write/Content";
 import WhiteContentsArea from "../components/layout/WhiteContentsArea";
+import { useModals } from "../context/ModalContext";
+
 
 const WriteWorry = () => {
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-
-    // Confirm 모달 관련
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const [confirmModalMessage, setConfirmModalMessage] = useState("");
-
-    // 모달 관련
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
+    const { openModal } = useModals();
 
     const handleSubmit = async () => {
         if (!title || !content) {
-            setConfirmModalMessage("제목과 내용을 입력해주세요!");
-            setIsConfirmModalOpen(true);
+            openModal({
+                type: "alert",
+                message: "제목과 내용을 입력해주세요!",
+            });
             return;
         }
 
-        try {
-            await postWorry({ title, content });
-            setModalMessage("작성이 완료되었습니다!");
-            setIsModalOpen(true);
-        } catch (error) {
-            setConfirmModalMessage("데이터 전송에 실패했습니다. 다시 시도해주세요.");
-            setIsConfirmModalOpen(true);
-        }
+        openModal({
+            type: "confirm",
+            message: "정말로 고민을 작성하시겠습니까?",
+            onConfirm: async () => {
+                try {
+                    const response = await postWorry({ title, content });
+
+                    if (response.isSuccess) {
+                        const worryIdx = response.data.worryIdx; // 새로 작성된 고민의 ID 가져오기
+
+                        openModal({
+                            type: "alert",
+                            message: "고민 작성이 완료되었습니다!",
+                            onConfirm: () => navigate(`/worry/${worryIdx}`),
+                        });
+                    } else {
+                        openModal({
+                            type: "alert",
+                            message: "고민 작성에 실패했습니다. \n다시 시도해주세요.",
+                        });
+                    }
+                } catch (error) {
+                    openModal({
+                        type: "alert",
+                        message: "데이터 전송에 실패했습니다. \n다시 시도해주세요.",
+                    });
+                }
+            },
+        });
     };
 
-    const handleConfirm = () => {
-        setIsConfirmModalOpen(false); // 확인 모달 닫기
-        navigate("/boardworry"); // 게시판으로 이동
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-        setIsConfirmModalOpen(false);
-    };
 
     return (
         <Container>
@@ -64,19 +71,6 @@ const WriteWorry = () => {
                     setContent={setContent} />
             </ContentsContainer>
             <WriteButton text="작성 완료!" onClick={handleSubmit} />
-
-            <ConfirmModal
-                isOpen={isConfirmModalOpen}
-                message={confirmModalMessage}
-                onConfirm={handleCancel}
-            />
-
-            <Modal
-                isOpen={isModalOpen}
-                message={modalMessage}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-            />
             </WhiteContentsArea>
         </Container>
     );
