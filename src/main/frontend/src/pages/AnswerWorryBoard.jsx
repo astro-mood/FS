@@ -31,7 +31,7 @@ const AnswerWorryBoard = () => {
             return; // 더 이상 진행하지 않음
         }
         fetchAnswerData();
-    }, [fetchAnswerData]);
+    }, [fetchAnswerData, userIdx]);
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
