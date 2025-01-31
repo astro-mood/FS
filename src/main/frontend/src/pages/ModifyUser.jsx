@@ -368,7 +368,6 @@ const WithdrawButton = styled.button`
     cursor: pointer;
     font-family: inherit;
     &:hover {color:#7D8DDE;}
-
 `;
 
 const UpdateButton = styled.button`

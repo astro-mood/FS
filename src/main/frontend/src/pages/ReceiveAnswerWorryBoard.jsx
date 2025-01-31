@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { useUser } from '../context/UserContext';
-import {getReceiveAnswer, reportWorryComment} from "../api/api";
+import {getReceiveAnswer, reportWorryComment, readNotices, readNoticesByUser} from "../api/api";
 import { useNavigate } from "react-router";
 import Comment from "../components/comment/Comment";
 
 const ReceiveAnswerWorryBoard = () => {
-    const hello = "내가 받은 답변보기 (리스트)";
     const navigate = useNavigate();
     const { userIdx } = useUser();
     const [receiveAnswerData, setReceiveAnswerData] = useState({});
+    const [isAllRead, setIsAllRead] = useState(false); // 전체 읽음 상태 추가
 
     useEffect(() => {
         // userIdx가 undefined인 경우 처리
@@ -36,15 +36,31 @@ const ReceiveAnswerWorryBoard = () => {
                 console.log("신고 요청 데이터:", { commentIdx }); // 요청 데이터 로그
                 await reportWorryComment(commentIdx);
                 console.log("신고 성공:");
-                // fetchWorryComment();
                 alert("댓글이 신고되었습니다.");
             } catch (error) {
                 console.error("댓글 신고에 실패했습니다.", error);
             }
         }
     };
-    const handleClick = (worryIdx) => {
-        navigate(`/worry/${worryIdx}`);
+    const handleClick = async (worryIdx) => {
+        //해당 댓글 읽음처리하기
+        try {
+            const response = await readNotices("comment", worryIdx);
+            navigate(`/worry/${worryIdx}`); //고민 페이지 이동
+        } catch (error) {
+            console.error("읽음 처리에 실패했습니다. ", error);
+            throw error;
+        }
+    };
+    const handleBtnClick = async () => {
+        //전체 읽음 처리
+        try {
+            await readNoticesByUser("comment");
+            setIsAllRead(true);
+        } catch (error) {
+            console.error("전체 읽음 처리에 실패했습니다. ", error);
+            throw error;
+        }
     };
 
     if (!receiveAnswerData) {
@@ -54,35 +70,39 @@ const ReceiveAnswerWorryBoard = () => {
     return (
         <Container>
             <Board>받은 💌</Board>
+            {receiveAnswerData.length > 0 && !receiveAnswerData[0].isRead && (
+                <ReadButton onClick={() => handleBtnClick()}>전체 읽음 확인</ReadButton>
+            )}
             <ContentsContainer>
-                <div>
-                    {receiveAnswerData.length > 0 ? (
-                        receiveAnswerData.map(
-                            (answer) => (
-                                <AnswerDiv key={answer.commentIdx}>
-                                    <StatusContainer>
-                                        <CreatedAt>{answer.worryCreatedAt}에 남긴 고민 👾</CreatedAt>
-                                        <StatusText>
-                                            {answer.isResolved ? "🚀 고민 해결 완료" : "🪐 고민 진행 중"}
-                                        </StatusText>
-                                    </StatusContainer>
-                                    <WorryTitle><a onClick={() => handleClick(answer.worryIdx)}>{answer.worryTitle}</a></WorryTitle>
-                                    <Comment
-                                        key={answer.commentIdx}
-                                        comment={answer}
-                                        userId={userIdx}
-                                        onReport={handleCommentReport}
-                                    />
-                                    <WorryLink>
-                                        <a onClick={() => handleClick(answer.worryIdx)}>고민다시보기 ⇀</a>
-                                    </WorryLink>
-                                </AnswerDiv>
-                            )
+                {receiveAnswerData.length > 0 ? (
+                    receiveAnswerData.map(
+                        (answer) => (
+                            <AnswerDiv key={answer.commentIdx}>
+                                <StatusContainer>
+                                    <CreatedAt>{answer.worryCreatedAt}에 남긴 고민 👾</CreatedAt>
+                                    <StatusText>
+                                        {answer.isResolved ? "🚀 고민 해결 완료" : "🪐 고민 진행 중"}
+                                    </StatusText>
+                                </StatusContainer>
+                                <WorryTitle>
+                                    {!isAllRead && answer.isRead != null && !answer.isRead && <IsRead />}
+                                    <a onClick={() => handleClick(answer.worryIdx)}>{answer.worryTitle}</a>
+                                </WorryTitle>
+                                <Comment
+                                    key={answer.commentIdx}
+                                    comment={answer}
+                                    userId={userIdx}
+                                    onReport={handleCommentReport}
+                                />
+                                <WorryLink>
+                                    <a onClick={() => handleClick(answer.worryIdx)}>고민다시보기 ⇀</a>
+                                </WorryLink>
+                            </AnswerDiv>
                         )
-                    ):(
-                        <div>받은 답변이 없습니다.</div>
-                    )}
-                </div>
+                    )
+                ):(
+                    <div>받은 답변이 없습니다.</div>
+                )}
             </ContentsContainer>
         </Container>
     );
@@ -113,17 +133,18 @@ const LoadingDiv = styled.div`
     flex: 1;
 `;
 const ContentsContainer = styled.div`
-    height: calc(100vh - 180px);
+    height: calc(100vh - 200px);
     overflow-y: auto;
-    
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     scrollbar-width: none;
+    box-sizing: border-box;
 `;
 
 const WorryTitle = styled.h3`
     padding: 0 10px;
+    display: flex;
+    align-items: center;
     & a {
         cursor: pointer;
         &:hover {
@@ -165,4 +186,27 @@ const WorryLink = styled.p`
             color: #111731;
         }
     }
+`;
+const IsRead = styled.span`
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #963B74;
+    border-radius: 50%;
+    margin-right: 5px;
+`;
+const ReadButton = styled.button`
+    border: none;
+    outline: none;
+    color:#fff;
+    background-color: #7D8DDE;
+    padding: 10px 15px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: block;
+    align-self: end;
+    border-radius: 5px;
+    font-family: inherit;
+    &:hover {background-color:#4E2850;}
 `;

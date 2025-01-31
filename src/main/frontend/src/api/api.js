@@ -289,10 +289,43 @@ export const getMainUserInfo = async (loginIdx) => {
     }
 };
 
+// 보낸 답변
+export const getSendAnswer = async (loginIdx) => {
+    try{
+        const response = await instance.get(`/send-comments/${loginIdx}`);
+        return response.data;
+    }catch (error){
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
 // 받은 답변
 export const getReceiveAnswer = async (loginIdx) => {
     try{
         const response = await instance.get(`/receive-comments/${loginIdx}`);
+        return response.data;
+    }catch (error){
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 알림읽음
+export const readNotices = async (type, wcIdx) => {
+    try{
+        const response = await instance.patch(`/notice-${type}/${wcIdx}`);
+        return response.data;
+    }catch (error){
+        console.error("API 요청 에러:", error);
+        throw error;
+    }
+};
+
+// 알림 전부 읽음처리
+export const readNoticesByUser = async (type) => {
+    try{
+        const response = await instance.patch(`/notice-${type}`);
         return response.data;
     }catch (error){
         console.error("API 요청 에러:", error);
