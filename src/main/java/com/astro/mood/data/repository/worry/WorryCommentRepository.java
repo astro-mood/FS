@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse; // DTO import
 
 import java.util.Optional;
 
@@ -27,8 +28,31 @@ public interface WorryCommentRepository  extends JpaRepository<WorryComment,Inte
 
     int countByUserIdxAndIsDeletedFalseAndIsReportedFalseAndParentCommentIsNull(Integer userIdx);
 
+    //받은 답변
+    @Query("SELECT new com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse(" +
+            "wc.commentIdx, " +
+            "wc.worry.worryIdx, " +
+            "wc.worry.title, " +
+            "wc.worry.createdAt, " +
+            "wc.worry.isResolved, " +
+            "wc.userIdx, " +
+            "wc.content, " +
+            "n.isRead, " +
+            "wc.isReported, " +
+            "wc.isDeleted, " +
+            "wc.likeCount, " +
+            "wc.createdAt, " +
+            "(CASE WHEN l.user.userIdx IS NOT NULL THEN TRUE ELSE FALSE END)) isLiked " +
+            "FROM WorryComment wc " +
+            "JOIN wc.worry w " +
+            "LEFT JOIN Notice n ON wc.commentIdx = n.wcIdx AND n.userIdx = :userIdx AND n.type = :type " +
+            "LEFT JOIN Likes l ON wc.commentIdx = l.worryComment.commentIdx AND l.user.userIdx = :userIdx " +
+            "WHERE w.user.userIdx = :userIdx " +
+            "AND wc.parentComment IS NULL " +
+            "ORDER BY n.isRead ASC, wc.createdAt DESC")
+    Page<ReceiveWorryCommentResponse> findCommentsByUserAndNoticeType(@Param("userIdx") Integer userIdx, @Param("type") String type, Pageable pageable);
 
-    @Query("SELECT c FROM WorryComment c JOIN FETCH c.worry WHERE c.worry.worryIdx= :worryIdx AND c.parentComment IS NULL order by c.commentIdx desc")
-    Page<WorryComment> findByUserIdAndParentCommentIsNull(@Param("worryIdx") Integer worryIdx, Pageable pageable);
+
+
 
 }
