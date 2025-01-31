@@ -6,9 +6,7 @@ import {useNavigate} from "react-router";
 const UserInfo = (props) => {
     const { nickname, profileImage  } = useUser();
     const navigate = useNavigate();
-    if (!props.diaryCount) {
-        return <Container><LoadingDiv>Loading...</LoadingDiv></Container>;
-    }
+
     return (
         <Container>
             <Header>
@@ -35,14 +33,6 @@ const Container = styled.div`
     padding: 20px;
     border-radius: 10px;
     width: 50%;
-    flex: 1;
-`;
-
-const LoadingDiv = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 120px;
     flex: 1;
 `;
 

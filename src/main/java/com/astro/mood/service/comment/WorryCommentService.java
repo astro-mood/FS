@@ -306,18 +306,8 @@ public class WorryCommentService {
 
     //유저 받은 답변 보기
     public Page<ReceiveWorryCommentResponse> getReceivedCommentsByUser(Integer userIdx, Pageable pageable){
-        User user = authService.findUserByIdOrThrow(userIdx);
-        Page<WorryComment> comments = worryCommentRepository.findByUserIdAndParentCommentIsNull(userIdx, pageable);
-        List<ReceiveWorryCommentResponse> commentResponses = comments.stream()
-                .map(comment -> {
-                    ReceiveWorryCommentResponse response = ReceiveWorryCommentResponse.toDto(comment);
-                    // 현재 댓글에 대한 좋아요 여부 확인
-                    boolean isLiked = isLiked( comment.getCommentIdx(), userIdx);
-                    response.setIsLiked(isLiked);
-                    return response;
-                })
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(commentResponses, pageable, comments.getTotalElements());
+        authService.findUserByIdOrThrow(userIdx);
+        Page<ReceiveWorryCommentResponse> comments = worryCommentRepository.findCommentsByUserAndNoticeType(userIdx, "comment", pageable);
+        return comments;
     }
 }
