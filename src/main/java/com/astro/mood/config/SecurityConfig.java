@@ -53,7 +53,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/google").permitAll() // 구글 로그인 경로 허용
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger 관련 경로 허용
                         .requestMatchers("/test/**").hasAuthority("ROLE_USER")
-                        .requestMatchers("/api/main","/api/worry/**", "/api/diary/**","/api/worry-comments/**","/api/diary-comments/**","/api/emotions/**","/api/likes/**").hasAuthority("ROLE_USER")
+                        .requestMatchers(
+                                "/api/main","/api/worry/**", "/api/diary/**",
+                                "/api/{type}-comments/**",
+                                "/api/emotions/**","/api/likes/**",
+                                "/api/notice-{type}/**", "/api/notice-{type}").hasAuthority("ROLE_USER")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement

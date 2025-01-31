@@ -2,6 +2,7 @@ package com.astro.mood.data.repository.worry;
 
 import com.astro.mood.data.entity.worry.Worry;
 import com.astro.mood.data.entity.worry.WorryComment;
+import com.astro.mood.web.dto.comment.SendWorryCommentResponse;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,28 @@ public interface WorryCommentRepository  extends JpaRepository<WorryComment,Inte
 
     int countByUserIdxAndIsDeletedFalseAndIsReportedFalseAndParentCommentIsNull(Integer userIdx);
 
+    //보낸 답변
+    @Query("SELECT new com.astro.mood.web.dto.comment.SendWorryCommentResponse(" +
+            "wc.commentIdx, " +
+            "wc.worry.worryIdx, " +
+            "wc.worry.title, " +
+            "wc.worry.createdAt, " +
+            "wc.worry.isResolved, " +
+            "wc.userIdx, " +
+            "wc.content, " +
+            "wc.isReported, " +
+            "wc.isDeleted, " +
+            "wc.likeCount, " +
+            "wc.createdAt, " +
+            "(CASE WHEN l.user.userIdx IS NOT NULL THEN TRUE ELSE FALSE END)) isLiked " +
+            "FROM WorryComment wc " +
+            "JOIN wc.worry w " +
+            "LEFT JOIN Likes l ON wc.commentIdx = l.worryComment.commentIdx AND l.user.userIdx = :userIdx " +
+            "WHERE wc.userIdx = :userIdx " +
+            "AND wc.parentComment IS NULL AND wc.isDeleted = false " +
+            "ORDER BY wc.createdAt DESC")
+    Page<SendWorryCommentResponse> findSentCommentsByUser(@Param("userIdx") Integer userIdx, Pageable pageable);
+
     //받은 답변
     @Query("SELECT new com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse(" +
             "wc.commentIdx, " +
@@ -45,11 +68,13 @@ public interface WorryCommentRepository  extends JpaRepository<WorryComment,Inte
             "(CASE WHEN l.user.userIdx IS NOT NULL THEN TRUE ELSE FALSE END)) isLiked " +
             "FROM WorryComment wc " +
             "JOIN wc.worry w " +
-            "LEFT JOIN Notice n ON wc.commentIdx = n.wcIdx AND n.userIdx = :userIdx AND n.type = :type " +
+            "JOIN Notice n ON wc.commentIdx = n.wcIdx AND n.userIdx = :userIdx AND n.type = :type " +
             "LEFT JOIN Likes l ON wc.commentIdx = l.worryComment.commentIdx AND l.user.userIdx = :userIdx " +
             "WHERE w.user.userIdx = :userIdx " +
             "AND wc.parentComment IS NULL " +
-            "ORDER BY n.isRead ASC, wc.createdAt DESC")
+            "ORDER BY " +
+            "n.isRead ASC, " +
+            "wc.createdAt DESC")
     Page<ReceiveWorryCommentResponse> findCommentsByUserAndNoticeType(@Param("userIdx") Integer userIdx, @Param("type") String type, Pageable pageable);
 
 

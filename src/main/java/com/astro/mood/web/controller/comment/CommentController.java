@@ -7,10 +7,7 @@ import com.astro.mood.service.comment.WorryCommentService;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.web.dto.ApiResponse;
-import com.astro.mood.web.dto.comment.CommentRequest;
-import com.astro.mood.web.dto.comment.DiaryCommentResponse;
-import com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse;
-import com.astro.mood.web.dto.comment.WorryCommentResponse;
+import com.astro.mood.web.dto.comment.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,6 +46,9 @@ public class CommentController {
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else if(type.equals("receive")){
                 Page<ReceiveWorryCommentResponse> result = worryCommentService.getReceivedCommentsByUser(userDetails.getUserIdx(), PageRequest.of(page, size));
+                return ResponseEntity.ok(ApiResponse.ok(result));
+            }else if(type.equals("send")){
+                Page<SendWorryCommentResponse> result = worryCommentService.getSentCommentsByUser(userDetails.getUserIdx(), PageRequest.of(page, size));
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else{
                 throw new CustomException(ErrorCode.NOT_FOUND_END_POINT);
