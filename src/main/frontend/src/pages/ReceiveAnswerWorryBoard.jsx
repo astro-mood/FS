@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUser } from '../context/UserContext';
 import {getReceiveAnswer, reportWorryComment, readNotices, readNoticesByUser} from "../api/api";
@@ -45,7 +45,7 @@ const ReceiveAnswerWorryBoard = () => {
     const handleClick = async (worryIdx) => {
         //해당 댓글 읽음처리하기
         try {
-            const response = await readNotices("comment", worryIdx);
+            await readNotices("comment", worryIdx);
             navigate(`/worry/${worryIdx}`); //고민 페이지 이동
         } catch (error) {
             console.error("읽음 처리에 실패했습니다. ", error);
@@ -86,7 +86,9 @@ const ReceiveAnswerWorryBoard = () => {
                                 </StatusContainer>
                                 <WorryTitle>
                                     {!isAllRead && answer.isRead != null && !answer.isRead && <IsRead />}
-                                    <a onClick={() => handleClick(answer.worryIdx)}>{answer.worryTitle}</a>
+                                    <button onClick={() => handleClick(answer.worryIdx)} >
+                                        {answer.worryTitle}
+                                    </button>
                                 </WorryTitle>
                                 <Comment
                                     key={answer.commentIdx}
@@ -95,7 +97,7 @@ const ReceiveAnswerWorryBoard = () => {
                                     onReport={handleCommentReport}
                                 />
                                 <WorryLink>
-                                    <a onClick={() => handleClick(answer.worryIdx)}>고민다시보기 ⇀</a>
+                                    <button onClick={() => handleClick(answer.worryIdx)}>고민다시보기 ⇀</button>
                                 </WorryLink>
                             </AnswerDiv>
                         )
@@ -145,8 +147,13 @@ const WorryTitle = styled.h3`
     padding: 0 10px;
     display: flex;
     align-items: center;
-    & a {
+    & button {
+        background: none;
+        border: none;
         cursor: pointer;
+        font-size: inherit;
+        font-weight: inherit;
+        font-family: inherit;
         &:hover {
             color: #4E2850;
         }
@@ -177,16 +184,22 @@ const StatusText = styled.div`
 const WorryLink = styled.p`
     text-align: end;
     padding: 10px;
-    &>a {
-        display: inline-block;
+    margin: 0;
+    & button {
+        align-self: end;
+        background: none;
+        border: none;
         cursor: pointer;
+        font-size: inherit;
+        font-weight: inherit;
+        font-family: inherit;
         color: #4E2850;
-        line-height: 24px;
         &:hover {
             color: #111731;
         }
     }
 `;
+
 const IsRead = styled.span`
     display: inline-block;
     width: 10px;
