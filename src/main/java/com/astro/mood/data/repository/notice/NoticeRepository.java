@@ -13,4 +13,8 @@ public interface NoticeRepository extends JpaRepository<Notice,Integer> {
     @Modifying
     @Query("UPDATE Notice n SET n.isRead = true WHERE n.userIdx = :userIdx AND n.isRead = false and n.type = :type")
     void updateIsReadByUserIdxAndType(@Param("userIdx") Integer userIdx, @Param("type") String type);
+
+    @Modifying
+    @Query("UPDATE Notice n SET n.isRead = true WHERE n.worryIdx = :worryIdx AND n.isRead = false and n.type = :type ")
+    void updateIsReadByUserIdxAndTypeAndWorryIdx(@Param("type") String type, @Param("worryIdx") Integer worryIdx);
 }
