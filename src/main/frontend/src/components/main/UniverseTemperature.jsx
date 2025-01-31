@@ -91,15 +91,6 @@ const UniverseTemperature = (props) => {
                                 </AnswerCount>
                             )}
                         </button>
-                        {/*<a onClick={() => navigate(`/receiveanswerboard`)}>*/}
-                        {/*    받은 💌 보기*/}
-                        {/*    {userRecord.answerCount > 0 && (*/}
-                        {/*        <AnswerCount>*/}
-                        {/*            {userRecord.answerCount > 99 ? "N" : userRecord.answerCount}*/}
-                        {/*        </AnswerCount>*/}
-                        {/*    )}*/}
-                        {/*</a>*/}
-
                     </p>
                 </StatsInnerDiv>
             </Stats>
