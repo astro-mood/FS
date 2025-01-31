@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import styled from "styled-components";
 import {useUser} from "../../context/UserContext";
 import {useNavigate} from "react-router";
@@ -17,7 +17,7 @@ const UserInfo = (props) => {
                 <ProfileImage src={profileImage} />
                 <Info>
                     <h2>{nickname}</h2>
-                    <p>작성한 일기 수: <a onClick={() => navigate(`/mydiary`)}>{props.diaryCount} 건</a></p>
+                    <p>작성한 일기 수: <button onClick={() => navigate(`/mydiary`)}>{props.diaryCount} 건</button></p>
                 </Info>
             </Content>
         </Container>
@@ -67,11 +67,20 @@ const ProfileImage = styled.img`
 `;
 
 const Info = styled.div`
-    & a{
+    & button {
+        align-self: end;
+        background: none;
+        border: none;
         cursor: pointer;
-        &:hover{
+        font-size: inherit;
+        font-weight: inherit;
+        font-family: inherit;
+        color: inherit;
+        border-bottom: 1px solid transparent; 
+        transition: border-color 0.3s;
+        &:hover {
             color: #7D8DDE;
-            border-bottom: 1px solid;
+            border-bottom: 1px solid #7D8DDE;
         }
     }
 `;

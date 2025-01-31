@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUser } from '../context/UserContext';
 import {
@@ -30,9 +30,8 @@ const AnswerWorryBoard = () => {
             console.log("사용자 정보가 없습니다.");
             return; // 더 이상 진행하지 않음
         }
-
         fetchAnswerData();
-    }, [userIdx]);
+    }, [fetchAnswerData]);
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
@@ -82,7 +81,9 @@ const AnswerWorryBoard = () => {
                                     </StatusText>
                                 </StatusContainer>
                                 <WorryTitle>
-                                    <a onClick={() => handleClick(answer.worryIdx)}>{answer.worryTitle}</a>
+                                    <button onClick={() => handleClick(answer.worryIdx)}>
+                                        {answer.worryTitle}
+                                    </button>
                                 </WorryTitle>
                                 <Comment
                                     key={answer.commentIdx}
@@ -92,7 +93,7 @@ const AnswerWorryBoard = () => {
                                     onDelete={handleCommentDelete}
                                 />
                                 <WorryLink>
-                                    <a onClick={() => handleClick(answer.worryIdx)}>고민다시보기 ⇀</a>
+                                    <button onClick={() => handleClick(answer.worryIdx)}>고민다시보기 ⇀</button>
                                 </WorryLink>
                             </AnswerDiv>
                         )
@@ -143,8 +144,13 @@ const WorryTitle = styled.h3`
     padding: 0 10px;
     display: flex;
     align-items: center;
-    & a {
+    & button {
+        background: none;
+        border: none;
         cursor: pointer;
+        font-size: inherit;
+        font-weight: inherit;
+        font-family: inherit;
         &:hover {
             color: #4E2850;
         }
@@ -175,11 +181,16 @@ const StatusText = styled.div`
 const WorryLink = styled.p`
     text-align: end;
     padding: 10px;
-    &>a {
-        display: inline-block;
+    margin: 0;
+    & button {
+        align-self: end;
+        background: none;
+        border: none;
         cursor: pointer;
+        font-size: inherit;
+        font-weight: inherit;
+        font-family: inherit;
         color: #4E2850;
-        line-height: 24px;
         &:hover {
             color: #111731;
         }

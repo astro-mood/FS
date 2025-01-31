@@ -13,7 +13,7 @@ import InputBox from "../components/userInfo/InputBox";
 const ModifyUser = () => {
 
     const navigate = useNavigate();
-    const { userIdx, profileImage, setNickname, setProfileImage } = useUser();
+    const { userIdx, setNickname, setProfileImage } = useUser();
 
     // 유효성 상태
     const [isPhoneValid, setIsPhoneValid] = useState(true);
@@ -57,7 +57,7 @@ const ModifyUser = () => {
                     phone: (user.phone)? user.phone : "",
                     oauthProvider: user.oauthProvider,
                 });
-                setImgFile(profileImage);
+                setImgFile(user.profileImage);
             } catch (error) {
                 console.error("API 요청 에러:", error);
                 throw error;
@@ -184,7 +184,7 @@ const ModifyUser = () => {
 
     const handleConfirm = async () => {
         // 회원 탈퇴 로직 구현
-        const response = await withdrawUser(userIdx);
+        await withdrawUser(userIdx);
         setIsModalOpen(false);
         navigate("/"); //인트로화면으로 이동
     };
@@ -207,7 +207,7 @@ const ModifyUser = () => {
         setConfirmModalMessage(message);
         setIsConfirmModalOpen(true);
     };
-    if (!userData) {
+    if (!userData.userIdx) {
         return <LoadingDiv>Loading...</LoadingDiv>;
     }
     return (

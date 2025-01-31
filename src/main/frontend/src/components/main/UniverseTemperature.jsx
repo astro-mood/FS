@@ -73,19 +73,32 @@ const UniverseTemperature = (props) => {
             <Stats>
                 <StatsInnerDiv>
                     <p>위로를 건넨 횟수</p>
-                    <p><a onClick={ () => navigate(`/answerworryboard`) } >{userRecord.commentCount}회</a></p>
+                    <p>
+                        <button onClick={ () => navigate(`/answerworryboard`) } >{userRecord.commentCount}회</button>
+                    </p>
                 </StatsInnerDiv>
                 <StatsInnerDiv>
-                    <p><a onClick={ () => navigate(`/myworry`) } >내 고민 보기</a></p>
                     <p>
-                        <a onClick={ () => navigate(`/receiveanswerboard`) }>
+                        {/*<a onClick={() => navigate(`/myworry`)}>내 고민 보기</a>*/}
+                        <button onClick={() => navigate(`/myworry`)}>내 고민 보기</button>
+                    </p>
+                    <p>
+                        <button onClick={() => navigate(`/receiveanswerboard`)}>
                             받은 💌 보기
-                            {userRecord.answerCount > 0 &&  (
+                            {userRecord.answerCount > 0 && (
                                 <AnswerCount>
-                                    {userRecord.answerCount > 99 ? "N": userRecord.answerCount}
+                                    {userRecord.answerCount > 99 ? "N" : userRecord.answerCount}
                                 </AnswerCount>
                             )}
-                        </a>
+                        </button>
+                        {/*<a onClick={() => navigate(`/receiveanswerboard`)}>*/}
+                        {/*    받은 💌 보기*/}
+                        {/*    {userRecord.answerCount > 0 && (*/}
+                        {/*        <AnswerCount>*/}
+                        {/*            {userRecord.answerCount > 99 ? "N" : userRecord.answerCount}*/}
+                        {/*        </AnswerCount>*/}
+                        {/*    )}*/}
+                        {/*</a>*/}
 
                     </p>
                 </StatsInnerDiv>
@@ -178,11 +191,20 @@ const StatsInnerDiv = styled.div`
         line-height: 24px;
         padding: 5px 10px;
     }
-    & a{
+    & button {
+        align-self: end;
+        background: none;
+        border: none;
         cursor: pointer;
-        &:hover{
+        font-size: inherit;
+        font-weight: inherit;
+        font-family: inherit;
+        color: inherit;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.3s;
+        &:hover {
             color: #7D8DDE;
-            border-bottom: 1px solid;
+            border-bottom: 1px solid #7D8DDE;
         }
     }
 `;
