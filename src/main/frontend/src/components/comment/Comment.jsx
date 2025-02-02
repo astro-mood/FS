@@ -3,12 +3,18 @@ import styled from "styled-components";
 import {useUser} from "../../context/UserContext";
 import {commentLike} from "../../api/api";
 import SmallButton from "../button/SmallButton";
+import CommentInput from "./CommentInput";
+import {useModals} from "../../context/ModalContext";
 
 const Comment = ({ comment = {}, onLike=true, onEdit, onDelete, onReport, isDiary }) => {
     const { userIdx } = useUser();
     const isMyComment = userIdx === comment.userIdx;
     const [liked, setLiked] = useState(comment.isLiked || false);
     const [likeCount, setLikeCount] = useState(comment.likeCount || 0);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState(comment.content);
+    const {openModal} = useModals()
 
     const handleLike = async () => {
         try {
@@ -20,33 +26,63 @@ const Comment = ({ comment = {}, onLike=true, onEdit, onDelete, onReport, isDiar
         }
     };
 
+    const handleEditStart = () => {
+        setIsEditing(true);
+        setEditedContent(comment.content);
+    };
+
+    const handleEditSubmit = () => {
+        if (!editedContent.trim()) {
+            openModal({ type: "alert", message: "작성된 댓글이 없습니다." });
+            return;
+        }
+
+        openModal({
+            type: "confirm",
+            message: "정말 댓글을 수정하시겠습니까?",
+            onConfirm: async () => {
+                onEdit(comment.commentIdx, editedContent);
+                setIsEditing(false);
+            },
+        });
+    };
+
+
     return (
         <CommentContainer>
             <CommentText>
                 <span>{comment.createdAt || "(작성일시)"}</span>에 건넨 💌 <br />
-                {comment.content}
+                {isEditing ? (
+                    <CommentInput
+                        value={editedContent}
+                        onChange={(e) => setEditedContent(e.target.value)}
+                        onSubmit={handleEditSubmit}
+                        placeholder="댓글을 수정하세요."
+                    />
+                ) : (
+                    <>{comment.content}</>
+                )}
             </CommentText>
 
             <CommentActions>
-                {onLike && (
+                {onLike && !isEditing &&(
                     <Heart onClick={handleLike}>
                         {liked ? "❤️" : "🤍"} {likeCount}
                     </Heart>
                 )}
                 {isMyComment ? (
-                    <>
-                        <SmallButton onClick={() => onEdit(comment.commentIdx, prompt("수정할 내용을 입력하세요:", comment.content))}>
-                            수정
-                        </SmallButton>
-                        <SmallButton onClick={() => onDelete(comment.commentIdx)}>
-                            삭제
-                        </SmallButton>
-                    </>
+                    isEditing ? (
+                        <>
+                        </>
+                    ) : (
+                        <>
+                            <SmallButton onClick={handleEditStart}>수정</SmallButton>
+                            <SmallButton onClick={() => onDelete(comment.commentIdx)}>삭제</SmallButton>
+                        </>
+                    )
                 ) : (
                     !isDiary && (
-                        <SmallButton onClick={() => onReport(comment.commentIdx)}>
-                            신고
-                        </SmallButton>
+                        <SmallButton onClick={() => onReport(comment.commentIdx)}>신고</SmallButton>
                     )
                 )}
             </CommentActions>

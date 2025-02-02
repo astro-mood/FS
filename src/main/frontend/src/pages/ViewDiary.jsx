@@ -20,7 +20,6 @@ import {useNavigate} from "react-router";
 
 const ViewDiary = () => {
     const { userIdx  } = useUser();
-    const [editedComment, setEditedComment] =  useState({ id: null, content: "" });
     const { diaryIdx } = useParams();
     const [diary, setDiary] = useState({});
     const [comments, setComments] = useState([]);
@@ -227,29 +226,24 @@ const ViewDiary = () => {
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
-        if (!newContent.trim()) return;
+        // ui에 먼저 반영하기 위해
+        setComments((prev) =>
+            prev.map((comment) =>
+                comment.commentIdx === commentIdx ? { ...comment, content: newContent } : comment
+            )
+        );
 
-        openModal({
-            type: "confirm",
-            message: "정말 댓글을 수정하시겠습니까?",
-            onConfirm: async () => {
-                try {
-                    await updateDiaryComment(commentIdx, { content: newContent });
-                    fetchDiaryComment();
-                    setEditedComment({ id: null, content: "" });
-
-                    openModal({
-                        type: "alert",
-                        message: "댓글이 수정되었습니다.",
-                    });
-                } catch (error) {
-                    openModal({
-                        type: "alert",
-                        message: "댓글 수정에 실패했습니다. \n다시 시도해주세요.",
-                    });
-                }
-            },
-        });
+        try {
+            await updateDiaryComment(commentIdx, { content: newContent });
+            openModal({
+                type: "alert",
+                message: "댓글이 수정되었습니다." });
+            fetchDiaryComment();
+        } catch (error) {
+            openModal({
+                type: "alert",
+                message: "댓글 수정에 실패했습니다. \n다시 시도해주세요."});
+        }
     };
 
     // 댓글 삭제
