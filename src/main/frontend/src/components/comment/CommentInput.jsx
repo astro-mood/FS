@@ -6,7 +6,7 @@ const CommentInput = ({ value, onChange, onSubmit, placeholder }) => {
         <CommentInputContainer>
             <Input
                 placeholder={placeholder}
-                value={value}e 사용
+                value={value}
                 onChange={(e) => {
                     onChange(e);
                 }}

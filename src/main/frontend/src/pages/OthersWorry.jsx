@@ -30,7 +30,6 @@ const ViewWorry = () => {
     const [editedWorry, setEditedWorry] = useState({ title: "", content: "" });
 
     const [comments, setComments] = useState();
-    const [editedComment, setEditedComment] = useState({ id: null, content: "" });
     const [newComment, setNewComment] = useState("");
 
     const { openModal } = useModals();
@@ -177,27 +176,23 @@ const ViewWorry = () => {
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
-        if (!newContent.trim()) return;
-
-        openModal({
-            type: "confirm",
-            message: "정말 댓글을 수정하시겠습니까?",
-            onConfirm: async () => {
-                try {
-                    await updateWorryComment(commentIdx, { content: newContent });
-                    fetchWorryComment();
-                    openModal({
-                        type: "alert",
-                        message: "댓글이 수정되었습니다.",
-                    });
-                } catch (error) {
-                    openModal({
-                        type: "alert",
-                        message: "댓글 수정에 실패했습니다. \n다시 시도해주세요.",
-                    });
-                }
-            },
-        });
+        // ui에 먼저 반영하기 위해
+        setComments((prev) =>
+            prev.map((comment) =>
+                comment.commentIdx === commentIdx ? { ...comment, content: newContent } : comment
+            )
+        );
+        try {
+            await updateWorryComment(commentIdx, { content: newContent });
+            openModal({
+                type: "alert",
+                message: "댓글이 수정되었습니다." });
+            fetchWorryComment();
+        } catch (error) {
+            openModal({
+                type: "alert",
+                message: "댓글 수정에 실패했습니다. \n다시 시도해주세요." });
+        }
     };
 
 
