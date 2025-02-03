@@ -1,11 +1,11 @@
 import React from "react";
-import AboutImage from "../images/about.png";
 import styled from "styled-components";
+import AstroMoodGuide from "../components/intro/AstromoodGuide";
 
 const AboutAll = () => {
     return (
         <AboutContainer>
-            <img src={AboutImage} alt="About ASTRO MOOD" />
+            <AstroMoodGuide/>
         </AboutContainer>
     );
 };
@@ -15,7 +15,15 @@ export default AboutAll;
 const AboutContainer = styled.div`
     display: flex;
     justify-content: center;
-    width: 100%; 
+    align-items: flex-start;
+    width: 100%;
+    height: 100vh; 
+    overflow-y: auto;
+    scrollbar-width: none; 
+
+    ::-webkit-scrollbar {
+        display: none; 
+    }
 `;
 
 
