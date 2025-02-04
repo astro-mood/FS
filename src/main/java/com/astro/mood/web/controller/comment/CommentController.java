@@ -7,6 +7,7 @@ import com.astro.mood.service.comment.WorryCommentService;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.web.dto.ApiResponse;
+import com.astro.mood.web.dto.PaginatedResponse;
 import com.astro.mood.web.dto.comment.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController()
 @RequiredArgsConstructor
@@ -30,25 +33,25 @@ public class CommentController {
 
     //댓글 조회
     @GetMapping("/{type}-comments/{postIdx}")
-    public ResponseEntity<ApiResponse<Page<?>>> getComments(
+    public ResponseEntity<ApiResponse<PaginatedResponse<?>>> getComments(
             @PathVariable Integer postIdx, @PathVariable String type,
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "30") int size
+            @RequestParam(required = false) Integer lastCommentId,
+            @RequestParam(defaultValue = "10") int size
             ) {
 
         try{
             if(type.equals("diary")){
-                Page<DiaryCommentResponse> result = diaryCommentService.getCommentsByDiary(postIdx, userDetails.getUserIdx(), PageRequest.of(page, size));
+                PaginatedResponse<DiaryCommentResponse> result = diaryCommentService.getCommentsByDiary(postIdx, userDetails.getUserIdx(), lastCommentId, size);
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else if(type.equals("worry")){
-                Page<WorryCommentResponse> result = worryCommentService.getCommentsByWorry(postIdx, userDetails.getUserIdx(), PageRequest.of(page, size));
+                PaginatedResponse<WorryCommentResponse> result = worryCommentService.getCommentsByWorry(postIdx, userDetails.getUserIdx(), lastCommentId, size);
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else if(type.equals("receive")){
-                Page<ReceiveWorryCommentResponse> result = worryCommentService.getReceivedCommentsByUser(userDetails.getUserIdx(), PageRequest.of(page, size));
+                PaginatedResponse<ReceiveWorryCommentResponse> result = worryCommentService.getReceivedCommentsByUser(userDetails.getUserIdx(), lastCommentId, size);
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else if(type.equals("send")){
-                Page<SendWorryCommentResponse> result = worryCommentService.getSentCommentsByUser(userDetails.getUserIdx(), PageRequest.of(page, size));
+                PaginatedResponse<SendWorryCommentResponse> result = worryCommentService.getSentCommentsByUser(userDetails.getUserIdx(), lastCommentId, size);
                 return ResponseEntity.ok(ApiResponse.ok(result));
             }else{
                 throw new CustomException(ErrorCode.NOT_FOUND_END_POINT);

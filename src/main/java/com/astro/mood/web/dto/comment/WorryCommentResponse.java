@@ -26,6 +26,8 @@ public class WorryCommentResponse {
 
     private List<WorryCommentResponse> childrenComments; // 자식 댓글
 
+
+
     // Comment 엔티티를 CommentDto로 변환하는 메서드
     public static WorryCommentResponse toDto(WorryComment comment) {
         WorryCommentResponse commentDto = new WorryCommentResponse();

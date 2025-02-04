@@ -1,6 +1,7 @@
 package com.astro.mood.web.controller.worry;
 
 import com.astro.mood.web.dto.ApiResponse;
+import com.astro.mood.web.dto.PaginatedResponse;
 import com.astro.mood.web.dto.worry.WorryDto;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,8 +36,11 @@ public class WorryController {
 
     //고민글 전부 가져오기
     @GetMapping("/worry")
-    public ApiResponse<List<WorryDto.Response>> getAllWorries() {
-        List<WorryDto.Response> worries = worryService.getAllWorries();
+    public ApiResponse<PaginatedResponse<WorryDto.Response>> getAllWorries(
+            @RequestParam(required = false) Integer lastId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PaginatedResponse<WorryDto.Response> worries = worryService.getAllWorries(lastId, size);
         return ApiResponse.ok(worries);
     }
 
@@ -66,8 +70,11 @@ public class WorryController {
     }
     // 최신 순서로 내 고민 가져오기
     @GetMapping("/myworry")
-    public ApiResponse<List<WorryDto.Response>> getMyWorry() {
-        List<WorryDto.Response> myWorries = worryService.getMyWorry();
+    public ApiResponse<PaginatedResponse<WorryDto.Response>> getMyWorry(
+            @RequestParam(required = false) Integer lastId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PaginatedResponse<WorryDto.Response> myWorries = worryService.getMyWorry(lastId, size);
         return ApiResponse.ok(myWorries);
     }
 }

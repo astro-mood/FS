@@ -3,18 +3,24 @@ package com.astro.mood.service.comment;
 
 import com.astro.mood.data.entity.diary.Diary;
 import com.astro.mood.data.entity.diary.DiaryComment;
+import com.astro.mood.data.entity.worry.WorryComment;
 import com.astro.mood.data.repository.diary.DiaryCommentRepository;
 import com.astro.mood.data.repository.diary.DiaryRepository;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
+import com.astro.mood.web.dto.PaginatedResponse;
 import com.astro.mood.web.dto.comment.CommentRequest;
 import com.astro.mood.web.dto.comment.DiaryCommentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +39,30 @@ public class DiaryCommentService {
 
 
     //댓글 조회
-    public Page<DiaryCommentResponse> getCommentsByDiary(Integer diaryIdx, Integer loginIdx,  Pageable pageable) {
+    public PaginatedResponse<DiaryCommentResponse> getCommentsByDiary(Integer diaryIdx, Integer loginIdx, Integer lastCommentId, int size) {
         validateDiary(diaryIdx, loginIdx);
-        Page<DiaryComment> comments = diaryCommentRepository.findAllByDiaryIdx(diaryIdx, pageable);
-        return comments.map(DiaryCommentResponse::from);
-    }
 
+        // 페이지 요청 설정
+        Pageable pageable = PageRequest.of(0, size); // size로 변경
+        List<DiaryComment> comments;
+        boolean hasNextPage = false;
+
+        if (lastCommentId == null) {
+            comments = diaryCommentRepository.findByDiaryIdxOrderByDcIdxAsc(diaryIdx, pageable);
+        } else {
+            comments = diaryCommentRepository.findByDiaryIdxAndDcIdxGreaterThanOrderByDcIdxAsc(diaryIdx, lastCommentId, pageable);
+        }
+
+        hasNextPage = comments.size() == size;
+
+        List<DiaryCommentResponse> commentResponses = comments.stream()
+                .map(DiaryCommentResponse::from)
+                .collect(Collectors.toList());
+
+        Integer nextCommentId = hasNextPage ? comments.get(comments.size() - 1).getDcIdx() : null;
+
+        return PaginatedResponse.of(commentResponses, hasNextPage, nextCommentId);
+    }
     //댓글 추가
     public DiaryCommentResponse addComment(Integer diaryIdx, Integer loginIdx, CommentRequest commentRequest) {
         validateDiary(diaryIdx, loginIdx);
