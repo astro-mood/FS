@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import {useNavigate} from "react-router";
@@ -42,7 +41,6 @@ const GoogleLoginButton = () => {
             console.log("profileImage : ", userInfo.profileImage);
             navigate("/main"); // 마이페이지 경로로 이동
 
-
             // 전역 상태로 userIdx 업데이트
             setUserIdx(userInfo.loginIdx);
             setNickname(userInfo.nickname);
@@ -57,6 +55,11 @@ const GoogleLoginButton = () => {
         <GoogleLogin
             onSuccess={(credentialResponse) => handleLogin(credentialResponse)}
             onError={() => console.log('Login failed')}
+            theme="outline"
+            size="large"
+            text="signin_with"
+            shape="rectangular"
+            logo_alignment="center"
         />
     );
 };
