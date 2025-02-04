@@ -15,15 +15,33 @@ const AnswerWorryBoard = () => {
     const { userIdx } = useUser();
     const [sendAnswerData, setSendAnswerData] = useState({});
     const [editedComment, setEditedComment] = useState({ id: null, content: "" });
+
+    //댓글 페이징추가
+    const [loading, setLoading] = useState(false);
+    const [nextCommentId, setNextCommentId] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
+
+    //커서페이징
     const fetchAnswerData = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
         try {
-            const response = await getSendAnswer(userIdx);
-            setSendAnswerData(response.data.content);
+            const response = await getSendAnswer(userIdx, nextCommentId);
+            if(nextCommentId === null){
+                setSendAnswerData(response.data.items);
+            }else{
+                setSendAnswerData((prev) => [...prev, ...response.data.items]);
+            }
+            setNextCommentId(response.data.nextCursor);
+            setHasMore(response.data.hasNextPage);
         } catch (error) {
-            console.error("답변한 고민 데이터를 불러오는데 실패했습니다. ", error);
-            throw error;
+            console.error("받은 답변보기 데이터를 불러오는데 실패했습니다. ", error);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
     useEffect(() => {
         // userIdx가 undefined인 경우 처리
         if (!userIdx) {
@@ -32,6 +50,13 @@ const AnswerWorryBoard = () => {
         }
         fetchAnswerData();
     }, [fetchAnswerData, userIdx]);
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        if (scrollHeight - scrollTop <= clientHeight + 100 && hasMore) {
+            fetchAnswerData();
+        }
+    };
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
@@ -69,7 +94,7 @@ const AnswerWorryBoard = () => {
     return (
         <Container>
             <Board>보낸 💌</Board>
-            <ContentsContainer>
+            <ContentsContainer onScroll={handleScroll}>
                 {sendAnswerData.length > 0 ? (
                     sendAnswerData.map(
                         (answer) => (

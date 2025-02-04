@@ -51,7 +51,7 @@ const Comment = ({ comment = {}, onLike=true, onEdit, onDelete, onReport, isDiar
     return (
         <CommentContainer>
             <CommentText>
-                <span>{comment.createdAt || "(작성일시)"}</span>에 건넨 💌 <br />
+                <CommentTextDateTitle><span>{comment.createdAt || "(작성일시)"}</span>에 건넨 💌 </CommentTextDateTitle>
                 {isEditing ? (
                     <CommentInput
                         value={editedContent}
@@ -95,6 +95,7 @@ export default Comment;
 const CommentContainer = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 5px;
     background: #f9f9f9;
     border-radius: 5px;
     padding: 10px;
@@ -107,12 +108,16 @@ const CommentText = styled.div`
     white-space: pre-wrap;
 `;
 
+const CommentTextDateTitle = styled.p`
+    margin-top: 0;
+`;
+
 const CommentActions = styled.div`
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: -10px;
+    //margin-top: -10px;
 `;
 
 const Heart = styled.button`

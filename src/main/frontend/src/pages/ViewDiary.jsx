@@ -34,6 +34,11 @@ const ViewDiary = () => {
     const { openModal } = useModals();
     const navigate = useNavigate();
 
+    //댓글 페이징추가
+    const [loading, setLoading] = useState(false);
+    const [nextCommentId, setNextCommentId] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
+
 
     useEffect(() => {
         const fetchDiary = async () => {
@@ -168,26 +173,42 @@ const ViewDiary = () => {
     };
 
     //comment 관련
-    // 댓글 데이터 불러오기
+    // 댓글 데이터 불러오기 //커서페이징
     const fetchDiaryComment = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
         try {
-            const response = await getDiaryComment(diaryIdx)
-            setComments(response.data.content);
-            console.log("diary comment", response)
+            const response = await getDiaryComment(diaryIdx, nextCommentId);
+            if(nextCommentId === null){
+                setComments(response.data.items);
+            }else{
+                setComments((prev) => [...prev, ...response.data.items]);
+            }
+            setNextCommentId(response.data.nextCursor);
+            setHasMore(response.data.hasNextPage);
         } catch (error) {
             console.error("댓글 데이터를 불러오는 데 실패했습니다.", error);
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         if (diaryIdx) {
-            fetchDiaryComment()
+            setComments([]);
+            setNextCommentId(null);
+            setHasMore(true);
+            fetchDiaryComment();
         }
     }, [diaryIdx]);
 
-    if (!diary) {
-        return <div>Loading...</div>;
-    }
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        if (scrollHeight - scrollTop <= clientHeight + 100 && hasMore) {
+            fetchDiaryComment();
+        }
+    };
 
     // 댓글 추가
     const handleAddComment = async () => {
@@ -206,10 +227,15 @@ const ViewDiary = () => {
                 try {
                     const data = { content: newComment };
                     const response = await postDiaryComment(diaryIdx, data);
-                    setComments((prev) => [...prev, response]);
+                    console.log(response);
+                    setComments((prev) => [...prev, response.data]);
                     setNewComment("");
                     fetchDiaryComment();
-
+                    // 댓글 추가 후 스크롤을 조정합니다.
+                    const container = document.querySelector("#contents-container");
+                    if (container) {
+                        container.scrollTop = container.scrollHeight; // 마지막 댓글로 스크롤
+                    }
                     openModal({
                         type: "alert",
                         message: "댓글이 작성되었습니다.",
@@ -254,7 +280,10 @@ const ViewDiary = () => {
             onConfirm: async () => {
                 try {
                     await deleteDiaryComment(commentIdx);
-                    fetchDiaryComment();
+                    // 댓글 목록에서 해당 댓글 제거
+                    setComments((prev) => prev.filter(comment => comment.commentIdx !== commentIdx));
+
+                    // fetchDiaryComment();
                     openModal({
                         type: "alert",
                         message: "댓글이 삭제되었습니다.",
@@ -269,10 +298,15 @@ const ViewDiary = () => {
         });
     };
 
+
+    if (!diary) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <Container>
             <Board>{diary.createdAt} 일기</Board>
-            <ContentsContainer>
+            <ContentsContainer onScroll={handleScroll}>
                 {isEditing ? (
                     <DiaryEditForm
                         editedDiary={editedDiary}
@@ -312,12 +346,14 @@ const ViewDiary = () => {
                             onDelete={handleCommentDelete}
                             isDiary={true}
                         />
+
                         <CommentInput
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             onSubmit={handleAddComment}
                             placeholder="지금의 나를 전하세요."
                         />
+                        {loading && <p>댓글을 불러오는 중...</p>}
                     </>
                 )}
             </ContentsContainer>

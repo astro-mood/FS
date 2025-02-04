@@ -11,7 +11,7 @@ import {
     resolveChangeWorry,
     getWorryComment,
     postWorryComment,
-    updateWorryComment, deleteWorryComment, reportWorryComment
+    updateWorryComment, deleteWorryComment, reportWorryComment, getDiaryComment, postDiaryComment
 } from "../api/api";
 import { useParams } from "react-router";
 import { useUser } from "../context/UserContext";
@@ -29,8 +29,13 @@ const ViewWorry = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedWorry, setEditedWorry] = useState({ title: "", content: "" });
 
-    const [comments, setComments] = useState();
+    const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
+
+    //댓글 페이징추가
+    const [loading, setLoading] = useState(false);
+    const [nextCommentId, setNextCommentId] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
 
     const { openModal } = useModals();
     const navigate = useNavigate();
@@ -129,49 +134,73 @@ const ViewWorry = () => {
     };
 
     // comment 관련
-    // 댓글 데이터 불러오기
+    // 댓글 데이터 불러오기 //커서페이징
     const fetchWorryComment = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
         try {
-            const response = await getWorryComment(worryIdx)
-            setComments(response.data.content);
+            const response = await getWorryComment(worryIdx, nextCommentId);
+            if(nextCommentId === null){
+                setComments(response.data.items);
+            }else{
+                setComments((prev) => [...prev, ...response.data.items]);
+            }
+            setNextCommentId(response.data.nextCursor);
+            setHasMore(response.data.hasNextPage);
         } catch (error) {
             console.error("댓글 데이터를 불러오는 데 실패했습니다.", error);
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         if (worryIdx) {
             fetchWorry();
+            setNextCommentId(null);
+            setHasMore(true);
             fetchWorryComment();
 
         }
     }, [worryIdx]);
 
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        if (scrollHeight - scrollTop <= clientHeight + 100 && hasMore) {
+            if(nextCommentId !== null){
+                fetchWorryComment();
+            }
+        }
+    };
     if (!worry) {
         return <div>Loading...</div>;
     }
-
     const isOwner = userIdx === worry.userIdx; // 현재 사용자가 작성자인지 판단
 
     // 댓글 추가
     const handleAddComment = async () => {
         if (!newComment.trim())
             return;
-        openModal({
-            type: "confirm",
-            message: "정말 댓글을 작성하시겠습니까?",
-            onConfirm: async () => {
-                try {
-                    const data = { content: newComment };
-                    await postWorryComment(worryIdx, data);
-                    setNewComment("");
-                    fetchWorryComment();
-                    openModal({ type: "alert", message: "댓글이 작성되었습니다." });
-                } catch (error) {
-                    openModal({ type: "alert", message: "댓글 작성에 실패했습니다. \n다시 시도해주세요." });
-                }
-            },
-        });
+
+        try {
+            const data = { content: newComment };
+            const response = await postWorryComment(worryIdx, data);
+            setComments((prev) => [...prev, response.data]);
+
+            setNewComment("");
+            fetchWorryComment();
+
+            // 댓글 추가 후 스크롤을 조정합니다.
+            const container = document.querySelector("#contents-container");
+            if (container) {
+                container.scrollTop = container.scrollHeight; // 마지막 댓글로 스크롤
+            }
+            openModal({ type: "alert", message: "댓글이 작성되었습니다." });
+        } catch (error) {
+            openModal({ type: "alert", message: "댓글 작성에 실패했습니다. \n다시 시도해주세요." });
+        }
+
     };
 
     // 댓글 수정
@@ -204,6 +233,9 @@ const ViewWorry = () => {
             onConfirm: async () => {
                 try {
                     await deleteWorryComment(commentIdx);
+                    // 댓글 목록에서 해당 댓글 제거
+                    setComments((prev) => prev.filter(comment => comment.commentIdx !== commentIdx));
+
                     fetchWorryComment();
                     openModal({ type: "alert", message: "댓글이 삭제되었습니다." });
                 } catch (error) {
@@ -230,10 +262,12 @@ const ViewWorry = () => {
         });
     };
 
+
+
     return (
         <Container>
             <Board>고민상담소</Board>
-            <ContentsContainer>
+            <ContentsContainer onScroll={handleScroll}>
                 {isEditing ? (
                     <WorryEditForm
                         editedWorry={editedWorry}
@@ -282,6 +316,7 @@ const ViewWorry = () => {
                     }}
                     placeholder="위로의 말을 건네세요."
                 />
+                {loading && <p>댓글을 불러오는 중...</p>}
             </ContentsContainer>
         </Container>
     );
@@ -316,7 +351,7 @@ const Spacer = styled.div`
     height: 30px;
 `;
 
-const DropdownContainer = styled.h1`
+const DropdownContainer = styled.div`
     display: flex;
     justify-content: space-between; 
     align-items: center;

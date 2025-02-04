@@ -12,9 +12,13 @@ export const postWorry = async (data) => {
 };
 
 // 모든 고민글 불러오기 API BoardWorry-GetAllWorries
-export const getAllWorries = async () => {
+export const getAllWorries = async (nextId) => {
     try {
-        const response = await instance.get("/worry");
+        let url = `/worry`;
+        if(nextId !== null && nextId !== undefined){
+            url += `?lastId=${nextId}`
+        }
+        const response = await instance.get(url);
         return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
@@ -66,9 +70,13 @@ export const resolveChangeWorry = async (worry_idx, updatedData) => {
 };
 
 //최신 순서로 내가 쓴 고민 가져오기
-export const getMyWorry = async () => {
+export const getMyWorry = async (nextId) => {
     try {
-        const response = await instance.get("/myworry");
+        let url = `/myworry`;
+        if(nextId !== null && nextId !== undefined){
+            url += `?lastId=${nextId}`
+        }
+        const response = await instance.get(url);
         return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
@@ -156,9 +164,13 @@ export const postWorryComment = async (worry_idx, data) => {
 };
 
 // 고민 댓글 불러오기
-export const getWorryComment = async (worry_idx) => {
+export const getWorryComment = async (worry_idx, nextCommentId) => {
     try {
-        const response = await instance.get(`/worry-comments/${worry_idx}`);
+        let url = `/worry-comments/${worry_idx}`;
+        if(nextCommentId !== null && nextCommentId !== undefined){
+            url += `?lastCommentId=${nextCommentId}`
+        }
+        const response = await instance.get(url);
         return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
@@ -211,9 +223,13 @@ export const postDiaryComment = async (diary_idx, data) => {
 };
 
 // 일기 댓글 불러오기
-export const getDiaryComment = async (diary_idx) => {
+export const getDiaryComment = async (diary_idx, nextCommentId) => {
     try {
-        const response = await instance.get(`/diary-comments/${diary_idx}`);
+        let url = `/diary-comments/${diary_idx}`;
+        if(nextCommentId !== null && nextCommentId !== undefined){
+            url += `?lastCommentId=${nextCommentId}`
+        }
+        const response = await instance.get(url);
         return response.data;
     } catch (error) {
         console.error("API 요청 에러:", error);
@@ -290,9 +306,13 @@ export const getMainUserInfo = async (loginIdx) => {
 };
 
 // 보낸 답변
-export const getSendAnswer = async (loginIdx) => {
+export const getSendAnswer = async (loginIdx, nextCommentId) => {
     try{
-        const response = await instance.get(`/send-comments/${loginIdx}`);
+        let url = `/send-comments/${loginIdx}`;
+        if(nextCommentId !== null && nextCommentId !== undefined){
+            url += `?lastCommentId=${nextCommentId}`
+        }
+        const response = await instance.get(url);
         return response.data;
     }catch (error){
         console.error("API 요청 에러:", error);
@@ -301,9 +321,13 @@ export const getSendAnswer = async (loginIdx) => {
 };
 
 // 받은 답변
-export const getReceiveAnswer = async (loginIdx) => {
+export const getReceiveAnswer = async (loginIdx, nextCommentId) => {
     try{
-        const response = await instance.get(`/receive-comments/${loginIdx}`);
+        let url = `/receive-comments/${loginIdx}`;
+        if(nextCommentId !== null && nextCommentId !== undefined){
+            url += `?lastCommentId=${nextCommentId}`
+        }
+        const response = await instance.get(url);
         return response.data;
     }catch (error){
         console.error("API 요청 에러:", error);

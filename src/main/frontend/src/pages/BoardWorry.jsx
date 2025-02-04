@@ -9,42 +9,60 @@ import { getAllWorries } from "../api/api";
 const BoardWorry = () => {
     const navigate = useNavigate();
     const [worries, setWorries] = useState([]);
+    //페이징추가
+    const [loading, setLoading] = useState(false);
+    const [nextId, setNextId] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
+
+    const fetchWorries = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
+        try {
+            const response = await getAllWorries(nextId);
+            if(nextId === null){
+                setWorries(response.data.items);
+            }else{
+                setWorries((prev) => [...prev, ...response.data.items]);
+            }
+            setNextId(response.data.nextCursor);
+            setHasMore(response.data.hasNextPage);
+        } catch (error) {
+            console.error("고민 데이터를 불러오는 데 실패했습니다.", error);
+        }finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchWorries = async () => {
-            try {
-                const response = await getAllWorries();
-                let worries = [];
-                if (response.isSuccess) {
-                    worries = response.data;
-                }
-                // 최신글이 먼저 나오도록 정렬 변경
-                const sortedData = worries.sort(
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                );
-                setWorries(sortedData);
-            } catch (error) {
-                console.error("고민 데이터를 불러오는 데 실패했습니다.", error);
-            }
-        };
         fetchWorries();
     }, []);
+
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        if (scrollHeight - scrollTop <= clientHeight + 600 && hasMore) {
+            fetchWorries();
+        }
+    };
 
     return (
         <Container>
             <Title>고민상담소</Title>
-            <GridContainer>
-                {worries.map((worry) => (
+            <ContentsContainer onScroll={handleScroll}>
+                <GridContainer>
+                    {worries.map((worry) => (
 
-                    <Card key={worry.worryIdx}
-                          onClick={() => navigate(`/worry/${worry.worryIdx}`)}
-                    >>
-                        <CardTitle>{worry.title}</CardTitle>
-                        <CardContent>{worry.content}</CardContent>
+                        <Card key={worry.worryIdx}
+                              onClick={() => navigate(`/worry/${worry.worryIdx}`)}
+                        >
+                            <CardTitle>{worry.title}</CardTitle>
+                            <CardContent>{worry.content}</CardContent>
 
-                    </Card>
-                ))}
-            </GridContainer>
+                        </Card>
+                    ))}
+                </GridContainer>
+            </ContentsContainer>
             <WriteButton
                 text="글 작성하기"
                 onClick={() => navigate("/writeworry")}
@@ -70,11 +88,18 @@ const Title = styled.h1`
     text-align: left;
 `;
 
+const ContentsContainer = styled.div`
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+    scrollbar-width: none;
+`;
+
 const GridContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 30px;
     width: 100%;
+    height: 100%; // 부모의 전체 높이를 사용
 `;
 
 const Card = styled.div`
@@ -95,8 +120,7 @@ const Card = styled.div`
 const CardTitle = styled.h2`
     font-size: 1.2rem;
     color: #333;
-    margin-top: -20px;
-    margin-bottom: 0px;
+    margin : 0px;
 `;
 
 const CardContent = styled.p`

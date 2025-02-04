@@ -8,8 +8,12 @@ import com.astro.mood.security.login.CustomUserDetails;
 import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.service.wordFilter.BadwordFilterService;
+import com.astro.mood.web.dto.PaginatedResponse;
+import com.astro.mood.web.dto.comment.DiaryCommentResponse;
 import com.astro.mood.web.dto.worry.WorryDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -86,11 +90,29 @@ public class WorryService {
     }
 
     // 모든 고민글 보기
-    public List<WorryDto.Response> getAllWorries() {
-        List<Worry> worries = worryRepository.findAll();
-        return worries.stream()
+    public PaginatedResponse<WorryDto.Response> getAllWorries(Integer lastId, int size) {
+        // 페이지 요청 설정
+        Pageable pageable = PageRequest.of(0, size); // size로 변경
+        List<Worry> worries;
+        boolean hasNextPage = false;
+        if (lastId == null) {
+            worries = worryRepository.findAllByOrderByWorryIdxDesc(pageable);
+        } else {
+            worries = worryRepository.findByWorryIdxLessThanOrderByWorryIdxDesc(lastId, pageable);
+        }
+        hasNextPage = worries.size() == size;
+        List<WorryDto.Response> worryResponses = worries.stream()
                 .map(WorryDto.Response::fromEntity)
                 .collect(Collectors.toList());
+
+        Integer nextCommentId = hasNextPage ? worries.get(worries.size() - 1).getWorryIdx() : null;
+
+        return PaginatedResponse.of(worryResponses, hasNextPage, nextCommentId);
+
+//        List<Worry> worries = worryRepository.findAll();
+//        return worries.stream()
+//                .map(WorryDto.Response::fromEntity)
+//                .collect(Collectors.toList());
     }
 
     // 고민글 수정
@@ -132,13 +154,31 @@ public class WorryService {
 
     // 내 고민 가져오기
     @Transactional
-    public List<WorryDto.Response> getMyWorry() {
+    public PaginatedResponse<WorryDto.Response> getMyWorry(Integer lastId, int size) {
         User user = getAuthenticatedUser();
 
-        List<Worry> myWorries = worryRepository.getWorryByUserIdx(user.getUserIdx());
-
-        return myWorries.stream()
+        // 페이지 요청 설정
+        Pageable pageable = PageRequest.of(0, size); // size로 변경
+        List<Worry> myWorries;
+        boolean hasNextPage = false;
+        if (lastId == null) {
+            myWorries = worryRepository.findByUserOrderByWorryIdxDesc(user, pageable);
+        } else {
+            myWorries = worryRepository.findByUserAndWorryIdxLessThanOrderByWorryIdxDesc(user, lastId, pageable);
+        }
+        hasNextPage = myWorries.size() == size;
+        List<WorryDto.Response> worryResponses = myWorries.stream()
                 .map(WorryDto.Response::fromEntity)
                 .collect(Collectors.toList());
+
+        Integer nextCommentId = hasNextPage ? myWorries.get(myWorries.size() - 1).getWorryIdx() : null;
+
+        return PaginatedResponse.of(worryResponses, hasNextPage, nextCommentId);
+
+
+        //List<Worry> myWorries = worryRepository.getWorryByUserIdx(user.getUserIdx());
+//        return myWorries.stream()
+//                .map(WorryDto.Response::fromEntity)
+//                .collect(Collectors.toList());
     }
 }

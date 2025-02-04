@@ -17,6 +17,8 @@ import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.service.notice.NoticeService;
 import com.astro.mood.service.wordFilter.BadwordFilterService;
+import com.astro.mood.web.dto.ApiResponse;
+import com.astro.mood.web.dto.PaginatedResponse;
 import com.astro.mood.web.dto.comment.CommentRequest;
 import com.astro.mood.web.dto.comment.ReceiveWorryCommentResponse;
 import com.astro.mood.web.dto.comment.SendWorryCommentResponse;
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,9 +133,24 @@ public class WorryCommentService {
 
     // 걱정 댓글 조회
     @Transactional(transactionManager = "tmJpa")
-    public Page<WorryCommentResponse> getCommentsByWorry(Integer worryIdx, Integer userIdx, Pageable pageable) {
+    public PaginatedResponse<WorryCommentResponse> getCommentsByWorry(Integer worryIdx, Integer userIdx, Integer lastCommentId, int size) {
         Worry worry =validateWorry(worryIdx);
-        Page<WorryComment> comments = worryCommentRepository.findByWorryAndParentCommentIsNull(worry, pageable);
+
+        // 페이지 요청 설정
+        Pageable pageable = PageRequest.of(0, size);
+        List<WorryComment> comments;
+        boolean hasNextPage = false;
+
+        System.out.println("Calling method with lastCommentId: " + lastCommentId);
+        if (lastCommentId == null) {
+            comments = worryCommentRepository.findByWorryAndParentCommentIsNullOrderByCommentIdxAsc(worry, pageable);
+        } else {
+            // 마지막 댓글 ID에 따라 댓글 조회
+            comments = worryCommentRepository.findByWorryAndParentCommentIsNullAndCommentIdxGreaterThanOrderByCommentIdxAsc(worry, lastCommentId, pageable);
+        }
+        System.out.println("Comments size: " + comments.size());
+        hasNextPage = comments.size() == size;// 다음 페이지 여부 판단
+
         List<WorryCommentResponse> commentResponses = comments.stream()
                 .map(comment -> {
                     WorryCommentResponse response = WorryCommentResponse.toDto(comment);
@@ -141,7 +159,11 @@ public class WorryCommentService {
                 })
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(commentResponses, pageable, comments.getTotalElements());
+        // 마지막 댓글 ID 설정
+        Integer nextCommentId = hasNextPage ? comments.get(comments.size() - 1).getCommentIdx() : null;
+
+        // PaginatedResponse 반환
+        return PaginatedResponse.of(commentResponses, hasNextPage, nextCommentId);
     }
 
     //좋아요 여부 확인
@@ -159,7 +181,7 @@ public class WorryCommentService {
         }
         return isLiked;
     }
-    private boolean isLiked(Integer commentIdx, Integer userIdx){
+    private boolean isLiked(Integer userIdx, Integer commentIdx){
         return likesRepository.existsByUserIdxAndWorryCommentIdx(userIdx, commentIdx);
     }
 
@@ -304,17 +326,33 @@ public class WorryCommentService {
 
     }
 
-    //유저 받은 답변 보기
-    public Page<ReceiveWorryCommentResponse> getReceivedCommentsByUser(Integer userIdx, Pageable pageable){
+    // 유저 받은 답변 보기
+    public PaginatedResponse<ReceiveWorryCommentResponse> getReceivedCommentsByUser(Integer userIdx, Integer lastCommentId, int size) {
         authService.findUserByIdOrThrow(userIdx);
-        Page<ReceiveWorryCommentResponse> comments = worryCommentRepository.findCommentsByUserAndNoticeType(userIdx, "comment", pageable);
-        return comments;
+
+        Pageable pageable = PageRequest.of(0, size);
+        Page<ReceiveWorryCommentResponse> commentsPage = worryCommentRepository.findCommentsByUserAndNoticeType(userIdx, lastCommentId, "comment", pageable);
+
+        List<ReceiveWorryCommentResponse> commentResponses = commentsPage.getContent();
+
+        boolean hasNextPage = commentsPage.hasNext();
+        Integer nextCommentId = hasNextPage ? commentsPage.getContent().get(commentsPage.getContent().size() - 1).getCommentIdx() : null;
+
+        return PaginatedResponse.of(commentResponses, hasNextPage, nextCommentId);
     }
 
-    //유저 보낸 답변 보기
-    public Page<SendWorryCommentResponse> getSentCommentsByUser(Integer userIdx, Pageable pageable){
+    // 유저 보낸 답변 보기
+    public PaginatedResponse<SendWorryCommentResponse> getSentCommentsByUser(Integer userIdx, Integer lastCommentId, int size) {
         authService.findUserByIdOrThrow(userIdx);
-        Page<SendWorryCommentResponse> comments = worryCommentRepository.findSentCommentsByUser(userIdx, pageable);
-        return comments;
+
+        Pageable pageable = PageRequest.of(0, size);
+        Page<SendWorryCommentResponse> commentsPage = worryCommentRepository.findSentCommentsByUser(userIdx, lastCommentId, pageable);
+
+        List<SendWorryCommentResponse> commentResponses = commentsPage.getContent();
+
+        boolean hasNextPage = commentsPage.hasNext();
+        Integer nextCommentId = hasNextPage ? commentsPage.getContent().get(commentsPage.getContent().size() - 1).getCommentIdx() : null;
+
+        return PaginatedResponse.of(commentResponses, hasNextPage, nextCommentId);
     }
 }

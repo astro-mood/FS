@@ -8,8 +8,34 @@ import Comment from "../components/comment/Comment";
 const ReceiveAnswerWorryBoard = () => {
     const navigate = useNavigate();
     const { userIdx } = useUser();
-    const [receiveAnswerData, setReceiveAnswerData] = useState({});
+    const [receiveAnswerData, setReceiveAnswerData] = useState([]);
     const [isAllRead, setIsAllRead] = useState(false); // 전체 읽음 상태 추가
+
+    //댓글 페이징추가
+    const [loading, setLoading] = useState(false);
+    const [nextCommentId, setNextCommentId] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
+
+    //커서페이징
+    const fetchReceiveAnswerData = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
+        try {
+            const response = await getReceiveAnswer(userIdx, nextCommentId);
+            if(nextCommentId === null){
+                setReceiveAnswerData(response.data.items);
+            }else{
+                setReceiveAnswerData((prev) => [...prev, ...response.data.items]);
+            }
+            setNextCommentId(response.data.nextCursor);
+            setHasMore(response.data.hasNextPage);
+        } catch (error) {
+            console.error("받은 답변보기 데이터를 불러오는데 실패했습니다. ", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         // userIdx가 undefined인 경우 처리
@@ -17,17 +43,16 @@ const ReceiveAnswerWorryBoard = () => {
             console.log("사용자 정보가 없습니다.");
             return; // 더 이상 진행하지 않음
         }
-        const fetchReceiveAnswerData = async () => {
-            try {
-                const response = await getReceiveAnswer(userIdx);
-                setReceiveAnswerData(response.data.content);
-            } catch (error) {
-                console.error("받은 답변보기 데이터를 불러오는데 실패했습니다. ", error);
-                throw error;
-            }
-        }
         fetchReceiveAnswerData();
     }, [userIdx]);
+
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        if (scrollHeight - scrollTop <= clientHeight + 100 && hasMore) {
+            fetchReceiveAnswerData();
+        }
+    };
 
     // 댓글 신고
     const handleCommentReport = async (commentIdx) => {
@@ -73,7 +98,7 @@ const ReceiveAnswerWorryBoard = () => {
             {receiveAnswerData.length > 0 && !receiveAnswerData[0].isRead && (
                 <ReadButton onClick={() => handleBtnClick()}>전체 읽음 확인</ReadButton>
             )}
-            <ContentsContainer>
+            <ContentsContainer onScroll={handleScroll}>
                 {receiveAnswerData.length > 0 ? (
                     receiveAnswerData.map(
                         (answer) => (
@@ -105,6 +130,7 @@ const ReceiveAnswerWorryBoard = () => {
                 ):(
                     <div>받은 답변이 없습니다.</div>
                 )}
+                {loading && <p>불러오는 중...</p>}
             </ContentsContainer>
         </Container>
     );
