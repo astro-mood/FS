@@ -3,6 +3,7 @@ package com.astro.mood.config;
 import com.astro.mood.security.jwt.GoogleLoginFilter;
 import com.astro.mood.security.jwt.JWTFilter;
 import com.astro.mood.security.jwt.JWTUtil;
+import com.astro.mood.security.jwt.KakaoLoginFilter;
 import com.astro.mood.service.auth.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +52,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/resources/static/**").permitAll() // 루트 경로 허용
                         .requestMatchers("/api/auth/google").permitAll() // 구글 로그인 경로 허용
+                        .requestMatchers("/api/auth/kakao").permitAll()
+                        .requestMatchers("/api/auth/kakao/callback").permitAll()
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger 관련 경로 허용
                         .requestMatchers("/test/**").hasAuthority("ROLE_USER")
                         .requestMatchers(
@@ -65,6 +68,10 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(new GoogleLoginFilter(
                         "/api/auth/google", authenticationManager(), jwtUtil, customUserDetailsService
+                        )
+                        ,UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new KakaoLoginFilter(
+                        "/api/auth/kakao/callback", authenticationManager(), jwtUtil, customUserDetailsService
                         )
                         ,UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JWTFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
