@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
+public class OauthLoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
 
-    public GoogleLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager,
+    public OauthLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager,
                              JWTUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         super(new AntPathRequestMatcher(defaultFilterProcessesUrl));
         setAuthenticationManager(authenticationManager);
@@ -58,17 +58,20 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
         // ID Token 검증
         Map<String, Object> userInfo;
         try {
-            userInfo = jwtUtil.verifyIdToken(idToken);
+            if(provider.equals("GOOGLE")) {
+                log.info("구글 로그인 시도 중");
+                userInfo = jwtUtil.verifyIdToken(idToken);
+            }else if(provider.equals("KAKAO")){
+                log.info("카카오 로그인 시도 중");
+                userInfo = jwtUtil.verifyCode(idToken);
+            }else{
+                log.error("구글,카카오만 로그인 가능합니다.");
+                throw new AuthenticationException("잘못된 로그인 provider.") {};
+            }
             //log.info("ID Token 검증 성공: {}", userInfo);
         } catch (Exception e) {
             log.error("ID Token 검증 실패: {}", e.getMessage());
             throw new AuthenticationException("ID Token 검증 실패.") {};
-        }
-
-        String providerId = "";
-        if(provider.equals("GOOGLE")){
-            log.info("구글 로그인 시도 중");
-            providerId = userInfo.get("sub").toString();
         }
 
         // UserDetails 생성

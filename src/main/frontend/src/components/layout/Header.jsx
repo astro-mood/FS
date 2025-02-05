@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router";
 import LogoImage from '../../images/logo.png';
 import {useUser} from "../../context/UserContext";
+import axios from "axios";
 
 const Header = () => {
     const { nickname, profileImage  } = useUser();
@@ -18,10 +19,33 @@ const Header = () => {
         navigate("/main"); // 마이페이지 경로로 이동
     };
 
-    const handleLogoutClick = () => {
-        localStorage.removeItem("token");
-        window.location.href = `/`;
+    const kakaoLogout = async () => {
+        try {
+            const rest_api_key = process.env.REACT_APP_KAKAO_REST_APP_KEY;
+            const redirect_uri = window.location.origin; // Redirect URI
+
+            const datas = await axios.get(
+                `https://kauth.kakao.com/oauth/logout?client_id=${rest_api_key}&logout_redirect_uri=${redirect_uri}`
+            );
+            console.log("카카오 로그아웃 성공:", datas.data);
+        } catch (error) {
+            console.error("카카오 로그아웃 실패:", error);
+        }
     };
+    const handleLogoutClick = () => {
+        try{
+            const isKakao = localStorage.getItem("isKakao");
+            if (isKakao !== null) {
+                kakaoLogout();
+            }
+        }catch (e) {
+            console.error(e);
+        }finally {
+            window.localStorage.clear();
+            window.location.href = `/`;
+        }
+    };
+
 
     return (
         <HeaderContainer>
