@@ -55,7 +55,7 @@ public interface WorryCommentRepository  extends JpaRepository<WorryComment,Inte
             "WHERE wc.userIdx = :userIdx " +
             "AND wc.parentComment IS NULL " +
             "AND wc.isDeleted = false " +
-            "AND (:lastCommentId IS NULL OR wc.commentIdx > :lastCommentId) " +
+            "AND (:lastCommentId IS NULL OR wc.commentIdx < :lastCommentId) " +
             "ORDER BY wc.commentIdx DESC")
     Page<SendWorryCommentResponse> findSentCommentsByUser(@Param("userIdx") Integer userIdx,
                                                           @Param("lastCommentId") Integer lastCommentId,
@@ -82,7 +82,7 @@ public interface WorryCommentRepository  extends JpaRepository<WorryComment,Inte
             "LEFT JOIN Likes l ON wc.commentIdx = l.worryComment.commentIdx AND l.user.userIdx = :userIdx " +
             "WHERE w.user.userIdx = :userIdx " +
             "AND wc.parentComment IS NULL " +
-            "AND (:lastCommentId IS NULL OR wc.commentIdx > :lastCommentId) " +  // 조건 수정
+            "AND (:lastCommentId IS NULL OR wc.commentIdx < :lastCommentId) " +  // 조건 수정
             "ORDER BY (CASE WHEN n.isRead = false THEN 0 ELSE 1 END) ASC, wc.commentIdx DESC")
     Page<ReceiveWorryCommentResponse> findCommentsByUserAndNoticeType(@Param("userIdx") Integer userIdx,
                                                                       @Param("lastCommentId") Integer lastCommentId,
