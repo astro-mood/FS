@@ -93,7 +93,8 @@ public class JWTFilter extends OncePerRequestFilter {
             }else{
                 log.info("refreshToken 유효기간이 만료되지 않아 AccessToken 재발급");
                 // 2. 사용자 정보를 기반으로 Authentication 객체 생성
-                CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(userToken.getUser().getEmail());
+//                CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(userToken.getUser().getEmail());
+                CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUserIdx(userToken.getUser().getUserIdx());
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 
                 String newToken = jwtUtil.createJwt(authentication);
