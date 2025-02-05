@@ -10,4 +10,5 @@ public interface AuthRepository extends JpaRepository<User,Integer> {
     Optional<User> findUserByOauthIdAndOauthProviderAndIsDeleted(String oauthId, String oauthProvider, Boolean  isDeleted);
 
     Optional<User>  findUserByEmailAndIsDeleted(String email, Boolean isDeleted);
+    Optional<User>  findUserByUserIdxAndIsDeleted(Integer userIdx, Boolean isDeleted);
 }

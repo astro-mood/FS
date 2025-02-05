@@ -38,6 +38,22 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     }
 
+    public UserDetails loadUserByUserIdx(Integer userIdx) throws UsernameNotFoundException {
+        User userPrincipal = authRepository.findUserByUserIdxAndIsDeleted(userIdx, false).orElseThrow(()
+                -> new UsernameNotFoundException("email 에 해당하는 UserPrincipal가 없습니다"));
+
+        Set<UserRole> roles = userPrincipal.getAuthorities();
+
+        return CustomUserDetails.builder()
+                .userIdx(userPrincipal.getUserIdx())
+                .email(userPrincipal.getEmail())
+                .profileImage(userPrincipal.getProfileImage())
+                .nickname(userPrincipal.getNickname())
+                .authorities(roles)
+                .build();
+
+    }
+
     //CustomUserDetails 생성
     public UserDetails loadUser(Map<String, Object> userInfo, String provider) throws UsernameNotFoundException {
         String email = userInfo.get("email").toString();
@@ -57,7 +73,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                     .profileImage(picture)
                     .oauthId(providerId)
                     .oauthProvider(provider)
+                    .level(1)
                     .build();
+
             authRepository.save(userPrincipal);
         } else{
             userPrincipal = findUser.get();

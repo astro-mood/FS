@@ -47,28 +47,22 @@ public class KakaoLoginFilter extends AbstractAuthenticationProcessingFilter {
         }
         String provider =request.getRequestURI().split("/")[3].toUpperCase();
 
-        // 요청 본문에서 ID Token 가져오기
-        String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-        Map<String, String> payload = new ObjectMapper().readValue(body, new TypeReference<Map<String, String>>() {});
-        String idToken = payload.get("idToken");
-        if (idToken == null || idToken.isEmpty()) {
-            throw new AuthenticationException("ID Token is missing or invalid.") {};
-        }
 
-        // ID Token 검증
+        String code = request.getParameter("code");
+        if (code == null || code.isEmpty()) {
+            throw new AuthenticationException("Kakao code is missing or invalid.") {};
+        }
         Map<String, Object> userInfo;
         try {
-            userInfo = jwtUtil.verifyIdToken(idToken);
-            //log.info("ID Token 검증 성공: {}", userInfo);
+            userInfo = jwtUtil.verifyCode(code);
+            log.info("kakao code 검증 성공: {}", userInfo);
         } catch (Exception e) {
-            log.error("ID Token 검증 실패: {}", e.getMessage());
-            throw new AuthenticationException("ID Token 검증 실패.") {};
+            log.error("kakao code 검증 실패: {}", e.getMessage());
+            throw new AuthenticationException("kakao code 검증 실패.") {};
         }
 
-        String providerId = "";
-        if(provider.equals("Kakao")){
+        if(provider.equals("KAKAO")){
             log.info("카카오 로그인 시도 중");
-            providerId = userInfo.get("sub").toString();
         }
 
         // UserDetails 생성
@@ -76,7 +70,7 @@ public class KakaoLoginFilter extends AbstractAuthenticationProcessingFilter {
 
         // 인증 객체 생성
         Authentication authenticated = new  UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-        //log.info("authenticated: {}", authenticated);
+        log.info("authenticated: {}", authenticated);
         return authenticated;
     }
 

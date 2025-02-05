@@ -1,14 +1,21 @@
 package com.astro.mood.security.jwt;
 
 import com.astro.mood.security.login.CustomUserDetails;
+import com.astro.mood.service.auth.CustomUserDetailsService;
+import com.astro.mood.service.exception.CustomException;
+import com.astro.mood.service.exception.ErrorCode;
+import com.astro.mood.web.dto.auth.KakaoUserDto;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,11 +26,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,9 +36,13 @@ import java.util.Map;
 public class JWTUtil {
     private SecretKey secretKey;
     @Value("${jwt.secret}") private String secret;
-    @Value("${jwt.expiration_time}")
-    private long accessTokenExpTime;
+    @Value("${jwt.expiration_time}") private long accessTokenExpTime;
     private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @Value("${KAKAO_REST_API_KEY}") private String kakaoKey;
+    @Value("${KAKAO_SECRET_KEY}") private String kakaoSecretKey;
+    @Value("${KAKAO_REDIRECT_URI}") private String kakaoRedirectUri;
 
     // @Value : application.yml에서의 특정한 변수 데이터를 가져올 수 있음
     // string key는 jwt에서 사용 안하므로 객체 키 생성!
@@ -141,8 +150,58 @@ public class JWTUtil {
         return response.getBody();
     }
 
+    //카카오 code 검증
+    public Map<String, Object> verifyCode(String code) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+        String kakaoVerifyUrl = "https://kauth.kakao.com/oauth/token";
 
-    //토큰검정하기
+        // 요청 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        // 요청 본문 설정
+        String body = String.format("grant_type=authorization_code&client_id=%s&redirect_uri=%s&client_secret=%s&code=%s",
+                kakaoKey, kakaoRedirectUri, kakaoSecretKey,code);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+
+        // POST 요청 보내기
+        ResponseEntity<KakaoUserDto.OAuthToken> response = restTemplate.exchange(
+                kakaoVerifyUrl,
+                HttpMethod.POST,
+                requestEntity,
+                KakaoUserDto.OAuthToken.class
+        );
+
+        String accessToken = response.getBody().getAccess_token();
+
+        return kakaoUserInfo(accessToken);
+    }
+
+    //카카오 유저정보
+    public Map<String, Object> kakaoUserInfo(String accessToken) {
+        RestTemplate restTemplate2 = new RestTemplate();
+        HttpHeaders headers2 = new HttpHeaders();
+        headers2.add("Authorization","Bearer "+ accessToken);
+        HttpEntity<String> kakaoProfileRequest = new HttpEntity <>(headers2);
+
+        ResponseEntity<KakaoUserDto.KakaoProfile> response2 = restTemplate2.exchange(
+                "https://kapi.kakao.com/v2/user/me",
+                HttpMethod.GET,
+                kakaoProfileRequest,
+                KakaoUserDto.KakaoProfile.class);
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("email", response2.getBody().getKakaoAccount().getEmail());
+        userInfo.put("sub", response2.getBody().getId());
+        userInfo.put("picture", response2.getBody().getProperties().getThumbnail_image());
+        userInfo.put("name", response2.getBody().getProperties().getNickname());
+
+        return userInfo;
+    }
+
+
+    //토큰검증하기
     public boolean validateToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -181,7 +240,11 @@ public class JWTUtil {
     //스프링 시큐리티 인증 토큰 생성
     public Authentication getAuthentication(String token) {
         String email = getUserEmail(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        Integer userIdx = getLoginIdx(token);
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+
+        CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUserIdx(userIdx);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
