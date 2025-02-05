@@ -6,9 +6,9 @@ const KakaoLogin = () => {
     const originUrl = window.location.origin;
 
     const rest_api_key = process.env.REACT_APP_KAKAO_REST_APP_KEY;
-    const redirect_uri = originUrl +"/api/auth/kakao/callback"; // Redirect URI
+    const redirect_uri = originUrl +"/kakao/callback"; // Redirect URI
 
-    const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${rest_api_key}&redirect_uri=${redirect_uri}&response_type=code`;
+    const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${rest_api_key}&redirect_uri=${redirect_uri}&response_type=code&prompt=login`;
     const handleKakaoLogin = () => {
         if (!rest_api_key) {
             console.error("카카오 REST API 키가 설정되지 않았습니다.");

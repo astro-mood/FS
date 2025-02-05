@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Intro from "./pages/Intro";
+import KakaoLoginCallback from "./pages/KakaoLoginCallback";
 import AboutAll from "./pages/AboutAll";
 import AboutLogin from "./pages/AboutLogin";
 import AnswerWorryDetail from "./pages/AnswerWorryDetail";
@@ -37,6 +38,7 @@ const App = () => {
                 <Route>
                     <Route path="/" element={<Intro />} />
                     <Route path="/aboutall" element={<AboutAll />} />
+                    <Route path="/kakao/callback" element={<KakaoLoginCallback />} />
                 </Route>
 
                 <Route element={<HeaderLayout />}>
