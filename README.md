@@ -1,7 +1,8 @@
 ## 🌠 ASTRO MOOD
 
 ↓ 감정 일기 / 익명의 고민상담소
-<br>https://caramel-surgeon-63d.notion.site/ASTRO-MOOD-1707035cda4f806ba428cdbc0aa3688c
+<br> 웹사이트 💌 https://astromood.co.kr 
+<br> 기획안 🪐 https://caramel-surgeon-63d.notion.site/ASTRO-MOOD-1707035cda4f806ba428cdbc0aa3688c
 
 ## What is AstroMood?
 
@@ -75,23 +76,22 @@
 
 ## 개발일정**✨**
 
-![image](https://github.com/user-attachments/assets/dd1c9039-9f8a-40d6-b02e-f4d8ffaa8a24)
+![image](https://github.com/user-attachments/assets/a22f6594-c192-4959-9f3a-6de24a7103ec)
+![image](https://github.com/user-attachments/assets/47636cf0-49ce-4ae1-bfd7-afa09e422942)
 
 
 ## 🚀DB 작업
 
 - ERD
-    
-![image](https://github.com/user-attachments/assets/440692af-ad3c-4f94-911b-2a71c32ac961)
+![image](https://github.com/user-attachments/assets/04134753-f6d2-48f3-b15e-f25c7fb1928b)
     
 
 # **🛰**API 명세서
-✨ 자세한 API 명세서는 노션을 참고해주세요!
+✨ 자세한 API 명세서는 https://caramel-surgeon-63d.notion.site/ASTRO-MOOD-1707035cda4f806ba428cdbc0aa3688c 을 참고해주세요!
 <br>
-![image](https://github.com/user-attachments/assets/28be763e-dc84-468f-ad59-bc13d26afb3c)
-![image](https://github.com/user-attachments/assets/36780d51-4ffd-491f-b471-2447ca505c3d)
+![image](https://github.com/user-attachments/assets/3348f0fd-0cd1-4967-a4bc-935ab6f672f9)
+![image](https://github.com/user-attachments/assets/7433c738-3d96-4d27-b656-6224f600c976)
 
 
-
-
+<aside>
 
