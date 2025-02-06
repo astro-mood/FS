@@ -42,16 +42,27 @@ const WriteWorry = () => {
                     } else {
                         openModal({
                             type: "alert",
-                            message: "고민 작성에 실패했습니다. \n다시 시도해주세요.",
+                            message: "고민 작성에 실패했습니다.",
                         });
                     }
                 } catch (error) {
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "고민 작성에 실패했습니다.",
+                            });
+                            return;
+                        }
+                    }
                     openModal({
                         type: "alert",
-                        message: "데이터 전송에 실패했습니다. \n다시 시도해주세요.",
+                        message: "에러가 발생했습니다.",
                     });
                 }
-            },
+            }
         });
     };
 

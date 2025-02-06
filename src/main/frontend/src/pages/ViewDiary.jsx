@@ -72,6 +72,14 @@ const ViewDiary = () => {
     };
 
     const handleEditSave = async () => {
+        if (!editedDiary.title.trim() || !editedDiary.content.trim()) {
+            openModal({
+                type: "alert",
+                message: "제목과 내용을 입력해주세요!",
+            });
+            return;
+        }
+
         openModal({
             type: "confirm",
             message: "정말로 수정하시겠습니까?",
@@ -103,13 +111,25 @@ const ViewDiary = () => {
                     } else {
                         openModal({
                             type: "alert",
-                            message: response.error.message || "수정에 실패했습니다. \n다시 시도해주세요.",
+                            message: response.error.message || "수정에 실패했습니다.",
                         });
                     }
                 } catch (error) {
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "수정에 실패했습니다.",
+                            });
+                            return;
+                        }
+                    }
+
                     openModal({
                         type: "alert",
-                        message: "수정에 실패했습니다. \n다시 시도해주세요.",
+                        message: "에러가 발생했습니다.",
                     });
                 }
             }
@@ -133,16 +153,28 @@ const ViewDiary = () => {
                 } else {
                     openModal({
                         type: "alert",
-                        message: response.error.message || "삭제에 실패했습니다. \n다시 시도해주세요.",
+                        message: response.error.message || "삭제에 실패했습니다.",
                     });
                 }
             } catch (error) {
+                if (error.response && error.response.data) {
+                    const { error: serverError } = error.response.data;
+
+                    if (serverError && serverError.message) {
+                        openModal({
+                            type: "alert",
+                            message: serverError.message || "삭제에 실패했습니다.",
+                        });
+                        return;
+                    }
+                }
+
                 openModal({
                     type: "alert",
-                    message: "삭제에 실패했습니다. \n다시 시도해주세요.",
+                    message: "에러가 발생했습니다.",
                 });
             }
-                },
+                }
             });
         };
 
@@ -241,12 +273,24 @@ const ViewDiary = () => {
                         message: "댓글이 작성되었습니다.",
                     });
                 } catch (error) {
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "댓글 작성에 실패했습니다.",
+                            });
+                            return;
+                        }
+                    }
+
                     openModal({
                         type: "alert",
-                        message: "댓글 작성에 실패했습니다. \n다시 시도해주세요.",
+                        message: "에러가 발생했습니다.",
                     });
                 }
-            },
+            }
         });
     };
 
@@ -266,9 +310,22 @@ const ViewDiary = () => {
                 message: "댓글이 수정되었습니다." });
             fetchDiaryComment();
         } catch (error) {
+            if (error.response && error.response.data) {
+                const { error: serverError } = error.response.data;
+
+                if (serverError && serverError.message) {
+                    openModal({
+                        type: "alert",
+                        message: serverError.message || "댓글 수정에 실패했습니다.",
+                    });
+                    return;
+                }
+            }
+
             openModal({
                 type: "alert",
-                message: "댓글 수정에 실패했습니다. \n다시 시도해주세요."});
+                message: "에러가 발생했습니다.",
+            });
         }
     };
 
@@ -289,12 +346,24 @@ const ViewDiary = () => {
                         message: "댓글이 삭제되었습니다.",
                     });
                 } catch (error) {
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "댓글 삭제에 실패했습니다.",
+                            });
+                            return;
+                        }
+                    }
+
                     openModal({
                         type: "alert",
-                        message: "댓글 삭제에 실패했습니다. \n다시 시도해주세요.",
+                        message: "에러가 발생했습니다.",
                     });
                 }
-            },
+            }
         });
     };
 
