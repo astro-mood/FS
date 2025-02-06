@@ -60,6 +60,14 @@ const ViewWorry = () => {
     };
 
     const handleEditSave = async () => {
+        if (!editedWorry.title.trim() || !editedWorry.content.trim()) {
+            openModal({
+                type: "alert",
+                message: "제목과 내용을 입력해주세요!",
+            });
+            return;
+        }
+
         openModal({
             type: "confirm",
             message: "정말로 수정하시겠습니까?",
@@ -79,12 +87,27 @@ const ViewWorry = () => {
                             message: "수정이 완료되었습니다.",
                         });
                     } else {
-                        openModal({ type: "alert", message: response.error.message || "수정에 실패했습니다. \n다시 시도해주세요." });
+                        openModal({ type: "alert", message: response.error.message || "수정에 실패했습니다." });
                     }
                 } catch (error) {
-                    openModal({ type: "alert", message: "수정에 실패했습니다. \n다시 시도해주세요." });
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "수정에 실패했습니다." ,
+                            });
+                            return;
+                        }
+                    }
+
+                    openModal({
+                        type: "alert",
+                        message: "에러가 발생했습니다.",
+                    });
                 }
-            },
+            }
         });
     };
 
@@ -104,17 +127,29 @@ const ViewWorry = () => {
                 } else {
                     openModal({
                         type: "alert",
-                        message: response.error.message || "삭제에 실패했습니다. \n다시 시도해주세요." });
+                        message: response.error.message || "삭제에 실패했습니다." });
                 }
             } catch (error) {
+                if (error.response && error.response.data) {
+                    const { error: serverError } = error.response.data;
+
+                    if (serverError && serverError.message) {
+                        openModal({
+                            type: "alert",
+                            message: serverError.message,
+                        });
+                        return;
+                    }
+                }
+
                 openModal({
                     type: "alert",
-                    message: "삭제에 실패했습니다. \n다시 시도해주세요." });
+                    message: "에러가 발생했습니다.",
+                });
             }
-            },
+            }
         });
     };
-
 
     const handleResolveChange = async (e) => {
         const newStatus = e.target.value === "해결 완료";
@@ -127,9 +162,24 @@ const ViewWorry = () => {
                     setWorry((prev) => ({ ...prev, isResolved: newStatus }));
                     openModal({ type: "alert", message: "상태가 변경되었습니다." });
                 } catch (error) {
-                    openModal({ type: "alert", message: "상태 변경에 실패했습니다. \n다시 시도해주세요." });
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "상태 변경에 실패했습니다.",
+                            });
+                            return;
+                        }
+                    }
+
+                    openModal({
+                        type: "alert",
+                        message: "에러가 발생했습니다.",
+                    });
                 }
-            },
+            }
         });
     };
 
@@ -198,10 +248,24 @@ const ViewWorry = () => {
             }
             openModal({ type: "alert", message: "댓글이 작성되었습니다." });
         } catch (error) {
-            openModal({ type: "alert", message: "댓글 작성에 실패했습니다. \n다시 시도해주세요." });
-        }
+            if (error.response && error.response.data) {
+                const { error: serverError } = error.response.data;
 
-    };
+                if (serverError && serverError.message) {
+                    openModal({
+                        type: "alert",
+                        message: serverError.message || "댓글 작성에 실패했습니다.",
+                    });
+                    return;
+                }
+            }
+
+            openModal({
+                type: "alert",
+                message: "에러가 발생했습니다.",
+            });
+        }
+    }
 
     // 댓글 수정
     const handleCommentEdit = async (commentIdx, newContent) => {
@@ -218,12 +282,24 @@ const ViewWorry = () => {
                 message: "댓글이 수정되었습니다." });
             fetchWorryComment();
         } catch (error) {
+            if (error.response && error.response.data) {
+                const { error: serverError } = error.response.data;
+
+                if (serverError && serverError.message) {
+                    openModal({
+                        type: "alert",
+                        message: serverError.message || "댓글 수정에 실패했습니다.",
+                    });
+                    return;
+                }
+            }
+
             openModal({
                 type: "alert",
-                message: "댓글 수정에 실패했습니다. \n다시 시도해주세요." });
+                message: "에러가 발생했습니다.",
+            });
         }
-    };
-
+    }
 
     // 댓글 삭제
     const handleCommentDelete = async (commentIdx) => {
@@ -239,9 +315,24 @@ const ViewWorry = () => {
                     fetchWorryComment();
                     openModal({ type: "alert", message: "댓글이 삭제되었습니다." });
                 } catch (error) {
-                    openModal({ type: "alert", message: "댓글 삭제에 실패했습니다. \n다시 시도해주세요." });
+                    if (error.response && error.response.data) {
+                        const { error: serverError } = error.response.data;
+
+                        if (serverError && serverError.message) {
+                            openModal({
+                                type: "alert",
+                                message: serverError.message || "댓글 삭제에 실패했습니다.",
+                            });
+                            return;
+                        }
+                    }
+
+                    openModal({
+                        type: "alert",
+                        message: "에러가 발생했습니다.",
+                    });
                 }
-            },
+            }
         });
     };
 
@@ -256,9 +347,24 @@ const ViewWorry = () => {
                 // fetchWorryComment();
                 openModal({ type: "alert", message: "댓글이 신고되었습니다." });
             } catch (error) {
-                openModal({ type: "alert", message: "댓글 신고에 실패했습니다. \n다시 시도해주세요." });
+                if (error.response && error.response.data) {
+                    const { error: serverError } = error.response.data;
+
+                    if (serverError && serverError.message) {
+                        openModal({
+                            type: "alert",
+                            message: serverError.message || "댓글 신고에 실패했습니다.",
+                        });
+                        return;
+                    }
+                }
+
+                openModal({
+                    type: "alert",
+                    message: "에러가 발생했습니다.",
+                });
             }
-            },
+            }
         });
     };
 
