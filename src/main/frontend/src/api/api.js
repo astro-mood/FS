@@ -17,6 +17,8 @@ export const getAllWorries = async (nextId) => {
         let url = `/worry`;
         if(nextId !== null && nextId !== undefined){
             url += `?lastId=${nextId}`
+        }else{
+            url += `?size=20`
         }
         const response = await instance.get(url);
         return response.data;
@@ -75,6 +77,8 @@ export const getMyWorry = async (nextId) => {
         let url = `/myworry`;
         if(nextId !== null && nextId !== undefined){
             url += `?lastId=${nextId}`
+        }else{
+            url += `?size=20`
         }
         const response = await instance.get(url);
         return response.data;
@@ -169,6 +173,8 @@ export const getWorryComment = async (worry_idx, nextCommentId) => {
         let url = `/worry-comments/${worry_idx}`;
         if(nextCommentId !== null && nextCommentId !== undefined){
             url += `?lastCommentId=${nextCommentId}`
+        }else{
+            url += `?size=20`
         }
         const response = await instance.get(url);
         return response.data;
@@ -228,6 +234,8 @@ export const getDiaryComment = async (diary_idx, nextCommentId) => {
         let url = `/diary-comments/${diary_idx}`;
         if(nextCommentId !== null && nextCommentId !== undefined){
             url += `?lastCommentId=${nextCommentId}`
+        }else{
+            url += `?size=20`
         }
         const response = await instance.get(url);
         return response.data;
@@ -311,6 +319,8 @@ export const getSendAnswer = async (loginIdx, nextCommentId) => {
         let url = `/send-comments/${loginIdx}`;
         if(nextCommentId !== null && nextCommentId !== undefined){
             url += `?lastCommentId=${nextCommentId}`
+        }else{
+            url += `?size=20`
         }
         const response = await instance.get(url);
         return response.data;
@@ -326,6 +336,8 @@ export const getReceiveAnswer = async (loginIdx, nextCommentId) => {
         let url = `/receive-comments/${loginIdx}`;
         if(nextCommentId !== null && nextCommentId !== undefined){
             url += `?lastCommentId=${nextCommentId}`
+        }else{
+            url += `?size=20`
         }
         const response = await instance.get(url);
         return response.data;
