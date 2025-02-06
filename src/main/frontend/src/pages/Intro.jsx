@@ -29,6 +29,7 @@ const Intro = () => {
                 <GoogleLogin onClick={handleGoogleLogin} />
             </LoginContainer>
             <GuideButton onClick={handleGuideClick}>이용방법 알아보기</GuideButton>
+            <Credit>levelImage designed by Freepik from Flaticon {"\n"} defaultProfileImage designed by PngWing</Credit>
         </IntroContainer>
     );
 };
@@ -90,4 +91,14 @@ const GuideButton = styled.button`
     &:hover {
         transform: scale(1.05);
     }
+`;
+
+const Credit = styled.div`
+    position: absolute;
+    bottom: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 15px;
+    margin: 0;
+    white-space: pre-wrap;
+    text-align: center;
 `;
