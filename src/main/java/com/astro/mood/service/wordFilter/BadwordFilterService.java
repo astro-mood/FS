@@ -63,6 +63,9 @@ public class BadwordFilterService {
         int endIndex = text.indexOf(c) + 1; // 비속어의 끝 인덱스 계산
         // 비속어 시작 인덱스는 current의 깊이에 따라 결정
         int startIndex = endIndex - (current.isEndOfWord ? 5 : 0); // 비속어의 길이에 따라 조정
+        if (startIndex < 0) {
+            startIndex = 0; // 범위를 벗어날 경우 0으로 설정
+        }
         return text.substring(startIndex, endIndex); // 비속어 반환
     }
 
