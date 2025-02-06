@@ -89,7 +89,8 @@ const Title = styled.h1`
 `;
 
 const ContentsContainer = styled.div`
-    height: calc(100vh - 180px);
+    height: calc(100vh - 140px);
+    border-radius: 10px;
     overflow-y: auto;
     scrollbar-width: none;
 `;
