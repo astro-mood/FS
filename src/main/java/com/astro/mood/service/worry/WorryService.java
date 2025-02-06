@@ -9,7 +9,6 @@ import com.astro.mood.service.exception.CustomException;
 import com.astro.mood.service.exception.ErrorCode;
 import com.astro.mood.service.wordFilter.BadwordFilterService;
 import com.astro.mood.web.dto.PaginatedResponse;
-import com.astro.mood.web.dto.comment.DiaryCommentResponse;
 import com.astro.mood.web.dto.worry.WorryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -120,6 +119,8 @@ public class WorryService {
     public WorryDto.Response updateWorry(Integer worryIdx, WorryDto.UpdateRequest request) {
         Worry worry = worryRepository.findById(worryIdx)
                 .orElseThrow(() -> new RuntimeException("Worry not found"));
+        filteringText(request.getTitle());
+        filteringText(request.getContent());
 
         //제목 내용 업데이트
         worry.setTitle(request.getTitle());
