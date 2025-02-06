@@ -12,12 +12,14 @@ const KakaoLoginCallback = () => {
     const PARAMS = new URL(document.location).searchParams;
     const KAKAO_CODE = PARAMS.get("code");
     const [accessTokenFetching, setAccessTokenFetching] = useState(false);
-    console.log("KAKAO_CODE:", KAKAO_CODE);
-    const originUrl = window.location.origin;
+    //console.log("KAKAO_CODE:", KAKAO_CODE);
 
 
     // Access Token 받아오기
     const getLoginInfo = async () => {
+        if (accessTokenFetching) return; // 중복 호출 방지
+        setAccessTokenFetching(true);
+
         try {
             const originUrl = window.location.origin;
             const response = await axios.post(
@@ -32,20 +34,17 @@ const KakaoLoginCallback = () => {
             // 사용자 정보 추출
             const userInfo = customJwtDecode(bearer_token);
 
-            console.log("userInfo:", userInfo);
-            console.log("loginIdx:", userInfo.loginIdx);
-            console.log("nickname : ", userInfo.nickname);
-            console.log("profileImage : ", userInfo.profileImage);
-            navigate("/main"); // 마이페이지 경로로 이동
-
             // 전역 상태로 userIdx 업데이트
             setUserIdx(userInfo.loginIdx);
             setNickname(userInfo.nickname);
             setProfileImage(userInfo.profileImage);
+            navigate("/main"); // 마이페이지 경로로 이동
 
         } catch (error) {
             console.error('Login failed:', error);
             navigate("/");
+        }finally {
+            setAccessTokenFetching(false); // 요청 완료 후 상태 초기화
         }
     };
 
