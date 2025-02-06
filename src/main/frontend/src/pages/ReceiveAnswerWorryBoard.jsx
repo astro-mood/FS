@@ -130,7 +130,7 @@ const ReceiveAnswerWorryBoard = () => {
                 ):(
                     <div>받은 답변이 없습니다.</div>
                 )}
-                {loading && <p>불러오는 중...</p>}
+                {loading && receiveAnswerData.length > 0 && <p>불러오는 중...</p>}
             </ContentsContainer>
         </Container>
     );
