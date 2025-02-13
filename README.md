@@ -60,12 +60,21 @@
 - 좋아요 - 좋아요/좋아요 취소
 - 비속어 필터링
 
-## 🪐 **개발환경**
+## 🔭 **개발환경**
 
+< 프론트엔드>
+- React 19
+- JavaScript
+- React Router 6
+- styled-components
+- Chart.js + react-chartjs-2
+- Swipper
+- Google OAuth
+  
+<백엔드>
 - JAVA 17
 - gradle 8.11
 - springboot 3.4.1
-- React
 - MariaDB 10.11
 - AWS EC2/S3/RDS
   
@@ -74,7 +83,7 @@
 ## **🛸Page layout**
 ![image](https://github.com/user-attachments/assets/f594a5ee-0134-4b3a-bae2-63e024866b51)
 
-## 개발일정**✨**
+## **✨개발일정**
 
 ![image](https://github.com/user-attachments/assets/a22f6594-c192-4959-9f3a-6de24a7103ec)
 ![image](https://github.com/user-attachments/assets/47636cf0-49ce-4ae1-bfd7-afa09e422942)
